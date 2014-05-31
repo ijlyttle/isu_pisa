@@ -1,6 +1,6 @@
 # isu_pisa
 
-This is a github repo for a set of Iowa State University entries to the PISA.
+This is a github repo for a set of Iowa State University entries to the PISA data vis contest @ use!R 2014.
 
 My initial thought is that we could each independently keep copies of the data files in our copies of the `data`, in an effort to keep the repo light. 
 
