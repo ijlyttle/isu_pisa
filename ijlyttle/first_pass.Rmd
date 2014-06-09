@@ -10,6 +10,7 @@ At some point, we should make sure we agree on which versions of which packages 
 library(stringr)
 library(ggplot2)
 library(dplyr)
+library(reshape2)
 library(lubridate)
 library(ggvis)
 ```
@@ -70,4 +71,28 @@ rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012
 
 Looking at the number of variables in each of the data frames, I wish I knew how to use ggobi...
 
+One of the tracks to investigate is inequality. I see there is a package, `ineq` on CRAN, that claims to have a Gini-coefficient function, so that seems like a good place to start.
+
+```{r ineq}
+library(ineq)
+```
+
+Let's get an idea, for each country and subject, an estimate of the inequality of outcomes.
+
+NOTE: `dplyr` seems to choke on grouping of data.frames with NA, hence the `filter()`.
+
+Also: is there a problem the help text for `dplyr::grouped_df`? The description of `drop` seems backwards to me.
+
+```{r twiddle}
+df_twiddle <- student2012 %>%
+  select(country = CNT, age = ST06Q01,
+         math = PV1MATH, reading = PV1READ, science = PV1SCIE) %>%
+  melt(id.vars = c("country", "age"), 
+       variable.name = "subject", 
+       value.name = "score")  %>%
+  do(filter(., complete.cases(.))) %>%
+  dplyr::group_by(country, subject) %>%
+  summarize(n = n(), gini_coeff = ineq(score, type="Gini")) %>%
+  arrange(as.character(country))
+```
 
