@@ -1,0 +1,114 @@
+PISA
+========================================================
+
+Working from Ian's code to read in the data - it is beautiful!
+
+```{r load_libraries, message=FALSE}
+library(stringr)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(ggvis)
+library(maps)
+library(ggmap)
+```
+
+```{r load_data}
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name){
+ 
+  template <- c("2012.rda", "2012dict.rda")
+ 
+  file_name %>% 
+    vapply(str_join, template, template) %>% 
+    file.path(".", "data", .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+# clean
+#rm(fn_build, sets)
+```
+
+```{r modify_dictionaries}
+# function to convert to data-frames
+fn_make_df <- function(named_vector){
+  data.frame(
+    variable = attr(named_vector, "names"),
+    description = named_vector,
+    row.names = NULL
+  )
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict) 
+dict_parent2012 <- fn_make_df(parent2012dict) 
+dict_school2012 <- fn_make_df(school2012dict) 
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+dict_student2012 <- fn_make_df(student2012dict) 
+
+# clean
+#rm(fn_make_df)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+```
+
+Do some basic summaries, to see what's in the data.
+
+```{r whatsthere}
+# Schools
+dim(dict_school2012)
+table(school2012$CNT)
+dim(dict_student2012)
+length(table(student2012$STIDSTD))
+subset(student2012, STIDSTD=="09631")
+dict_student2012[,2]
+table(student2012$ST04Q01)
+length(scoredItem2012dict)
+length(item2012dict)
+length(parent2012dict)
+```
+
+Dizzyingly many variables! (GGobi won't help) Need to map out a plan of attack, questions of interest, and variables to create.
+
+- It will be good to include map information, so we can make maps
+
+- Variables need to be re-organized, many columns represent one level of a categorical variable
+
+- What questions would we have about the data?
+
+- Which variable has the score?
+
+Now create a few variables, to provide examples, and make a few pictures.
+
+```{r usa}
+school.usa <- subset(school2012, CNT=="United States of America")
+dim(school.usa)
+school.usa$GenderPropBoys <- school.usa[,15]/(school.usa[,15]+school.usa[,16])
+summary(school.usa$GenderPropBoys)
+qplot(GenderPropBoys, data=school.usa)
+table(school.usa$SC03Q01)
+qplot(GenderPropBoys, SC03Q01, data=school.usa)
+summarise(group_by(school.usa, SC03Q01), median(GenderPropBoys, na.rm=T))
+qplot(GenderPropBoys, PROPMATH, data=school.usa, ylim=c(0,0.3), xlim=c(0.25, 0.75)) # Ignore extremese
+table(school.usa$SC01Q01)
+summary(school.usa[,290])
+```
+
+Merge data with maps, so it can be plotted on a map. Interesting set of countries in the study - or more what countries are not included! This indicates some inequities.
+
+```{r maps}
+student2012.sub <- student2012[,c(1,12)]
+student2012.gender <- summarise(group_by(student2012.sub, CNT), PropBoys=length(ST04Q01[ST04Q01=="Male"])/length(ST04Q01))
+student2012.gender$CNT <- factor(student2012.gender$CNT, levels=levels(student2012.gender$CNT)[order(student2012.gender$PropBoys)])
+qplot(CNT, PropBoys, data=student2012.gender) + coord_flip()
+map.CNT <- map()$names
+world <- map_data("world")
+student2012.gender$CNT <- as.character(student2012.gender$CNT)
+student2012.gender$CNT[student2012.gender$CNT=="United States of America"] <- "USA"
+student2012.gender.map <- merge(student2012.gender, world, by.x="CNT", by.y="region")
+qplot(long, lat, data=student2012.gender.map, group=group, order=order, geom="polygon", fill=PropBoys) + coord_map()
+```
