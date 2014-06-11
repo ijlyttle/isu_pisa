@@ -1,0 +1,110 @@
+OECD
+========================================================
+```{r load, cache=TRUE}
+library(ggplot2)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+```
+
+Average test scores: each student has 5 scores for each area.  
+```{r avg, cache=TRUE}
+avg_test = function(subj) {
+  apply(student2012[, paste0("PV", 1:5, subj)], 1, mean)
+}
+subj = c("MATH", "MACC", "MACQ", "MACS", "MACU", "MAPE", "MAPF", "MAPI", "READ", "SCIE")
+
+#rank avg math scores by country
+student2012$math = avg_test("MATH")
+
+math_scores = student2012 %>% 
+    select(CNT, math) %>% 
+    group_by(CNT) %>% 
+    summarise(m_math = mean(math)) %>% 
+    arrange(m_math)
+
+#rank avg reading scores by country
+student2012$read = avg_test("READ")
+
+read_scores = student2012 %>% 
+    select(CNT, read) %>% 
+    group_by(CNT) %>% 
+    summarise(m_read = mean(read)) %>% 
+    arrange(m_read)
+
+#rank avg science scores by country
+student2012$sci = avg_test("SCIE")
+
+sci_scores = student2012 %>% 
+    select(CNT, sci) %>% 
+    group_by(CNT) %>% 
+    summarise(m_sci = mean(sci)) %>% 
+    arrange(m_sci)
+
+print(math_scores)
+print(read_scores)
+print(sci_scores)
+```
+
+I've heard that Chinese students on average spend the most time studying and Finnish students spend the least amount of time.  We can see that Finnish students study very little outside of school.
+```{r hours, cache=TRUE}
+#removing the stupid attributes from atomic vectors
+student2012$MMINS = as.numeric(student2012$MMINS)
+student2012$LMINS = as.numeric(student2012$LMINS)
+student2012$SMINS = as.numeric(student2012$SMINS)
+student2012$ST57Q01 = as.numeric(student2012$ST57Q01)
+student2012$ST57Q02 = as.numeric(student2012$ST57Q02)
+student2012$ST57Q03 = as.numeric(student2012$ST57Q03)
+student2012$ST57Q04 = as.numeric(student2012$ST57Q04)
+student2012$ST57Q05 = as.numeric(student2012$ST57Q05)
+
+#all time related vars
+dict_student2012[grep("time", dict_student2012[,2], ignore.case=TRUE), ]
+
+OUTHOURS = student2012 %>%
+    select(CNT, LMINS, MMINS, OUTHOURS, SMINS, ST57Q01, ST57Q02, ST57Q03, ST57Q04, ST57Q05) %>%
+    group_by(CNT) %>%
+    summarise(m_OUTHOURS = mean(OUTHOURS, na.rm=T)) %>%
+    arrange(m_OUTHOURS)
+print(OUTHOURS)
+```
+
+We can calculate score per hour to normalize test scores against how much students actually study.
+```{r norm, cache=TRUE}
+OUTHOURS = OUTHOURS %>% 
+  group_by(CNT) %>% 
+  left_join(math_scores) %>% 
+  left_join(read_scores) %>% 
+  left_join(sci_scores) %>%
+  mutate(math_hour = m_math / m_OUTHOURS) %>%
+  mutate(read_hour = m_read / m_OUTHOURS) %>%
+  mutate(sci_hour = m_sci / m_OUTHOURS)
+
+print(OUTHOURS[, c(1,6:8)])
+```

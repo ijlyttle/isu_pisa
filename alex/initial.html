@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>OECD</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+</head>
+
+<body>
+<h1>OECD</h1>
+
+<pre><code class="r">library(ggplot2)
+library(dplyr)
+</code></pre>
+
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;
+## 
+## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag
+## 
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union
+</code></pre>
+
+<pre><code class="r">setwd(&quot;..&quot;)
+sets &lt;- c(&quot;item&quot;, &quot;parent&quot;, &quot;school&quot;, &quot;scoredItem&quot;, &quot;student&quot;)
+
+# function to build the file names
+fn_build &lt;- function(file_name) {
+
+    template &lt;- c(&quot;2012.rda&quot;, &quot;2012dict.rda&quot;)
+
+    file_name %&gt;% vapply(paste0, template, template) %&gt;% file.path(&quot;.&quot;, &quot;data&quot;, 
+        .)
+}
+
+# load the data
+sets %&gt;% fn_build %&gt;% lapply(load, .GlobalEnv)
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;item2012&quot;
+## 
+## [[2]]
+## [1] &quot;item2012dict&quot;
+## 
+## [[3]]
+## [1] &quot;parent2012&quot;
+## 
+## [[4]]
+## [1] &quot;parent2012dict&quot;
+## 
+## [[5]]
+## [1] &quot;school2012&quot;
+## 
+## [[6]]
+## [1] &quot;school2012dict&quot;
+## 
+## [[7]]
+## [1] &quot;scoredItem2012&quot;
+## 
+## [[8]]
+## [1] &quot;scoredItem2012dict&quot;
+## 
+## [[9]]
+## [1] &quot;student2012&quot;
+## 
+## [[10]]
+## [1] &quot;student2012dict&quot;
+</code></pre>
+
+<pre><code class="r">
+
+# function to convert to data-frames
+fn_make_df &lt;- function(named_vector) {
+    data.frame(variable = attr(named_vector, &quot;names&quot;), description = named_vector, 
+        row.names = NULL)
+}
+
+# there&#39;s a clever way to do this, but beyond me for naw
+dict_item2012 &lt;- fn_make_df(item2012dict)
+dict_parent2012 &lt;- fn_make_df(parent2012dict)
+dict_school2012 &lt;- fn_make_df(school2012dict)
+dict_scoredItem2012 &lt;- fn_make_df(scoredItem2012dict)
+dict_student2012 &lt;- fn_make_df(student2012dict)
+</code></pre>
+
+<p>Average test scores: each student has 5 scores for each area.  </p>
+
+<pre><code class="r">avg_test = function(subj) {
+    apply(student2012[, paste0(&quot;PV&quot;, 1:5, subj)], 1, mean)
+}
+subj = c(&quot;MATH&quot;, &quot;MACC&quot;, &quot;MACQ&quot;, &quot;MACS&quot;, &quot;MACU&quot;, &quot;MAPE&quot;, &quot;MAPF&quot;, &quot;MAPI&quot;, &quot;READ&quot;, 
+    &quot;SCIE&quot;)
+
+# rank avg math scores by country
+student2012$math = avg_test(&quot;MATH&quot;)
+
+math_scores = student2012 %&gt;% select(CNT, math) %&gt;% group_by(CNT) %&gt;% summarise(m_math = mean(math)) %&gt;% 
+    arrange(m_math)
+
+# rank avg reading scores by country
+student2012$read = avg_test(&quot;READ&quot;)
+
+read_scores = student2012 %&gt;% select(CNT, read) %&gt;% group_by(CNT) %&gt;% summarise(m_read = mean(read)) %&gt;% 
+    arrange(m_read)
+
+# rank avg science scores by country
+student2012$sci = avg_test(&quot;SCIE&quot;)
+
+sci_scores = student2012 %&gt;% select(CNT, sci) %&gt;% group_by(CNT) %&gt;% summarise(m_sci = mean(sci)) %&gt;% 
+    arrange(m_sci)
+
+print(math_scores)
+</code></pre>
+
+<pre><code>## Source: local data frame [68 x 2]
+## 
+##                         CNT m_math
+## 1                      Peru  367.9
+## 2                 Indonesia  375.6
+## 3                     Qatar  376.3
+## 4                    Brazil  382.5
+## 5                    Jordan  382.7
+## 6                  Colombia  386.0
+## 7                   Tunisia  387.4
+## 8                   Albania  394.9
+## 9                 Argentina  395.6
+## 10               Costa Rica  406.0
+## 11               Montenegro  406.7
+## 12                  Uruguay  411.0
+## 13                   Mexico  418.6
+## 14                 Malaysia  422.0
+## 15               Kazakhstan  431.2
+## 16     United Arab Emirates  431.4
+## 17                 Thailand  441.4
+## 18                 Bulgaria  442.5
+## 19                    Chile  444.7
+## 20                  Romania  445.1
+## 21                   Serbia  447.5
+## 22                   Turkey  449.4
+## 23                   Greece  453.5
+## 24            Florida (USA)  464.5
+## 25                   Israel  468.5
+## 26                  Croatia  470.0
+## 27                   Sweden  479.2
+## 28                Lithuania  479.2
+## 29 United States of America  481.7
+## 30       Russian Federation  483.0
+## 31                 Slovenia  484.5
+## 32                  Hungary  484.9
+## 33                 Portugal  485.1
+## 34          Slovak Republic  485.7
+## 35 Perm(Russian Federation)  485.8
+## 36                  Denmark  486.2
+## 37                   Norway  489.3
+## 38           United Kingdom  489.7
+## 39               Luxembourg  490.5
+## 40                    Italy  492.1
+## 41                  Iceland  492.9
+## 42                Australia  493.3
+## 43                    Spain  495.4
+## 44                   Latvia  495.5
+## 45                   France  498.4
+## 46              New Zealand  500.8
+## 47        Connecticut (USA)  501.2
+## 48                  Ireland  501.3
+## 49      Massachusetts (USA)  506.5
+## 50                  Finland  507.3
+## 51                  Austria  507.8
+## 52                   Canada  509.4
+## 53                  Vietnam  510.7
+## 54                  Germany  513.9
+## 55              Netherlands  518.5
+## 56                  Belgium  519.7
+## 57           Czech Republic  520.1
+## 58                   Poland  520.5
+## 59              Switzerland  521.0
+## 60                  Estonia  522.3
+## 61                    Japan  535.9
+## 62              Macao-China  538.3
+## 63            Liechtenstein  538.9
+## 64                    Korea  553.8
+## 65           Chinese Taipei  558.3
+## 66          Hong Kong-China  561.1
+## 67                Singapore  568.5
+## 68           China-Shanghai  611.4
+</code></pre>
+
+<pre><code class="r">print(read_scores)
+</code></pre>
+
+<pre><code>## Source: local data frame [68 x 2]
+## 
+##                         CNT m_read
+## 1                      Peru  384.5
+## 2                     Qatar  387.4
+## 3                Kazakhstan  394.1
+## 4                   Albania  396.3
+## 5                    Jordan  396.5
+## 6                 Indonesia  397.1
+## 7                  Malaysia  400.2
+## 8                    Brazil  400.4
+## 9                 Argentina  403.6
+## 10                  Tunisia  403.6
+## 11                  Uruguay  413.3
+## 12                 Colombia  414.2
+## 13               Montenegro  420.0
+## 14                   Mexico  428.9
+## 15     United Arab Emirates  437.2
+## 16                  Romania  438.7
+## 17               Costa Rica  440.6
+## 18                 Bulgaria  442.0
+## 19                   Serbia  445.7
+## 20                 Thailand  453.1
+## 21                    Chile  460.3
+## 22                 Slovenia  462.0
+## 23          Slovak Republic  467.9
+## 24                   Turkey  475.9
+## 25       Russian Federation  475.9
+## 26                   Greece  477.6
+## 27                Lithuania  477.9
+## 28                  Iceland  482.8
+## 29                  Denmark  483.6
+## 30                  Croatia  484.2
+## 31                 Portugal  484.8
+## 32                   Sweden  485.2
+## 33 Perm(Russian Federation)  486.8
+## 34               Luxembourg  488.4
+## 35            Florida (USA)  489.2
+## 36                   Israel  491.4
+## 37                  Austria  491.5
+## 38                    Spain  493.9
+## 39                    Italy  495.3
+## 40                   Latvia  495.6
+## 41                  Hungary  496.2
+## 42              Switzerland  497.8
+## 43 United States of America  498.0
+## 44           United Kingdom  498.1
+## 45                Australia  501.1
+## 46                   Norway  504.2
+## 47              Netherlands  506.4
+## 48                  Germany  507.4
+## 49                  Vietnam  508.4
+## 50                   France  509.0
+## 51              Macao-China  509.1
+## 52                  Finland  510.7
+## 53                   Canada  511.0
+## 54                  Belgium  512.3
+## 55           Czech Republic  512.4
+## 56              New Zealand  514.0
+## 57        Connecticut (USA)  517.0
+## 58                  Estonia  518.2
+## 59            Liechtenstein  518.3
+## 60      Massachusetts (USA)  520.2
+## 61                   Poland  520.8
+## 62           Chinese Taipei  522.2
+## 63                  Ireland  523.6
+## 64                    Korea  535.8
+## 65                    Japan  537.7
+## 66                Singapore  537.7
+## 67          Hong Kong-China  544.5
+## 68           China-Shanghai  568.6
+</code></pre>
+
+<pre><code class="r">print(sci_scores)
+</code></pre>
+
+<pre><code>## Source: local data frame [68 x 2]
+## 
+##                         CNT m_sci
+## 1                      Peru 373.4
+## 2                 Indonesia 382.7
+## 3                     Qatar 383.5
+## 4                    Brazil 395.5
+## 5                   Tunisia 397.8
+## 6                   Albania 398.9
+## 7                    Jordan 404.8
+## 8                Montenegro 408.2
+## 9                  Colombia 408.9
+## 10                Argentina 410.5
+## 11                  Uruguay 417.6
+## 12                   Mexico 419.5
+## 13                 Malaysia 421.0
+## 14               Kazakhstan 426.1
+## 15               Costa Rica 429.1
+## 16                  Romania 439.3
+## 17                   Serbia 443.9
+## 18     United Arab Emirates 444.8
+## 19                 Bulgaria 451.1
+## 20                 Thailand 456.1
+## 21                   Turkey 464.1
+## 22                    Chile 464.7
+## 23                   Greece 467.5
+## 24                   Israel 473.5
+## 25          Slovak Republic 476.3
+## 26                  Iceland 478.1
+## 27                  Denmark 482.1
+## 28            Florida (USA) 482.3
+## 29 Perm(Russian Federation) 482.6
+## 30                   Sweden 486.3
+## 31       Russian Federation 486.6
+## 32                 Portugal 487.1
+## 33                  Croatia 490.3
+## 34               Luxembourg 492.0
+## 35                   Norway 494.5
+## 36                 Slovenia 496.1
+## 37                Lithuania 496.4
+## 38 United States of America 498.2
+## 39                    Italy 500.2
+## 40                  Hungary 501.6
+## 41                   France 502.4
+## 42              Switzerland 503.8
+## 43                    Spain 504.3
+## 44                   Latvia 506.1
+## 45                  Austria 508.0
+## 46           United Kingdom 509.6
+## 47                  Belgium 510.3
+## 48                Australia 511.6
+## 49                   Canada 514.5
+## 50        Connecticut (USA) 516.6
+## 51              Netherlands 517.3
+## 52              New Zealand 517.5
+## 53      Massachusetts (USA) 519.8
+## 54              Macao-China 520.7
+## 55                  Ireland 522.2
+## 56           Chinese Taipei 522.4
+## 57                  Germany 524.1
+## 58           Czech Republic 527.2
+## 59            Liechtenstein 527.6
+## 60                  Finland 527.7
+## 61                  Vietnam 528.1
+## 62                   Poland 528.2
+## 63                    Korea 537.8
+## 64                  Estonia 543.2
+## 65                    Japan 546.4
+## 66                Singapore 546.8
+## 67          Hong Kong-China 555.0
+## 68           China-Shanghai 579.6
+</code></pre>
+
+<p>I&#39;ve heard that Chinese students on average spend the most time studying and Finnish students spend the least amount of time.  We can see that Finnish students study very little outside of school.</p>
+
+<pre><code class="r"># removing the stupid attributes from atomic vectors
+student2012$MMINS = as.numeric(student2012$MMINS)
+student2012$LMINS = as.numeric(student2012$LMINS)
+student2012$SMINS = as.numeric(student2012$SMINS)
+student2012$ST57Q01 = as.numeric(student2012$ST57Q01)
+student2012$ST57Q02 = as.numeric(student2012$ST57Q02)
+student2012$ST57Q03 = as.numeric(student2012$ST57Q03)
+student2012$ST57Q04 = as.numeric(student2012$ST57Q04)
+student2012$ST57Q05 = as.numeric(student2012$ST57Q05)
+
+# all time related vars
+dict_student2012[grep(&quot;time&quot;, dict_student2012[, 2], ignore.case = TRUE), ]
+</code></pre>
+
+<pre><code>##     variable
+## 81   ST37Q01
+## 111  ST46Q01
+## 141  ST57Q01
+## 142  ST57Q02
+## 143  ST57Q03
+## 144  ST57Q04
+## 145  ST57Q05
+## 146  ST57Q06
+## 147  ST61Q01
+## 220  ST82Q01
+## 221  ST82Q02
+## 222  ST82Q03
+## 228  ST84Q02
+## 232  ST85Q03
+## 249  ST88Q02
+## 397  ST23Q05
+## 398  ST23Q06
+## 461    LMINS
+## 467    MMINS
+## 472 OUTHOURS
+## 477    SMINS
+## 485  TIMEINT
+##                                                                   description
+## 81                             Math Self-Efficacy - Using a &lt;Train Timetable&gt;
+## 111                              Math Work Ethic - Homework Completed in Time
+## 141                                       Out-of-School Study Time - Homework
+## 142                                Out-of-School Study Time - Guided Homework
+## 143                                 Out-of-School Study Time - Personal Tutor
+## 144                             Out-of-School Study Time - Commercial Company
+## 145                                    Out-of-School Study Time - With Parent
+## 146                                       Out-of-School Study Time - Computer
+## 147               Experience with Applied Maths Tasks - Use &lt;Train Timetable&gt;
+## 220           Vignette Teacher Support -Homework Every Other Day/Back in Time
+## 221              Vignette Teacher Support - Homework Once a Week/Back in Time
+## 222          Vignette Teacher Support - Homework Once a Week/Not Back in Time
+## 228 Vignette Classroom Management - Students Are Calm/Teacher Arrives on Time
+## 232                             Classroom Management - Teacher Starts On Time
+## 249                                   Attitude towards School - Waste of Time
+## 397                    Acculturation - Spend Time with &lt;Host Culture&gt; Friends
+## 398                Acculturation - Spend Time with &lt;Heritage Culture&gt; Friends
+## 461                       Learning time (minutes per week)  - &lt;test language&gt;
+## 467                           Learning time (minutes per week)- &lt;Mathematics&gt;
+## 472                                                  Out-of-School Study Time
+## 477                              Learning time (minutes per week) - &lt;Science&gt;
+## 485                                               Time of computer use (mins)
+</code></pre>
+
+<pre><code class="r">
+OUTHOURS = student2012 %&gt;% select(CNT, LMINS, MMINS, OUTHOURS, SMINS, ST57Q01, 
+    ST57Q02, ST57Q03, ST57Q04, ST57Q05) %&gt;% group_by(CNT) %&gt;% summarise(m_OUTHOURS = mean(OUTHOURS, 
+    na.rm = T)) %&gt;% arrange(m_OUTHOURS)
+print(OUTHOURS)
+</code></pre>
+
+<pre><code>## Source: local data frame [68 x 2]
+## 
+##                         CNT m_OUTHOURS
+## 1                   Finland      4.711
+## 2                     Japan      5.641
+## 3            Czech Republic      6.584
+## 4             Liechtenstein      6.949
+## 5                    Sweden      7.073
+## 6               New Zealand      7.185
+## 7           Slovak Republic      7.227
+## 8               Switzerland      7.298
+## 9                   Denmark      7.504
+## 10                  Iceland      7.851
+## 11                   Canada      7.919
+## 12                   Norway      8.016
+## 13                 Slovenia      8.026
+## 14                  Germany      8.038
+## 15                 Portugal      8.057
+## 16                  Austria      8.137
+## 17                  Belgium      8.178
+## 18                    Chile      8.225
+## 19                   France      8.242
+## 20               Luxembourg      8.601
+## 21           United Kingdom      8.752
+## 22               Costa Rica      8.854
+## 23                   Brazil      9.441
+## 24                  Uruguay      9.472
+## 25                Australia      9.514
+## 26              Netherlands      9.734
+## 27                Argentina      9.804
+## 28                    Korea      9.881
+## 29           Chinese Taipei      9.935
+## 30                   Israel      9.936
+## 31               Montenegro      9.949
+## 32                    Qatar     10.142
+## 33          Hong Kong-China     10.152
+## 34            Florida (USA)     10.342
+## 35                   Serbia     10.502
+## 36 United States of America     10.536
+## 37                  Croatia     10.806
+## 38                  Ireland     10.844
+## 39              Macao-China     10.936
+## 40                   Turkey     11.344
+## 41                 Colombia     11.791
+## 42                  Hungary     11.849
+## 43                Lithuania     11.936
+## 44                   Jordan     11.995
+## 45                  Tunisia     12.059
+## 46        Connecticut (USA)     12.090
+## 47                    Spain     12.106
+## 48                  Estonia     12.145
+## 49      Massachusetts (USA)     12.185
+## 50                 Bulgaria     12.356
+## 51                   Mexico     12.433
+## 52                     Peru     12.467
+## 53                  Romania     12.853
+## 54                   Latvia     13.129
+## 55                   Poland     13.381
+## 56                   Greece     13.647
+## 57                    Italy     13.928
+## 58                 Malaysia     14.018
+## 59                 Thailand     15.199
+## 60     United Arab Emirates     15.376
+## 61                Indonesia     15.914
+## 62                Singapore     15.964
+## 63                  Albania     16.945
+## 64                  Vietnam     17.352
+## 65 Perm(Russian Federation)     19.304
+## 66       Russian Federation     19.746
+## 67           China-Shanghai     20.390
+## 68               Kazakhstan     23.661
+</code></pre>
+
+<p>We can calculate score per hour to normalize test scores against how much students actually study.</p>
+
+<pre><code class="r">OUTHOURS = OUTHOURS %&gt;% group_by(CNT) %&gt;% left_join(math_scores) %&gt;% left_join(read_scores) %&gt;% 
+    left_join(sci_scores) %&gt;% mutate(math_hour = m_math/m_OUTHOURS) %&gt;% mutate(read_hour = m_read/m_OUTHOURS) %&gt;% 
+    mutate(sci_hour = m_sci/m_OUTHOURS)
+</code></pre>
+
+<pre><code>## Joining by: &quot;CNT&quot;
+## Joining by: &quot;CNT&quot;
+## Joining by: &quot;CNT&quot;
+</code></pre>
+
+<pre><code class="r">
+print(OUTHOURS[, c(1, 6:8)])
+</code></pre>
+
+<pre><code>## Source: local data frame [68 x 4]
+## Groups: 
+## 
+##                         CNT math_hour read_hour sci_hour
+## 1                   Finland    107.69    108.40   112.01
+## 2                     Japan     95.00     95.32    96.86
+## 3            Czech Republic     78.99     77.82    80.07
+## 4             Liechtenstein     77.54     74.58    75.92
+## 5                    Sweden     67.75     68.59    68.76
+## 6               New Zealand     69.70     71.54    72.02
+## 7           Slovak Republic     67.20     64.74    65.90
+## 8               Switzerland     71.38     68.21    69.02
+## 9                   Denmark     64.80     64.45    64.25
+## 10                  Iceland     62.79     61.49    60.89
+## 11                   Canada     64.33     64.53    64.97
+## 12                   Norway     61.04     62.90    61.68
+## 13                 Slovenia     60.37     57.56    61.81
+## 14                  Germany     63.93     63.12    65.20
+## 15                 Portugal     60.21     60.17    60.45
+## 16                  Austria     62.41     60.40    62.44
+## 17                  Belgium     63.54     62.64    62.40
+## 18                    Chile     54.07     55.97    56.50
+## 19                   France     60.47     61.76    60.95
+## 20               Luxembourg     57.02     56.78    57.20
+## 21           United Kingdom     55.96     56.91    58.23
+## 22               Costa Rica     45.85     49.77    48.46
+## 23                   Brazil     40.52     42.42    41.90
+## 24                  Uruguay     43.39     43.63    44.09
+## 25                Australia     51.84     52.66    53.77
+## 26              Netherlands     53.27     52.02    53.14
+## 27                Argentina     40.35     41.17    41.87
+## 28                    Korea     56.04     54.22    54.43
+## 29           Chinese Taipei     56.20     52.56    52.58
+## 30                   Israel     47.16     49.45    47.65
+## 31               Montenegro     40.88     42.21    41.03
+## 32                    Qatar     37.11     38.20    37.82
+## 33          Hong Kong-China     55.27     53.64    54.67
+## 34            Florida (USA)     44.92     47.30    46.63
+## 35                   Serbia     42.61     42.44    42.27
+## 36 United States of America     45.72     47.27    47.28
+## 37                  Croatia     43.49     44.81    45.38
+## 38                  Ireland     46.23     48.28    48.15
+## 39              Macao-China     49.23     46.55    47.61
+## 40                   Turkey     39.61     41.95    40.91
+## 41                 Colombia     32.73     35.13    34.68
+## 42                  Hungary     40.92     41.88    42.34
+## 43                Lithuania     40.15     40.04    41.59
+## 44                   Jordan     31.91     33.06    33.75
+## 45                  Tunisia     32.13     33.47    32.99
+## 46        Connecticut (USA)     41.46     42.76    42.73
+## 47                    Spain     40.92     40.80    41.66
+## 48                  Estonia     43.01     42.67    44.73
+## 49      Massachusetts (USA)     41.57     42.69    42.66
+## 50                 Bulgaria     35.81     35.77    36.51
+## 51                   Mexico     33.67     34.50    33.74
+## 52                     Peru     29.51     30.84    29.95
+## 53                  Romania     34.63     34.13    34.18
+## 54                   Latvia     37.74     37.75    38.55
+## 55                   Poland     38.90     38.92    39.48
+## 56                   Greece     33.23     34.99    34.26
+## 57                    Italy     35.33     35.56    35.91
+## 58                 Malaysia     30.10     28.55    30.04
+## 59                 Thailand     29.04     29.81    30.01
+## 60     United Arab Emirates     28.06     28.43    28.93
+## 61                Indonesia     23.60     24.95    24.05
+## 62                Singapore     35.61     33.68    34.25
+## 63                  Albania     23.30     23.38    23.54
+## 64                  Vietnam     29.43     29.30    30.44
+## 65 Perm(Russian Federation)     25.17     25.22    25.00
+## 66       Russian Federation     24.46     24.10    24.64
+## 67           China-Shanghai     29.99     27.89    28.42
+## 68               Kazakhstan     18.22     16.66    18.01
+</code></pre>
+
+</body>
+
+</html>
+
