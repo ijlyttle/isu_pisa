@@ -108,3 +108,16 @@ OUTHOURS = OUTHOURS %>%
 
 print(OUTHOURS[, c(1,6:8)])
 ```
+
+Let's see if parent income has any effect on student performance
+```{r parents, cache=TRUE}
+library(ggvis)
+students = student2012 %>% select(CNT, STIDSTD, math, read, sci)
+parents = parent2012 %>% select(CNT, STIDSTD, PA07Q01,
+                                PA03Q01, PA03Q02, PA03Q03, PA03Q04,
+                                PA05Q01, PA05Q02, PA05Q03, PA05Q04)
+student_parent = students %>% left_join(parents, by = "STIDSTD") %>% filter(!is.na(PA07Q01)) %>% arrange(desc(math))
+head(student_parent, 50)
+```
+
+Apparently student IDs are not unique!  Students from different countries can share IDs.

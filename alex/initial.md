@@ -594,3 +594,172 @@ print(OUTHOURS[, c(1, 6:8)])
 ## 68               Kazakhstan     18.22     16.66    18.01
 ```
 
+
+Let's see if parent income has any effect on student performance
+
+```r
+library(ggvis)
+students = student2012 %>% select(CNT, STIDSTD, math, read, sci)
+parents = parent2012 %>% select(CNT, STIDSTD, PA07Q01, PA03Q01, PA03Q02, PA03Q03, 
+    PA03Q04, PA05Q01, PA05Q02, PA05Q03, PA05Q04)
+student_parent = students %>% left_join(parents, by = "STIDSTD") %>% filter(!is.na(PA07Q01)) %>% 
+    arrange(desc(math))
+head(student_parent, 50)
+```
+
+```
+##             CNT.x STIDSTD  math  read   sci           CNT.y
+## 1  China-Shanghai   02204 903.1 769.6 795.8         Belgium
+## 2  China-Shanghai   02204 903.1 769.6 795.8           Chile
+## 3  China-Shanghai   02204 903.1 769.6 795.8         Germany
+## 4  China-Shanghai   02204 903.1 769.6 795.8 Hong Kong-China
+## 5  China-Shanghai   02204 903.1 769.6 795.8         Croatia
+## 6  China-Shanghai   02204 903.1 769.6 795.8         Hungary
+## 7  China-Shanghai   02204 903.1 769.6 795.8           Korea
+## 8  China-Shanghai   02204 903.1 769.6 795.8     Macao-China
+## 9  China-Shanghai   02204 903.1 769.6 795.8        Portugal
+## 10 China-Shanghai   02213 900.6 739.0 782.2           Chile
+## 11 China-Shanghai   02213 900.6 739.0 782.2         Germany
+## 12 China-Shanghai   02213 900.6 739.0 782.2 Hong Kong-China
+## 13 China-Shanghai   02213 900.6 739.0 782.2         Croatia
+## 14 China-Shanghai   02213 900.6 739.0 782.2         Hungary
+## 15 China-Shanghai   02213 900.6 739.0 782.2           Korea
+## 16 China-Shanghai   02213 900.6 739.0 782.2     Macao-China
+## 17 China-Shanghai   02213 900.6 739.0 782.2          Mexico
+## 18 China-Shanghai   02212 892.0 785.4 785.2           Chile
+## 19 China-Shanghai   02212 892.0 785.4 785.2         Germany
+## 20 China-Shanghai   02212 892.0 785.4 785.2 Hong Kong-China
+## 21 China-Shanghai   02212 892.0 785.4 785.2         Croatia
+## 22 China-Shanghai   02212 892.0 785.4 785.2         Hungary
+## 23 China-Shanghai   02212 892.0 785.4 785.2           Korea
+## 24 China-Shanghai   02212 892.0 785.4 785.2     Macao-China
+## 25 China-Shanghai   02212 892.0 785.4 785.2          Mexico
+## 26 China-Shanghai   02210 887.6 804.1 776.3         Belgium
+## 27 China-Shanghai   02210 887.6 804.1 776.3           Chile
+## 28 China-Shanghai   02210 887.6 804.1 776.3 Hong Kong-China
+## 29 China-Shanghai   02210 887.6 804.1 776.3         Croatia
+## 30 China-Shanghai   02210 887.6 804.1 776.3           Korea
+## 31 China-Shanghai   02210 887.6 804.1 776.3     Macao-China
+## 32 China-Shanghai   02193 884.5 747.9 783.1           Chile
+## 33 China-Shanghai   02193 884.5 747.9 783.1 Hong Kong-China
+## 34 China-Shanghai   02193 884.5 747.9 783.1         Croatia
+## 35 China-Shanghai   02193 884.5 747.9 783.1           Korea
+## 36 China-Shanghai   02193 884.5 747.9 783.1        Portugal
+## 37 China-Shanghai   02194 877.1 745.5 748.5           Chile
+## 38 China-Shanghai   02194 877.1 745.5 748.5 Hong Kong-China
+## 39 China-Shanghai   02194 877.1 745.5 748.5         Croatia
+## 40 China-Shanghai   02194 877.1 745.5 748.5         Hungary
+## 41 China-Shanghai   02194 877.1 745.5 748.5           Korea
+## 42 China-Shanghai   02194 877.1 745.5 748.5     Macao-China
+## 43 Chinese Taipei   01908 863.3 755.8 754.0           Chile
+## 44 Chinese Taipei   01908 863.3 755.8 754.0 Hong Kong-China
+## 45 Chinese Taipei   01908 863.3 755.8 754.0         Hungary
+## 46 Chinese Taipei   01908 863.3 755.8 754.0           Korea
+## 47 Chinese Taipei   01908 863.3 755.8 754.0     Macao-China
+## 48 Chinese Taipei   01908 863.3 755.8 754.0          Mexico
+## 49 Chinese Taipei   01908 863.3 755.8 754.0        Portugal
+## 50      Singapore   01063 861.3 787.9 830.6         Belgium
+##                            PA07Q01 PA03Q01 PA03Q02 PA03Q03 PA03Q04 PA05Q01
+## 1                     <$E> or more    <NA>    <NA>     Yes    <NA>    <NA>
+## 2                     <$E> or more     Yes      No      No     Yes     Yes
+## 3  <$D> or more but less than <$E>      No      No     Yes    <NA>     Yes
+## 4  <$A> or more but less than <$B>      No      No      No      No      No
+## 5  <$B> or more but less than <$C>      No      No     Yes     Yes      No
+## 6  <$A> or more but less than <$B>      No      No      No      No      No
+## 7                     <$E> or more      No      No    <NA>     Yes      No
+## 8  <$B> or more but less than <$C>    <NA>    <NA>    <NA>      No    <NA>
+## 9  <$D> or more but less than <$E>      No      No      No     Yes      No
+## 10 <$A> or more but less than <$B>      No      No     Yes     Yes      No
+## 11                    <$E> or more     Yes    <NA>    <NA>    <NA>     Yes
+## 12                    <$E> or more      No      No     Yes     Yes      No
+## 13 <$C> or more but less than <$D>      No      No      No      No      No
+## 14 <$D> or more but less than <$E>      No      No      No      No      No
+## 15 <$C> or more but less than <$D>     Yes    <NA>    <NA>     Yes     Yes
+## 16 <$A> or more but less than <$B>      No      No      No     Yes      No
+## 17                  Less than <$A>      No      No    <NA>      No      No
+## 18                    <$E> or more     Yes     Yes      No     Yes      No
+## 19 <$C> or more but less than <$D>      No     Yes     Yes    <NA>     Yes
+## 20 <$C> or more but less than <$D>    <NA>    <NA>    <NA>    <NA>    <NA>
+## 21 <$A> or more but less than <$B>      No      No      No      No      No
+## 22 <$A> or more but less than <$B>      No      No     Yes     Yes     Yes
+## 23 <$D> or more but less than <$E>    <NA>    <NA>    <NA>     Yes    <NA>
+## 24                    <$E> or more     Yes     Yes     Yes     Yes     Yes
+## 25                    <$E> or more      No      No    <NA>      No      No
+## 26 <$B> or more but less than <$C>    <NA>    <NA>     Yes    <NA>    <NA>
+## 27                    <$E> or more    <NA>    <NA>    <NA>    <NA>     Yes
+## 28                    <$E> or more    <NA>    <NA>    <NA>    <NA>      No
+## 29 <$C> or more but less than <$D>      No      No      No      No      No
+## 30 <$C> or more but less than <$D>     Yes    <NA>    <NA>     Yes     Yes
+## 31                  Less than <$A>      No      No      No     Yes      No
+## 32                    <$E> or more     Yes      No      No     Yes     Yes
+## 33                    <$E> or more      No      No      No      No      No
+## 34                  Less than <$A>      No      No      No      No      No
+## 35                    <$E> or more     Yes    <NA>    <NA>     Yes     Yes
+## 36 <$D> or more but less than <$E>      No      No      No      No      No
+## 37                    <$E> or more     Yes      No      No     Yes     Yes
+## 38 <$C> or more but less than <$D>    <NA>    <NA>    <NA>    <NA>    <NA>
+## 39 <$A> or more but less than <$B>    <NA>    <NA>    <NA>    <NA>      No
+## 40                  Less than <$A>      No      No      No      No      No
+## 41                    <$E> or more     Yes      No    <NA>     Yes     Yes
+## 42 <$A> or more but less than <$B>    <NA>    <NA>    <NA>      No    <NA>
+## 43                  Less than <$A>      No      No      No     Yes      No
+## 44                  Less than <$A>      No      No      No      No      No
+## 45 <$C> or more but less than <$D>     Yes      No      No     Yes     Yes
+## 46 <$B> or more but less than <$C>     Yes      No    <NA>     Yes      No
+## 47 <$D> or more but less than <$E>    <NA>    <NA>    <NA>    <NA>    <NA>
+## 48 <$B> or more but less than <$C>      No      No    <NA>      No    <NA>
+## 49 <$B> or more but less than <$C>    <NA>    <NA>    <NA>     Yes    <NA>
+## 50                    <$E> or more      No      No      No     Yes      No
+##    PA05Q02 PA05Q03 PA05Q04
+## 1      Yes    <NA>    <NA>
+## 2       No      No     Yes
+## 3      Yes     Yes    <NA>
+## 4       No      No      No
+## 5       No      No     Yes
+## 6       No      No      No
+## 7       No    <NA>     Yes
+## 8     <NA>    <NA>     Yes
+## 9       No      No     Yes
+## 10      No     Yes     Yes
+## 11    <NA>    <NA>    <NA>
+## 12      No     Yes     Yes
+## 13      No      No      No
+## 14     Yes     Yes     Yes
+## 15    <NA>    <NA>     Yes
+## 16      No      No      No
+## 17      No    <NA>      No
+## 18     Yes      No      No
+## 19      No     Yes    <NA>
+## 20    <NA>    <NA>    <NA>
+## 21      No      No      No
+## 22      No      No     Yes
+## 23    <NA>    <NA>     Yes
+## 24     Yes     Yes     Yes
+## 25      No    <NA>      No
+## 26    <NA>    <NA>     Yes
+## 27    <NA>    <NA>    <NA>
+## 28      No      No      No
+## 29      No      No      No
+## 30    <NA>    <NA>     Yes
+## 31      No      No      No
+## 32      No      No     Yes
+## 33      No      No      No
+## 34      No     Yes     Yes
+## 35    <NA>    <NA>     Yes
+## 36      No      No     Yes
+## 37     Yes      No     Yes
+## 38    <NA>    <NA>    <NA>
+## 39      No      No     Yes
+## 40      No      No     Yes
+## 41      No    <NA>     Yes
+## 42    <NA>    <NA>      No
+## 43      No      No      No
+## 44      No      No      No
+## 45      No     Yes     Yes
+## 46      No    <NA>      No
+## 47    <NA>    <NA>     Yes
+## 48     Yes    <NA>    <NA>
+## 49    <NA>    <NA>     Yes
+## 50      No     Yes     Yes
+```
+
