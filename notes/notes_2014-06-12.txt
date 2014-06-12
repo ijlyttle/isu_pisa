@@ -1,0 +1,35 @@
+Hi Ames!
+ 
+Hi CR!
+
+Map:
+-- what countries are not included
+-- match country names
+-- Plot countries not included
+-- PV1, PV2, ... performance variables
+
+Alex: averaged performance values
+
+out of school hours interesting!
+  finland low (finland is an educ model)
+  kazakstan 24 hours!
+  japan low
+  
+  parent income with student performance
+
+Include other measures like 10 pctlile facetted not just median - IJL plots
+
+NYT cartogram re: AIDS
+
+Luke suggests supplementing data if need be from wikipedia
+
+Possible threads:
+  Do parents matter? Do students work hard outside of school to perform better
+  How is income inequity related to performance?
+  Composite home life index
+
+
+http://2.bp.blogspot.com/-xg9BUPLoTJs/UuguxeAunsI/AAAAAAAACFQ/VtMd3SK7eqo/s1600/CarbonEmissionMap_2009.jpg
+
+
+why do math gini's behave they way they do?
