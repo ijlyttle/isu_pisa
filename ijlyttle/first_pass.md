@@ -11,6 +11,7 @@ At some point, we should make sure we agree on which versions of which packages 
 library(stringr)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 library(lubridate)
 library(ggvis)
 ```
@@ -23,8 +24,8 @@ sessionInfo()
 ```
 
 ```
-## R version 3.0.3 (2014-03-06)
-## Platform: x86_64-apple-darwin10.8.0 (64-bit)
+## R version 3.1.0 (2014-04-10)
+## Platform: x86_64-apple-darwin13.1.0 (64-bit)
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -33,19 +34,17 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggvis_0.2.0.99  lubridate_1.3.3 dplyr_0.2.0.99  ggplot2_0.9.3.1
-## [5] stringr_0.6.2   knitr_1.5.33   
+## [1] ggvis_0.2.0.99  lubridate_1.3.3 tidyr_0.1       dplyr_0.2      
+## [5] ggplot2_1.0.0   stringr_0.6.2   knitr_1.6.2    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] assertthat_0.1     bitops_1.0-6       caTools_1.16      
-##  [4] colorspace_1.2-4   dichromat_2.0-0    digest_0.6.4      
-##  [7] evaluate_0.5.5     formatR_0.10       grid_3.0.3        
-## [10] gtable_0.1.2       httpuv_1.2.3       labeling_0.2      
-## [13] magrittr_1.0.0     MASS_7.3-29        memoise_0.1       
-## [16] munsell_0.4.2      parallel_3.0.3     plyr_1.8.1        
-## [19] proto_0.3-10       RColorBrewer_1.0-5 Rcpp_0.11.1       
-## [22] reshape2_1.4       RJSONIO_1.0-3      scales_0.2.3      
-## [25] shiny_0.9.1.9007   tools_3.0.3        xtable_1.7-1
+##  [1] assertthat_0.1   bitops_1.0-6     caTools_1.17     colorspace_1.2-4
+##  [5] digest_0.6.4     evaluate_0.5.5   formatR_0.10     grid_3.1.0      
+##  [9] gtable_0.1.2     htmltools_0.2.4  httpuv_1.3.0     magrittr_1.0.1  
+## [13] MASS_7.3-31      memoise_0.2.1    munsell_0.4.2    parallel_3.1.0  
+## [17] plyr_1.8.1       proto_0.3-10     Rcpp_0.11.2      reshape2_1.4    
+## [21] RJSONIO_1.2-0.2  scales_0.2.4     shiny_0.9.1.9015 tools_3.1.0     
+## [25] xtable_1.7-3
 ```
 
 I suspect that for publication, `ggplot2` will be more capable than `ggvis`.
@@ -133,5 +132,122 @@ rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012
 ```
 
 Looking at the number of variables in each of the data frames, I wish I knew how to use ggobi...
+
+One of the tracks to investigate is inequality. I see there is a package, `ineq` on CRAN, that claims to have a Gini-coefficient function, so that seems like a good place to start.
+
+
+```r
+library(ineq)
+```
+
+Let's get an idea, for each country and subject, an estimate of the inequality of outcomes.
+
+NOTE: `dplyr` seems to choke on grouping of data.frames with NA, hence the `filter()`.
+
+Also: is there a problem the help text for `dplyr::grouped_df`? The description of `drop` seems backwards to me.
+
+
+```r
+df_twiddle <- student2012 %>%
+  select(country = CNT, age = ST06Q01,
+         math = PV1MATH, reading = PV1READ, science = PV1SCIE) %>%
+  gather(key = subject, value = score, -country, -age) %>%
+  do(filter(., complete.cases(.))) %>%
+  dplyr::group_by(country, subject) %>%
+  summarize(
+    n = n(), 
+    gini_coeff = ineq(score, type="Gini"), 
+    mean = mean(score), 
+    median = median(score)) %>%
+  arrange(as.character(country))
+```
+
+"Alabama first" works to look for a specific country, but lets arrange by something more meaningful. 
+
+Let's get a mean of coefficents over all subjects, to help us order things.
+
+
+```r
+df_twiddle_mean <- df_twiddle %>%
+  group_by(country) %>%
+  summarize(
+    gini_coeff = mean(gini_coeff),
+    mean = mean(mean),
+    median = mean(median)
+  )
+```
+
+
+
+```r
+my_levels <- 
+  df_twiddle_mean$country[rev(order(df_twiddle_mean$gini_coeff))] %>%
+  as.character
+
+df_twiddle$country <- factor(
+  df_twiddle$country,
+  levels = my_levels
+)
+
+head(my_levels)
+```
+
+```
+## [1] "Qatar"    "Albania"  "Bulgaria" "Peru"     "Uruguay"  "Israel"
+```
+
+```r
+tail(my_levels)
+```
+
+```
+## [1] "Latvia"          "Macao-China"     "Hong Kong-China" "Estonia"        
+## [5] "China-Shanghai"  "Vietnam"
+```
+
+I know I should figure out the `ggmap` package (I'll look at Di's code), but in the meantinme:
+
+
+```r
+ggplot(
+  df_twiddle %>% filter(subject != "mean_subject"), 
+  aes(x = gini_coeff, y = median, color = subject, size = n)
+) + 
+geom_point(alpha = 0.75) + 
+scale_size_area()
+```
+
+![plot of chunk vis_ineq_median](figure/vis_ineq_median.png) 
+
+This is print, so using ggvis and toolips is out of the question...
+
+There appear two clusters - it will be interesting to see if there is a thread to bind them.
+
+
+```r
+ggplot(
+  df_twiddle,
+  aes(x = gini_coeff, y = country, color = subject, size = n)
+) + 
+geom_point() + 
+scale_size_area()
+```
+
+![plot of chunk vis_countries](figure/vis_countries1.png) 
+
+```r
+ggplot(
+  df_twiddle,
+  aes(x = median, y = country, color = subject, size = n)
+) + 
+geom_point() + 
+scale_size_area()
+```
+
+![plot of chunk vis_countries](figure/vis_countries2.png) 
+
+Hopefully enough to get started.
+
+
 
 

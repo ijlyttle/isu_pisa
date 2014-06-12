@@ -10,7 +10,7 @@ At some point, we should make sure we agree on which versions of which packages 
 library(stringr)
 library(ggplot2)
 library(dplyr)
-library(reshape2)
+library(tidyr)
 library(lubridate)
 library(ggvis)
 ```
@@ -87,12 +87,80 @@ Also: is there a problem the help text for `dplyr::grouped_df`? The description 
 df_twiddle <- student2012 %>%
   select(country = CNT, age = ST06Q01,
          math = PV1MATH, reading = PV1READ, science = PV1SCIE) %>%
-  melt(id.vars = c("country", "age"), 
-       variable.name = "subject", 
-       value.name = "score")  %>%
+  gather(key = subject, value = score, -country, -age) %>%
   do(filter(., complete.cases(.))) %>%
   dplyr::group_by(country, subject) %>%
-  summarize(n = n(), gini_coeff = ineq(score, type="Gini")) %>%
+  summarize(
+    n = n(), 
+    gini_coeff = ineq(score, type="Gini"), 
+    mean = mean(score), 
+    median = median(score)) %>%
   arrange(as.character(country))
 ```
+
+"Alabama first" works to look for a specific country, but lets arrange by something more meaningful. 
+
+Let's get a mean of coefficents over all subjects, to help us order things.
+
+```{r by_country}
+df_twiddle_mean <- df_twiddle %>%
+  group_by(country) %>%
+  summarize(
+    gini_coeff = mean(gini_coeff),
+    mean = mean(mean),
+    median = mean(median)
+  )
+```
+
+
+```{r arrange}
+my_levels <- 
+  df_twiddle_mean$country[rev(order(df_twiddle_mean$gini_coeff))] %>%
+  as.character
+
+df_twiddle$country <- factor(
+  df_twiddle$country,
+  levels = my_levels
+)
+
+head(my_levels)
+
+tail(my_levels)
+```
+
+I know I should figure out the `ggmap` package (I'll look at Di's code), but in the meantinme:
+
+```{r vis_ineq_median}
+ggplot(
+  df_twiddle %>% filter(subject != "mean_subject"), 
+  aes(x = gini_coeff, y = median, color = subject, size = n)
+) + 
+geom_point(alpha = 0.75) + 
+scale_size_area()
+```
+
+This is print, so using ggvis and toolips is out of the question...
+
+There appear two clusters - it will be interesting to see if there is a thread to bind them.
+
+```{r vis_countries}
+ggplot(
+  df_twiddle,
+  aes(x = gini_coeff, y = country, color = subject, size = n)
+) + 
+geom_point() + 
+scale_size_area()
+
+ggplot(
+  df_twiddle,
+  aes(x = median, y = country, color = subject, size = n)
+) + 
+geom_point() + 
+scale_size_area()
+```
+
+Hopefully enough to get started.
+
+
+
 
