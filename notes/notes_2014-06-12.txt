@@ -31,5 +31,20 @@ Possible threads:
 
 http://2.bp.blogspot.com/-xg9BUPLoTJs/UuguxeAunsI/AAAAAAAACFQ/VtMd3SK7eqo/s1600/CarbonEmissionMap_2009.jpg
 
+compare immigration and emigration rates to gini
 
 why do math gini's behave they way they do?
+
+Possible variables to focus on:
+
+   - type of mathematical ability (var 500 onwards)
+   - country of birth, language (var 376 onwards, 449)
+   - psychology - (var 79 on, 454, 495 on
+   - parents table
+   - teacher behavior, style (var 480...)
+   - material possessions (var 44...., 284)
+   - out of school activity (var 307...)
+   
+
+How should final student weight be incorporated?
+
