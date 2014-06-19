@@ -109,15 +109,33 @@ OUTHOURS = OUTHOURS %>%
 print(OUTHOURS[, c(1,6:8)])
 ```
 
-Let's see if parent income has any effect on student performance
+Let's see if parent income has any effect on student performance.  No surprise here.
 ```{r parents, cache=TRUE}
 library(ggvis)
 students = student2012 %>% select(CNT, STIDSTD, math, read, sci)
 parents = parent2012 %>% select(CNT, STIDSTD, PA07Q01,
                                 PA03Q01, PA03Q02, PA03Q03, PA03Q04,
                                 PA05Q01, PA05Q02, PA05Q03, PA05Q04)
-student_parent = students %>% left_join(parents, by = "STIDSTD") %>% filter(!is.na(PA07Q01)) %>% arrange(desc(math))
-head(student_parent, 50)
+student_parent = students %>% left_join(parents, by = c("STIDSTD", "CNT"))
+student_parent = student_parent[!is.na(student_parent$PA07Q01), ]
+qplot(x = PA07Q01, y = math, geom="boxplot", data = student_parent)
 ```
 
-Apparently student IDs are not unique!  Students from different countries can share IDs.
+```{r time, cache=TRUE}
+time_vars = c(paste0("ST57Q0", 1:6), "LMINS", "MMINS", "SMINS", "OUTHOURS", paste0("ST69Q0", 1:3), paste0("ST70Q0", 1:3), "ST71Q01")
+
+#  ST57Q01                                       Out-of-School Study Time - Homework
+#  ST57Q02                                Out-of-School Study Time - Guided Homework
+#  ST57Q03                                 Out-of-School Study Time - Personal Tutor
+#  ST57Q04                             Out-of-School Study Time - Commercial Company
+#  ST57Q05                                    Out-of-School Study Time - With Parent
+#  ST57Q06                                       Out-of-School Study Time - Computer
+#172 ST69Q01	Min in <class period> - <test lang>
+#173	ST69Q02	Min in <class period> - <Maths>
+#174	ST69Q03	Min in <class period> - <Science>
+#175	ST70Q01	No of <class period> p/wk - <test lang>
+#176	ST70Q02	No of <class period> p/wk - <Maths>
+#177	ST70Q03	No of <class period> p/wk - <Science>
+#178	ST71Q01	No of ALL <class period> a week
+
+```

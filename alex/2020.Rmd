@@ -1,0 +1,127 @@
+OUTHOURS vs Scores and 20-20 ratio
+========================================================
+
+```{r load, cache=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+library(ggplot2)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+```
+
+```{r avg, cache=TRUE, echo=FALSE}
+avg_test = function(subj) {
+  apply(student2012[, paste0("PV", 1:5, subj)], 1, mean)
+}
+
+student2012$math = avg_test("MATH")
+student2012$read = avg_test("READ")
+student2012$sci = avg_test("SCIE")
+```
+
+While looking at my favorite country with a city named Tirana, I noticed that something strange was happening.  No other country appears to have this.
+```{r albania, cache=TRUE}
+#peak at 54 hours
+qplot(OUTHOURS, data = subset(student2012, CNT == "Albania"))
+```
+
+Not much correlation between scores and out of school study hours
+```{r outhours, cache=TRUE, tidy=FALSE}
+qplot(x = OUTHOURS, y = math, 
+      data = student2012 %>% 
+        select(OUTHOURS, math) %>% 
+        filter(!is.na(OUTHOURS)), 
+      alpha = I(0.1)) + stat_smooth()
+qplot(x = OUTHOURS, y = read, 
+      data = student2012 %>% 
+        select(OUTHOURS, read) %>% 
+        filter(!is.na(OUTHOURS)), 
+      alpha = I(0.1) ) + stat_smooth()
+qplot(x = OUTHOURS, y = sci, 
+      data = student2012 %>% 
+        select(OUTHOURS, sci) %>% 
+        filter(!is.na(OUTHOURS)), 
+      alpha = I(0.1) ) + stat_smooth()
+```
+
+
+```{r 2020, cache=TRUE, echo=FALSE, eval=FALSE}
+##UNUSED
+#cutoffs for top 20/bottom 20 for each country
+best_worst = student2012 %>% 
+  select(CNT, math, read, sci, OUTHOURS) %>% 
+  group_by(CNT) %>% 
+  summarise(math_low = quantile(math, probs = seq(0, 1, 0.2))[2],
+            math_high = quantile(math, probs = seq(0, 1, 0.2))[5],
+            read_low = quantile(read, probs = seq(0, 1, 0.2))[2],
+            read_high = quantile(read, probs = seq(0, 1, 0.2))[5],
+            sci_low = quantile(sci, probs = seq(0, 1, 0.2))[2],
+            sci_high = quantile(sci, probs = seq(0, 1, 0.2))[5])
+head(best_worst)
+```
+
+Mean scores in the top 20 and bottom 20 percent for each nation
+```{r 2020_1, cache=TRUE, tidy=FALSE}
+library(reshape2)
+best_worst = student2012 %>% 
+  select(CNT, math, read, sci) %>% 
+  group_by(CNT) %>% 
+  summarise(math_high = mean(math[math > quantile(math, probs = seq(0, 1, 0.2))[5]]),
+            math_low = mean(math[math < quantile(math, probs = seq(0, 1, 0.2))[2]]),
+            sci_high = mean(sci[sci > quantile(sci, probs = seq(0, 1, 0.2))[5]]),
+            sci_low = mean(sci[sci < quantile(sci, probs = seq(0, 1, 0.2))[2]]),
+            read_high = mean(read[read > quantile(read, probs = seq(0, 1, 0.2))[5]]),
+            read_low = mean(read[read < quantile(read, probs = seq(0, 1, 0.2))[2]])) %>%
+  mutate(math_gap = math_high - math_low,
+         sci_gap = sci_high - sci_low,
+         read_gap = read_high - read_low) %>%
+  mutate(avg_gap = (math_gap + sci_gap + read_gap)/3 ) %>%
+  arrange(desc(avg_gap))
+head(best_worst)
+
+
+best_worst$CNT = factor(best_worst$CNT, 
+                        levels = best_worst$CNT[order(best_worst$avg_gap)])
+qplot(x = avg_gap, y = CNT, data = best_worst)
+
+qplot(x = value, y = CNT, data = best_worst %>% 
+        select(CNT, math_gap, read_gap, sci_gap) %>% 
+        melt(id.vars = "CNT"), color = variable)
+```
+
+Compare differences in the top 20 and bottom 20 math scores for each nation
+```{r math, cache=TRUE}
+student2012 %>%
+  select(CNT, math, OUTHOURS) %>%
+  group_by(CNT) %>%
+  
+  filter(math < quantile(math, probs = seq(0, 1, 0.2))[2] | 
+         math > quantile(math, probs = seq(0, 1, 0.2))[5])
+```
