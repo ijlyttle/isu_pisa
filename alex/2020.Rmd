@@ -47,7 +47,8 @@ student2012$sci = avg_test("SCIE")
 ```
 
 While looking at my favorite country with a city named Tirana, I noticed that something strange was happening.  No other country appears to have this.
-```{r albania, cache=TRUE}
+```{r albania, echo=FALSE, cache=TRUE}
+library(ggplot2)
 #peak at 54 hours
 qplot(OUTHOURS, data = subset(student2012, CNT == "Albania"))
 ```
@@ -116,12 +117,48 @@ qplot(x = value, y = CNT, data = best_worst %>%
         melt(id.vars = "CNT"), color = variable)
 ```
 
-Compare differences in the top 20 and bottom 20 math scores for each nation
+Compare differences in the top 20 and bottom 20 math scores for each nation.
 ```{r math, cache=TRUE}
-student2012 %>%
-  select(CNT, math, OUTHOURS) %>%
-  group_by(CNT) %>%
-  
-  filter(math < quantile(math, probs = seq(0, 1, 0.2))[2] | 
-         math > quantile(math, probs = seq(0, 1, 0.2))[5])
+student2012$ST69Q02 = as.numeric(student2012$ST69Q02)
+student2012$ST70Q02 = as.numeric(student2012$ST70Q02)
+
+math2020 = student2012 %>%
+            select(CNT, math, OUTHOURS, ST69Q02, ST70Q02, #minutes studying, class periods
+                   ST44Q01, ST44Q03, ST44Q04,ST44Q05, ST44Q07, ST44Q08, #attributions to failure
+                   ST15Q01, ST19Q01) %>% #job status for parents
+            group_by(CNT) %>%
+            mutate(top20 = math > quantile(math, probs = seq(0, 1, 0.2))[5]) %>%
+            filter(math < quantile(math, probs = seq(0, 1, 0.2))[2] | 
+                   math > quantile(math, probs = seq(0, 1, 0.2))[5])
+```
+
+```{r math2, eval=TRUE}
+library(ggplot2)
+
+#Attributions to Failure - Not Good at Maths Problems
+qplot(x = ST44Q01, fill = top20, data = subset(math2020, !is.na(ST44Q01)), geom = "bar", position = "fill")
+
+#Attributions to Failure - Teacher Did Not Explain Well
+qplot(x = ST44Q03, fill = top20, data = subset(math2020, !is.na(ST44Q03)), geom = "bar", position = "fill")
+
+#Attributions to Failure - Bad Guesses
+qplot(x = ST44Q04, fill = top20, data = subset(math2020, !is.na(ST44Q04)), geom = "bar", position = "fill")
+
+#Attributions to Failure - Material Too Hard
+qplot(x = ST44Q05, fill = top20, data = subset(math2020, !is.na(ST44Q05)), geom = "bar", position = "fill")
+
+#Attributions to Failure - Teacher Didnt Get Students Interested
+qplot(x = ST44Q07, fill = top20, data = subset(math2020, !is.na(ST44Q07)), geom = "bar", position = "fill")
+
+#Attributions to Failure - Unlucky
+qplot(x = ST44Q08, fill = top20, data = subset(math2020, !is.na(ST44Q08)), geom = "bar", position = "fill")
+
+#Father Current Job Status
+qplot(x = ST19Q01, fill = top20, data = subset(math2020, !is.na(ST19Q01)), position = "fill")
+
+#mother current job status
+qplot(x = ST15Q01, fill = top20, data = subset(math2020, !is.na(ST15Q01)), position = "fill")
+
+#hours studied
+qplot(x = OUTHOURS, fill = top20, data = subset(math2020, !is.na(OUTHOURS)), position = "fill")
 ```
