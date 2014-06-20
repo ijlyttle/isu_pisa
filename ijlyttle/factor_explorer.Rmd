@@ -19,6 +19,10 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(shiny)
+
+# 2014-06-20
+# for what it's worth, I'm running the latest versions of RStudio (0.98.932 )and 
+# github versions of "rstudio/shiny", "rstudio/rmarkdown", "yihui/knitr"
 ```
 
 Here's my versions:
