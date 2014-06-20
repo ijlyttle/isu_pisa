@@ -19,6 +19,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(shiny)
+library(magrittr)
 
 # 2014-06-20
 # for what it's worth, I'm running the latest versions of RStudio (0.98.932 )and 
@@ -72,7 +73,7 @@ dict_student2012 <- fn_make_df(student2012dict)
 
 # clean
 rm(fn_make_df)
-rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
 ```
 
 ## Shiny app
@@ -86,14 +87,66 @@ var_names_student <- dict_student2012$variable
 names(var_names_student) <- 
   dict_student2012$description %>%
   str_replace_all("\x92", "'") # gets rid of funny characters"
-```
 
-```{r shiny_inputs}
-selectInput(
-  "test",
-  "variable",
-  choices = var_names_student
+# using pv1 for now
+var_names_student_subject <- c(
+  math = "PV1MATH",
+  science = "PV1SCIE",
+  reading = "PV1READ"
 )
+
+var_names_student_type <- 
+  lapply(student2012, class) 
+
+var_names_student_factor <- 
+  var_names_student_type[var_names_student_type == "factor"] %>%
+  names 
+
+tmp <- var_names_student_factor[var_names_student_factor == var_names_student] 
 ```
 
+```{r shiny_inputs, echo = FALSE}
+selectInput(
+  "subject",
+  label = "Subject",
+  choices = var_names_student_subject
+)
+
+selectInput(
+  "country",
+  label = "Countries",
+  choices = levels(student2012$CNT),
+  selected = "Albania",
+  multiple = TRUE
+)
+
+
+
+# selectInput(
+#   "factor"
+#   label = "Factor",
+#   choices = 
+# )
+```
+
+```{r shiny_transform, echo = FALSE}
+rct_data <- reactive({
+  df <- 
+    student2012 %>%
+    filter(CNT %in% input$country)
+    
+})
+
+renderPlot({
+  ggplot(
+    data = rct_data()
+  ) + 
+  geom_violin(
+    aes_string(x = "factor(ST06Q01)", 
+               y = input$subject), 
+    scale = "width"
+  )
+})
+
+```
 

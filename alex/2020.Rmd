@@ -169,3 +169,15 @@ qplot(x = ST15Q01, fill = top20, data = subset(math2020, !is.na(ST15Q01)), posit
 #hours studied
 qplot(x = OUTHOURS, fill = top20, data = subset(math2020, !is.na(OUTHOURS)), position = "fill")
 ```
+
+For each country, find the percentage of top 20% students in each school.
+```{r math-sci-read}
+school2020 = student2012 %>% 
+              select(CNT, math, SCHOOLID) %>%
+              group_by(CNT) %>%
+              mutate(top20 = math > quantile(math, probs = seq(0, 1, 0.2))[5]) %>%
+              group_by(CNT, SCHOOLID) %>%
+              summarise(num_top20 = sum(top20), total_students = length(top20)) %>%
+              mutate(pct_top20 = num_top20 / total_students)
+
+```
