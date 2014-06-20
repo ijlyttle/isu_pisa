@@ -12,6 +12,8 @@ library(ggvis)
 library(maps)
 library(ggmap)
 library(rworldmap)
+library(grid)
+library(scales)
 ```
 
 
@@ -157,31 +159,8 @@ detach("package:plyr")
 student2012.sub <- student2012[, c(1:7, 500:550)]
 colnames(student2012.sub)[1] <- "name"
 student2012.sub$name <- as.character(student2012.sub$name)
-# Check mismatches of names
-unique(anti_join(student2012.sub, world.polys)[1])
-```
-
-```
-## Joining by: "name"
-```
-
-```
-##                           name
-## 1               Chinese Taipei
-## 6047           Slovak Republic
-## 10725                   Serbia
-## 15409       Russian Federation
-## 20640      Massachusetts (USA)
-## 22363        Connecticut (USA)
-## 24060            Florida (USA)
-## 25956 Perm(Russian Federation)
-## 27717           China-Shanghai
-## 32894              Macao-China
-## 38229                    Korea
-## 43262          Hong Kong-China
-```
-
-```r
+# Check mismatches of names unique(anti_join(student2012.sub,
+# world.polys)[1])
 student2012.sub$name[student2012.sub$name == "Serbia"] <- "Republic of Serbia"
 student2012.sub$name[student2012.sub$name == "Korea"] <- "South Korea"
 student2012.sub$name[student2012.sub$name == "Chinese Taipei"] <- "Taiwan"
@@ -204,7 +183,8 @@ student2012.sub.math <- summarise(group_by(student2012.sub[, c(1, seq(9, 48,
     5))], name), math = mean(PV1MATH), mCC = mean(PV1MACC), mCQ = mean(PV1MACQ), 
     mCS = mean(PV1MACS), mCU = mean(PV1MACU), mPE = mean(PV1MAPE), mPF = mean(PV1MAPF), 
     mPI = mean(PV1MAPI))
-# pairs(student2012.sub.math[,-1])
+colnames(student2012.sub.math)[-c(1:2)] <- c("Change", "Quantity", "Spatial", 
+    "Data", "Employ", "Formulate", "Interpret")
 
 # Left join to only get countries that are measured
 student2012.sub.map <- left_join(student2012.sub.math, world.polys)
@@ -226,16 +206,54 @@ ggplot(data = world.polys) + geom_path(aes(x = X1, y = X2, order = order, group 
 new_theme_empty + theme(legend.position = "none")
 ```
 
-![plot of chunk maps](figure/maps.png) 
+![plot of chunk maps](figure/maps1.png) 
 
 ```r
 
-# Join to get missings for countries that are not measured
-# student2012.sub.map <- merge(student2012.sub.math, world.polys,
-# all.y=TRUE) qplot(X1, X2, order=order, group=group,
-# data=student2012.sub.map, geom='polygon', fill=math, colour=I('grey70')) +
-# coord_map(xlim=c(-195, 185), ylim=c(-150, 95)) + # Having trouble getting
-# coord_map to not cut off polygons weirdly new_theme_empty +
-# theme(legend.position='none')
+# Now try to do an insert Note China is represented just by Shanghai
+student2012.sub.math$name <- factor(student2012.sub.math$name, levels = student2012.sub.math$name[order(student2012.sub.math$math)])
+p1 <- ggplot(data = world.polys) + geom_path(aes(x = X1, y = X2, order = order, 
+    group = group), colour = I("grey70")) + geom_polygon(data = student2012.sub.map, 
+    aes(x = X1, y = X2, order = order, group = group, fill = math)) + new_theme_empty + 
+    theme(legend.position = "none")
+p2 <- qplot(name, math, data = student2012.sub.math, colour = math, ylab = "Math Score", 
+    xlab = "") + coord_flip() + theme(legend.position = "none")
+p2 = ggplotGrob(p2)
+p1 + annotation_custom(grob = p2, xmin = -40, xmax = 80, ymin = -110, ymax = 10)
+```
+
+![plot of chunk maps](figure/maps2.png) 
+
+
+
+```r
+library(YaleToolkit)
+```
+
+```
+## Loading required package: lattice
+## Loading required package: vcd
+## Loading required package: MASS
+## 
+## Attaching package: 'MASS'
+## 
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+## 
+## Loading required package: colorspace
+## Loading required package: barcode
+## Loading required package: gpairs
+```
+
+```r
+gpairs(student2012.sub.math[, -1])
+```
+
+![plot of chunk pairs](figure/pairs.png) 
+
+```r
+# Should do a PCA, to look at what countries do better on what types of math
+# skills
 ```
 
