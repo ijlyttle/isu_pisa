@@ -111,4 +111,80 @@ student2012.gender$CNT <- as.character(student2012.gender$CNT)
 student2012.gender$CNT[student2012.gender$CNT=="United States of America"] <- "USA"
 student2012.gender.map <- merge(student2012.gender, world, by.x="CNT", by.y="region")
 qplot(long, lat, data=student2012.gender.map, group=group, order=order, geom="polygon", fill=PropBoys) + coord_map()
+
+# Use dplyr fo rcheck for mismatches
+library(dplyr)
+library(rworldmap)
+world <- getMap(resolution = "low")
+world$NAME
+colnames(student2012.gender)[1] <- "NAME"
+sort(unique(world$region))
+anti_join(student2012.gender, world@data)
+student2012.gender$NAME[student2012.gender$NAME=="United States of America"] <- "United States"
+student2012.gender$NAME[student2012.gender$NAME=="USA"] <- "United States"
+student2012.gender$NAME[student2012.gender$NAME=="Czech Republic"] <- "Czech Rep."
+student2012.gender$NAME[student2012.gender$NAME=="Chinese Taipei"] <- "Taiwan"
+student2012.gender$NAME[student2012.gender$NAME=="Slovak Republic"] <- "Slovakia"
+student2012.gender$NAME[student2012.gender$NAME=="Russian Federation"] <- "Russia"
+student2012.gender$NAME[student2012.gender$NAME=="Korea"] <- "S. Korea"
+student2012.gender$NAME[student2012.gender$NAME=="Jordan"] <- "Jordan"
+student2012.gender$NAME[student2012.gender$NAME=="Hong Kong-China"] <- "Hong Kong"
+student2012.gender$NAME[student2012.gender$NAME=="China-Shanghai"] <- "China"
+student2012.gender.map <- inner_join(student2012.gender, world@data)
+new_theme_empty <- theme_bw()
+new_theme_empty$line <- element_blank()
+new_theme_empty$rect <- element_blank()
+new_theme_empty$strip.text <- element_blank()
+new_theme_empty$axis.text <- element_blank()
+new_theme_empty$plot.title <- element_blank()
+new_theme_empty$axis.title <- element_blank()
+new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+
+ggplot(world) + aes(long, lat, group=group) + 
+  geom_polygon(fill="grey80") +
+  geom_path(color="white") +
+  coord_equal() + new_theme_empty
+student2012.gender.map <- joinData2Map(student2012.gender, world, "NAME", "NAME")
+ggplot(student2012.gender.map) + aes(long, lat, group=group, fill=PropBoys) + 
+  geom_polygon() +
+  #geom_path(color="white") +
+  coord_equal() + new_theme_empty
+
+extractPolygons <- function(shapes) {
+
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe$name <- shapes@polygons[[i]]@ID
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+
+world.polys <- extractPolygons(world)
+colnames(student2012.sub)[1] <- "name"
+student2012.sub[,1] <- as.character(student2012.sub[,1])
+unique(anti_join(student2012.sub, world.polys)[1])
+student2012.sub$name[student2012.sub$name=="United States"] <- "United States of America"
+student2012.sub$name[student2012.sub$name=="Czech Republic"] <- "Czech Rep."
+student2012.sub$name[student2012.sub$name=="Serbia"] <- "Republic of Serbia"
+student2012.sub$name[student2012.sub$name=="Korea"] <- "S. Korea"
+student2012.sub$name[student2012.sub$name=="Jordan"] <- "Jordan"
+student2012.sub$name[student2012.sub$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+student2012.sub$name[student2012.sub$name=="Chinese Taipei"] <- "Taiwan"
+student2012.sub$name[student2012.sub$name=="Slovak Republic"] <- "Slovakia"
+student2012.sub$name[student2012.sub$name=="S. Korea"] <- "Korea"
+student2012.sub$name[student2012.sub$name=="Russian Federation"] <- "Russia"
+student2012.sub.map <- join(student2012.sub, world.polys)
+unique(student2012.sub$name)
+qplot(X1, X2, order=order, group=group, data=student2012.sub.map, geom="polygon", fill=PropBoys) + new_theme_empty
+
 ```
