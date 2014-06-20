@@ -57,7 +57,6 @@ dict_student2012 <- fn_make_df(student2012dict)
 ```
 
 ```{r usefulfn}
-library(plyr)
 extractPolygons <- function(shapes) {
 
   dframe <- ldply(1:length(shapes@polygons), function(i) {
@@ -86,12 +85,12 @@ new_theme_empty$axis.text <- element_blank()
 new_theme_empty$plot.title <- element_blank()
 new_theme_empty$axis.title <- element_blank()
 new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
-
 ```
 
-```{r maps}
+```{r maps, fig.width=12, fig.height=7}
 # Extract map polygons for modern world
 world <- getMap(resolution = "low")
+library(plyr)
 world.polys <- extractPolygons(world)
 detach("package:plyr")
 # Subset data
@@ -108,8 +107,33 @@ student2012.sub$name[student2012.sub$name=="Russian Federation"] <- "Russia"
 student2012.sub$name[student2012.sub$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
 student2012.sub$name[student2012.sub$name=="China-Shanghai"] <- "China"
 
-student2012.sub.map <- left_join(student2012.sub, world.polys)
-unique(student2012.sub$name)
-qplot(X1, X2, order=order, group=group, data=student2012.sub.map, geom="polygon", fill=PropBoys) + new_theme_empty
+# Only need one of the plausible values, checked they are effectively identical
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub$PV1MACC <- as.numeric(student2012.sub$PV1MACC)
+student2012.sub$PV1MACQ <- as.numeric(student2012.sub$PV1MACQ)
+student2012.sub$PV1MACS <- as.numeric(student2012.sub$PV1MACS)
+student2012.sub$PV1MACU <- as.numeric(student2012.sub$PV1MACU)
+student2012.sub$PV1MAPE <- as.numeric(student2012.sub$PV1MAPE)
+student2012.sub$PV1MAPF <- as.numeric(student2012.sub$PV1MAPF)
+student2012.sub$PV1MAPI <- as.numeric(student2012.sub$PV1MAPI)
+student2012.sub.math <- summarise(group_by(student2012.sub[,c(1,seq(9,48,5))], name), math=mean(PV1MATH), mCC=mean(PV1MACC), 
+                                  mCQ=mean(PV1MACQ), mCS=mean(PV1MACS), mCU=mean(PV1MACU), mPE=mean(PV1MAPE), 
+                                  mPF=mean(PV1MAPF), mPI=mean(PV1MAPI))
+#pairs(student2012.sub.math[,-1])
 
+# Left join to only get countries that are measured
+student2012.sub.map <- left_join(student2012.sub.math, world.polys)
+#qplot(X1, X2, order=order, group=group, data=student2012.sub.map, geom="polygon", fill=math) + coord_map() + new_theme_empty
+
+# Really need all boundaries, doesn't quite work to have boundaries with one data: coord_map is the problem
+ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey70")) + 
+  geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=math)) +
+#  coord_map() + 
+  new_theme_empty + theme(legend.position="none")
+
+# Join to get missings for countries that are not measured
+#student2012.sub.map <- merge(student2012.sub.math, world.polys, all.y=TRUE)
+#qplot(X1, X2, order=order, group=group, data=student2012.sub.map, geom="polygon", fill=math, colour=I("grey70")) + 
+  #coord_map(xlim=c(-195, 185), ylim=c(-150, 95)) + # Having trouble getting coord_map to not cut off polygons weirdly
+#  new_theme_empty + theme(legend.position="none")
 ```
