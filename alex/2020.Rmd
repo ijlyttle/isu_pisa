@@ -36,7 +36,7 @@ dict_student2012 <- fn_make_df(student2012dict)
 rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
 ```
 
-```{r avg, cache=TRUE, echo=FALSE}
+```{r avg, cache=TRUE, echo=FALSE, eval=FALSE}
 avg_test = function(subj) {
   apply(student2012[, paste0("PV", 1:5, subj)], 1, mean)
 }
@@ -44,6 +44,13 @@ avg_test = function(subj) {
 student2012$math = avg_test("MATH")
 student2012$read = avg_test("READ")
 student2012$sci = avg_test("SCIE")
+```
+
+```{r pv, cache=TRUE, echo=FALSE}
+#choose which of the 5 PVs to use for each subject
+student2012$math = as.numeric(student2012[, "PV1MATH"])
+student2012$read = as.numeric(student2012[, "PV1READ"])
+student2012$sci = as.numeric(student2012[, "PV1SCIE"])
 ```
 
 While looking at my favorite country with a city named Tirana, I noticed that something strange was happening.  No other country appears to have this.
