@@ -49,4 +49,4 @@ Possible variables to focus on:
    
 
 How should final student weight be incorporated?
-
+See the notes at http://www.slideshare.net/egebhardt72/multi-level-modellingampweights-workshop-kiel09
