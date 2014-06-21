@@ -88,12 +88,12 @@ names(var_names_student) <-
   dict_student2012$description %>%
   str_replace_all("\x92", "'") # gets rid of funny characters"
 
-# using pv1 for now
-var_names_student_subject <- c(
-  math = "PV1MATH",
-  science = "PV1SCIE",
-  reading = "PV1READ"
-)
+var_names_student_subject <- 
+  var_names_student[c(
+    seq(501, 505), # math
+    seq(541, 545), # reading
+    seq(546, 551)  # science
+  )]
 
 var_names_student_type <- 
   lapply(student2012, class) 
@@ -102,13 +102,13 @@ var_names_student_factor <-
   var_names_student_type[var_names_student_type == "factor"] %>%
   names 
 
-tmp <- var_names_student_factor[var_names_student_factor == var_names_student] 
+var_names_factor <- var_names_student[var_names_student %in% var_names_student_factor] 
 ```
 
 ```{r shiny_inputs, echo = FALSE}
 selectInput(
   "subject",
-  label = "Subject",
+  label = "Subject", 
   choices = var_names_student_subject
 )
 
@@ -116,25 +116,48 @@ selectInput(
   "country",
   label = "Countries",
   choices = levels(student2012$CNT),
-  selected = "Albania",
+  selected = c("United States of America", "Canada"),
   multiple = TRUE
 )
 
+selectInput(
+  "x_factor",
+  label = "X-axis factor",
+  choices = var_names_factor,
+  selected = "ST04Q01"
+)
 
-
-# selectInput(
-#   "factor"
-#   label = "Factor",
-#   choices = 
-# )
+selectInput(
+  "fill_factor",
+  label = "Fill factor",
+  choices = var_names_factor,
+  selected = "ST26Q03"
+)
 ```
 
 ```{r shiny_transform, echo = FALSE}
 rct_data <- reactive({
   df <- 
     student2012 %>%
-    filter(CNT %in% input$country)
-    
+    filter(CNT %in% input$country) 
+})
+
+val_get_name <- function(x, lst){
+  names(lst[lst == x])[[1]]
+}
+
+rct_count <- reactive({
+  df <-
+    rct_data() %>%
+    group_by()
+})
+
+rct_labels <- reactive({
+  list(
+    x = input$x_factor %>% val_get_name(var_names_factor),
+    y = input$subject %>% val_get_name(var_names_student_subject),
+    fill = input$fill_factor %>% val_get_name(var_names_factor)
+  )
 })
 
 renderPlot({
@@ -142,11 +165,22 @@ renderPlot({
     data = rct_data()
   ) + 
   geom_violin(
-    aes_string(x = "factor(ST06Q01)", 
-               y = input$subject), 
-    scale = "width"
-  )
+    aes_string(
+      x = input$x_factor, 
+      y = input$subject),
+      scale = "width"
+  ) + 
+  geom_boxplot(
+    aes_string(
+      x = input$x_factor,
+      y = input$subject,
+      fill = input$fill_factor
+    )  
+  ) + 
+  facet_grid(CNT ~ .) + 
+  scale_x_discrete(name = rct_labels()[["x"]]) +  
+  scale_y_continuous(limits = c(0, 1000), name = rct_labels()[["y"]]) +
+  scale_fill_discrete(name = rct_labels()[["fill"]]) 
 })
-
 ```
 
