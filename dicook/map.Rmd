@@ -70,6 +70,7 @@ extractPolygons <- function(shapes) {
     })
     dframe$region <- i
     dframe$name <- shapes@polygons[[i]]@ID
+    dframe$area <- shapes@polygons[[i]]@area
     dframe
   })
   # construct a group variable from both group and polygon:
