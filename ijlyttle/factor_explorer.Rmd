@@ -23,7 +23,7 @@ library(magrittr)
 
 # 2014-06-20
 # for what it's worth, I'm running the latest versions of RStudio (0.98.932 )and 
-# github versions of "rstudio/shiny", "rstudio/rmarkdown", "yihui/knitr"
+# github versions of "rstudio/shiny", "rstudio/rmarkdown", "yihui/knitr", "hadley/tidyr"
 ```
 
 Here's my versions:
@@ -92,7 +92,7 @@ var_names_student_subject <-
   var_names_student[c(
     seq(501, 505), # math
     seq(541, 545), # reading
-    seq(546, 551)  # science
+    seq(546, 550)  # science
   )]
 
 var_names_student_type <- 
@@ -147,9 +147,42 @@ val_get_name <- function(x, lst){
 }
 
 rct_count <- reactive({
-  df <-
+
+  # hacky hacky hacky  
+  str_symbols <- c("CNT", input$x_factor, input$fill_factor) 
+  symbols <- str_symbols %>% lapply(as.symbol)
+  
+  df_data <- rct_data()
+
+  if (nrow(df_data) == 0)
+    return(NULL)
+  
+#   # get counts by category
+   df <- 
+     df_data[, str_symbols] %>%
+     regroup(symbols) %>%
+     summarize(n = n()) 
+  
+  # get counts by country  
+  df_cnt <-
     rct_data() %>%
-    group_by()
+    group_by(CNT) %>%
+    summarize(n_country = n(), y_placeholder = 0)
+  
+  # join, get proportion by country for each category
+  df_new <- 
+    left_join(df, df_cnt, by = "CNT") %>%
+    mutate(prop = n / n_country)
+
+  df_new
+})
+
+observe({  
+  print(rct_count())
+  print("")
+#  print(str(rct_count()))
+#  print("")
+#  print(summary(rct_count()))
 })
 
 rct_labels <- reactive({
@@ -175,11 +208,36 @@ renderPlot({
       x = input$x_factor,
       y = input$subject,
       fill = input$fill_factor
-    )  
+    ),
+    alpha = 0.75
   ) + 
+#   geom_dotplot(
+#     aes_string(
+#       x = input$x_factor,
+#       y = input$subject,
+#       fill = input$fill_factor
+#     ),
+#     binaxis = "y", 
+#     stackdir = "center", 
+#     position = "dodge") + 
   facet_grid(CNT ~ .) + 
   scale_x_discrete(name = rct_labels()[["x"]]) +  
   scale_y_continuous(limits = c(0, 1000), name = rct_labels()[["y"]]) +
+  scale_fill_brewer(type = "seq", name = rct_labels()[["fill"]]) 
+})
+
+renderPlot({
+  ggplot(
+    aes_string(
+      x = input$x_factor,
+      fill = input$fill_factor
+    ),
+    data = rct_data()
+  ) +
+  geom_bar(position = "dodge", color = "black") +   
+  facet_grid(CNT ~ ., scales = "free_y") + 
+  scale_x_discrete(name = rct_labels()[["x"]]) +  
+  scale_y_continuous(name = "number of students") +
   scale_fill_brewer(type = "seq", name = rct_labels()[["fill"]]) 
 })
 ```
