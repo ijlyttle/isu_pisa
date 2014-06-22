@@ -323,12 +323,18 @@ qplot(variable, value, data = student2012.sub.summary.m, group = name, geom = c(
 student2012.sub <- student2012[, c(1, 12, 501)]
 colnames(student2012.sub)[1] <- "name"
 student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
-student2012.sub.summary <- summarise(group_by(student2012.sub, name), male = mean(PV1MATH[ST04Q01 == 
+student2012.sub.summary1 <- summarise(group_by(student2012.sub, name), male = mean(PV1MATH[ST04Q01 == 
     "Male"], na.rm = T), female = mean(PV1MATH[ST04Q01 == "Female"], na.rm = T))
-student2012.sub.summary.m <- melt(student2012.sub.summary)
-colnames(student2012.sub.summary.m)[2] <- "gender"
-colnames(student2012.sub.summary.m)[3] <- "math"
-qplot(gender, math, data = student2012.sub.summary.m, geom = "boxplot") + theme(aspect.ratio = 1)
+student2012.sub.summary.m1 <- melt(student2012.sub.summary1)
+colnames(student2012.sub.summary.m1)[2] <- "gender"
+colnames(student2012.sub.summary.m1)[3] <- "math"
+student2012.sub.summary2 <- summarise(group_by(student2012.sub, name), male = length(PV1MATH[ST04Q01 == 
+    "Male"])/length(PV1MATH), female = length(PV1MATH[ST04Q01 == "Female"])/length(PV1MATH))
+student2012.sub.summary.m2 <- melt(student2012.sub.summary2)
+colnames(student2012.sub.summary.m2)[2] <- "gender"
+colnames(student2012.sub.summary.m2)[3] <- "prop"
+student2012.sub.summary <- merge(student2012.sub.summary.m1, student2012.sub.summary.m2)
+qplot(gender, math, data = student2012.sub.summary.m1, geom = "boxplot") + theme(aspect.ratio = 1)
 ```
 
 ![plot of chunk gendermath](figure/gendermath1.png) 
@@ -336,10 +342,11 @@ qplot(gender, math, data = student2012.sub.summary.m, geom = "boxplot") + theme(
 ```r
 # Overall there is a gender gap in math, perhaps 10 points, and the high
 # scores are almost exclusively males
-student2012.sub.summary.m$name <- factor(student2012.sub.summary.m$name, levels = student2012.sub.summary$name[order(student2012.sub.summary$male)])
-student2012.sub.summary.m$gender <- factor(student2012.sub.summary.m$gender, 
-    levels = c("female", "male"))
-qplot(name, math, data = student2012.sub.summary.m, colour = gender) + coord_flip()
+student2012.sub.summary$name <- factor(student2012.sub.summary$name, levels = student2012.sub.summary1$name[order(student2012.sub.summary1$male)])
+student2012.sub.summary$gender <- factor(student2012.sub.summary$gender, levels = c("female", 
+    "male"))
+qplot(name, math, data = student2012.sub.summary, colour = gender, size = prop) + 
+    coord_flip()
 ```
 
 ![plot of chunk gendermath](figure/gendermath2.png) 
@@ -347,17 +354,21 @@ qplot(name, math, data = student2012.sub.summary.m, colour = gender) + coord_fli
 ```r
 # Some countries have no gender gap, a few surprises females better than
 # males
-student2012.sub.summary.gap <- summarise(group_by(student2012.sub.summary, name), 
-    gap = male - female)
+student2012.sub.summary.gap <- summarise(group_by(student2012.sub.summary1, 
+    name), gap = male - female)
+student2012.sub.summary.gapprop <- summarise(group_by(student2012.sub.summary2, 
+    name), prop = male - 0.5)
+student2012.sub.summary.gap <- merge(student2012.sub.summary.gap, student2012.sub.summary.gapprop)
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
     levels = student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$gap)])
-qplot(name, gap, data = student2012.sub.summary.gap, ylim = c(-30, 30)) + geom_hline(yintercept = 0, 
-    colour = "grey80") + coord_flip()
+qplot(name, gap, data = student2012.sub.summary.gap, ylim = c(-30, 30), size = prop) + 
+    geom_hline(yintercept = 0, colour = "grey80") + coord_flip()
 ```
 
 ![plot of chunk gendermath](figure/gendermath3.png) 
 
 ```r
-# Gap is interesting
+# Gap is interesting, muslim countries with no gap is not because only few
+# top girls measured
 ```
 
