@@ -3,37 +3,8 @@ Exploring maps
 
 
 
-```r
-library(stringr)
-library(ggplot2)
-library(dplyr)
-library(lubridate)
-library(ggvis)
-library(maps)
-library(ggmap)
-library(rworldmap)
-library(grid)
-library(scales)
-```
 
 
-
-```r
-setwd("..")
-sets <- c("item", "parent", "school", "scoredItem", "student")
-
-# function to build the file names
-fn_build <- function(file_name) {
-    
-    template <- c("2012.rda", "2012dict.rda")
-    
-    file_name %>% vapply(str_join, template, template) %>% file.path(".", "data", 
-        .)
-}
-
-# load the data
-sets %>% fn_build %>% lapply(load, .GlobalEnv)
-```
 
 ```
 ## [[1]]
@@ -67,64 +38,11 @@ sets %>% fn_build %>% lapply(load, .GlobalEnv)
 ## [1] "student2012dict"
 ```
 
-```r
-
-# clean rm(fn_build, sets)
-```
 
 
 
-```r
-# function to convert to data-frames
-fn_make_df <- function(named_vector) {
-    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
-        row.names = NULL)
-}
-
-# there's a clever way to do this, but beyond me for naw
-dict_item2012 <- fn_make_df(item2012dict)
-dict_parent2012 <- fn_make_df(parent2012dict)
-dict_school2012 <- fn_make_df(school2012dict)
-dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
-dict_student2012 <- fn_make_df(student2012dict)
-
-# clean rm(fn_make_df) rm(item2012dict, parent2012dict, school2012dict,
-# scoredItem2012dict, student2012dict)
-```
 
 
-
-```r
-extractPolygons <- function(shapes) {
-    
-    dframe <- ldply(1:length(shapes@polygons), function(i) {
-        ob <- shapes@polygons[[i]]@Polygons
-        dframe <- ldply(1:length(ob), function(j) {
-            x <- ob[[j]]
-            co <- x@coords
-            data.frame(co, order = 1:nrow(co), group = j)
-        })
-        dframe$region <- i
-        dframe$name <- shapes@polygons[[i]]@ID
-        dframe
-    })
-    # construct a group variable from both group and polygon:
-    dframe$group <- interaction(dframe$region, dframe$group)
-    
-    dframe
-}
-
-# To get a blank background on map
-new_theme_empty <- theme_bw()
-new_theme_empty$line <- element_blank()
-new_theme_empty$rect <- element_blank()
-new_theme_empty$strip.text <- element_blank()
-new_theme_empty$axis.text <- element_blank()
-new_theme_empty$plot.title <- element_blank()
-new_theme_empty$axis.title <- element_blank()
-new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, 
-    class = "unit")
-```
 
 
 
@@ -267,27 +185,6 @@ schools.sampled[order(schools.sampled$numschools, decreasing = T), ]
 # Extract map polygons for modern world
 world <- getMap(resolution = "low")
 library(plyr)
-```
-
-```
-## -------------------------------------------------------------------------
-## You have loaded plyr after dplyr - this is likely to cause problems.
-## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
-## library(plyr); library(dplyr)
-## -------------------------------------------------------------------------
-## 
-## Attaching package: 'plyr'
-## 
-## The following object is masked from 'package:lubridate':
-## 
-##     here
-## 
-## The following objects are masked from 'package:dplyr':
-## 
-##     arrange, desc, failwith, id, mutate, summarise, summarize
-```
-
-```r
 world.polys <- extractPolygons(world)
 detach("package:plyr")
 # Subset data
@@ -332,38 +229,11 @@ student2012.sub.summary <- summarise(group_by(student2012.sub[, c(1, 8:17)],
         na.rm = T)), mPFr = diff(range(PV1MAPF, na.rm = T)), mPIr = diff(range(PV1MAPI, 
         na.rm = T)), readr = diff(range(PV1READ, na.rm = T)), sciencer = diff(range(PV1SCIE, 
         na.rm = T)))
-```
-
-```
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-```
-
-```r
 colnames(student2012.sub.summary)[3:9] <- c("Change", "Quantity", "Spatial", 
     "Data", "Employ", "Formulate", "Interpret")
 
 # Left join to only get countries that are measured
 student2012.sub.map <- left_join(student2012.sub.summary, world.polys)
-```
-
-```
-## Joining by: "name"
-```
-
-```r
 # qplot(X1, X2, order=order, group=group, data=student2012.sub.map,
 # geom='polygon', fill=math) + coord_map() + new_theme_empty
 
@@ -519,30 +389,67 @@ ggplot(data = student2012.sub.iqr) + ylab("Science Score") + xlab("") + ylim(c(0
 
 
 ```r
-library(YaleToolkit)
+# Why is australia so varied?
+student2012.sub.oz <- student2012.sub[student2012.sub$name == "Australia", ]
+student2012.sub.oz$SCHOOLID <- as.character(student2012.sub.oz$SCHOOLID)
+# table(student2012.sub.oz$SCHOOLID)
+# length(unique(student2012.sub.oz$SCHOOLID))
+student2012.sub.oz.mean <- summarise(group_by(student2012.sub[, c(1, 6, 8)], 
+    SCHOOLID), math = mean(PV1MATH, na.rm = T), q0 = min(PV1MATH, na.rm = T), 
+    q25 = quantile(PV1MATH, p = 0.25, na.rm = T), q50 = median(PV1MATH, na.rm = T), 
+    q75 = quantile(PV1MATH, p = 0.75, na.rm = T), q100 = max(PV1MATH, na.rm = T))
+student2012.sub.oz.mean$SCHOOLID <- factor(student2012.sub.oz.mean$SCHOOLID, 
+    levels = student2012.sub.oz.mean$SCHOOLID[order(student2012.sub.oz.mean$q50)])
+ggplot(data = student2012.sub.oz.mean) + ylab("Math Score") + xlab("") + geom_point(aes(x = SCHOOLID, 
+    y = q50)) + geom_segment(aes(x = SCHOOLID, xend = SCHOOLID, y = q0, yend = q25), 
+    alpha = 0.1) + geom_segment(aes(x = SCHOOLID, xend = SCHOOLID, y = q75, 
+    yend = q100), alpha = 0.1) + coord_flip() + theme(legend.position = "none")
 ```
 
-```
-## Loading required package: lattice
-## Loading required package: vcd
-## Loading required package: MASS
-## 
-## Attaching package: 'MASS'
-## 
-## The following object is masked from 'package:dplyr':
-## 
-##     select
-## 
-## Loading required package: colorspace
-## Loading required package: barcode
-## Loading required package: gpairs
-```
+![plot of chunk oz](figure/oz.png) 
 
 ```r
+# So mostly the variation is student to student, not school to school like a
+# friend suggested Not the best way to display this, I think Really want to
+# be able to show that the best student at a low scoring school does better
+# than the worst student at a high-scoring school
+```
+
+
+
+```r
+# Wonder how other countries compare
+student2012.sub <- student2012[, c(1, 6, 501)]
+colnames(student2012.sub)[1] <- "name"
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub.summary <- summarise(group_by(student2012.sub, name, SCHOOLID), 
+    math = median(PV1MATH, na.rm = T))
+student2012.sub.summary$SCHOOLID <- as.numeric(as.character(student2012.sub.summary$SCHOOLID))
+order <- summarise(group_by(student2012.sub, name, SCHOOLID), math = median(PV1MATH, 
+    na.rm = T))
+bymedian <- with(student2012.sub.summary, reorder(name, math, median))
+qplot(bymedian, math, data = student2012.sub.summary, ylim = c(0, 1000), xlab = "Math", 
+    ylab = "") + coord_flip()
+```
+
+![plot of chunk schoolmath](figure/schoolmath.png) 
+
+```r
+# Pretty similar overall, Australia still comes up as having a big variance,
+# a few low-scoring schools and a few high-scoring schools, Spain has a
+# really low-scoring school
+```
+
+
+
+```r
+library(YaleToolkit)
 gpairs(student2012.sub.summary[, c(2, 10, 11)])
 ```
 
-![plot of chunk pairs](figure/pairs1.png) 
+```
+## Error: undefined columns selected
+```
 
 ```r
 # library(cranvas) qstudent <- qdata(student2012.sub.summary) qscatter(math,
@@ -555,39 +462,27 @@ rownames(student2012.sub.summary.nomiss) <- student2012.sub.summary.nomiss[,
     1]
 student2012.sub.math.pca <- prcomp(student2012.sub.summary.nomiss[, 2:9], scale = T, 
     retx = T)
+```
+
+```
+## Error: undefined columns selected
+```
+
+```r
 student2012.sub.math.pca
 ```
 
 ```
-## Standard deviations:
-## [1] 2.80567 0.27960 0.13583 0.10800 0.09927 0.09454 0.02951 0.01564
-## 
-## Rotation:
-##              PC1      PC2      PC3        PC4     PC5      PC6       PC7
-## math      0.3564 -0.02297  0.03942 -0.0000927  0.0925  0.04608  0.006654
-## Change    0.3549 -0.07813  0.24513 -0.6402382 -0.1132 -0.45989 -0.401432
-## Quantity  0.3535  0.30848  0.54781  0.4298670 -0.1855  0.31886 -0.370954
-## Spatial   0.3487 -0.70612 -0.20407  0.4209359  0.2533 -0.12219 -0.237019
-## Data      0.3533  0.33265 -0.50666 -0.2733700  0.4050  0.44632 -0.204832
-## Employ    0.3554 -0.01925  0.41703 -0.0932559  0.4417 -0.01805  0.673954
-## Formulate 0.3541 -0.27974 -0.18160 -0.1726793 -0.6940  0.36616  0.332283
-## Interpret 0.3522  0.45860 -0.36472  0.3389343 -0.1985 -0.57981  0.196063
-##                PC8
-## math      -0.92747
-## Change     0.11176
-## Quantity   0.14610
-## Spatial    0.16025
-## Data       0.16708
-## Employ     0.20275
-## Formulate  0.08663
-## Interpret  0.06123
+## Error: object 'student2012.sub.math.pca' not found
 ```
 
 ```r
 qplot(PC2, PC3, data = data.frame(student2012.sub.math.pca$x)) + theme(aspect.ratio = 1)
 ```
 
-![plot of chunk pairs](figure/pairs2.png) 
+```
+## Error: object 'student2012.sub.math.pca' not found
+```
 
 ```r
 # High values on PC2 correspond to high data and interpretation, low
@@ -601,37 +496,7 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 2],
 ```
 
 ```
-##  [1] "Ireland"                  "United Kingdom"          
-##  [3] "Greece"                   "Netherlands"             
-##  [5] "United States of America" "Norway"                  
-##  [7] "New Zealand"              "Croatia"                 
-##  [9] "Finland"                  "France"                  
-## [11] "Spain"                    "Sweden"                  
-## [13] "Australia"                "Israel"                  
-## [15] "Brazil"                   "Costa Rica"              
-## [17] "Germany"                  "Canada"                  
-## [19] "Italy"                    "Austria"                 
-## [21] "Luxembourg"               "Chile"                   
-## [23] "Belgium"                  "Vietnam"                 
-## [25] "Estonia"                  "Hungary"                 
-## [27] "Iceland"                  "Liechtenstein"           
-## [29] "Czech Republic"           "Lithuania"               
-## [31] "Republic of Serbia"       "Portugal"                
-## [33] "Slovenia"                 "Tunisia"                 
-## [35] "Poland"                   "Argentina"               
-## [37] "United Arab Emirates"     "Turkey"                  
-## [39] "Mexico"                   "Hong Kong S.A.R."        
-## [41] "Montenegro"               "Thailand"                
-## [43] "Bulgaria"                 "Uruguay"                 
-## [45] "Slovakia"                 "Peru"                    
-## [47] "Latvia"                   "Indonesia"               
-## [49] "Romania"                  "Singapore"               
-## [51] "Qatar"                    "Switzerland"             
-## [53] "Malaysia"                 "Jordan"                  
-## [55] "Macao-China"              "Russia"                  
-## [57] "Japan"                    "South Korea"             
-## [59] "Kazakhstan"               "Taiwan"                  
-## [61] "Albania"                  "China"
+## Error: object 'student2012.sub.math.pca' not found
 ```
 
 ```r
@@ -643,53 +508,23 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 3],
 ```
 
 ```
-##  [1] "Israel"                   "Estonia"                 
-##  [3] "Russia"                   "United Arab Emirates"    
-##  [5] "Croatia"                  "Lithuania"               
-##  [7] "Czech Republic"           "Slovakia"                
-##  [9] "Kazakhstan"               "Romania"                 
-## [11] "Republic of Serbia"       "Argentina"               
-## [13] "Slovenia"                 "Latvia"                  
-## [15] "Austria"                  "Luxembourg"              
-## [17] "Albania"                  "Singapore"               
-## [19] "Bulgaria"                 "Belgium"                 
-## [21] "Vietnam"                  "Hungary"                 
-## [23] "Uruguay"                  "Mexico"                  
-## [25] "Germany"                  "Hong Kong S.A.R."        
-## [27] "Liechtenstein"            "Finland"                 
-## [29] "Ireland"                  "Turkey"                  
-## [31] "France"                   "Montenegro"              
-## [33] "Italy"                    "Tunisia"                 
-## [35] "Canada"                   "Switzerland"             
-## [37] "China"                    "Spain"                   
-## [39] "Macao-China"              "Peru"                    
-## [41] "Poland"                   "Portugal"                
-## [43] "Iceland"                  "Netherlands"             
-## [45] "Qatar"                    "Costa Rica"              
-## [47] "South Korea"              "United Kingdom"          
-## [49] "Sweden"                   "Greece"                  
-## [51] "Brazil"                   "Malaysia"                
-## [53] "United States of America" "Chile"                   
-## [55] "Thailand"                 "Australia"               
-## [57] "Jordan"                   "New Zealand"             
-## [59] "Norway"                   "Indonesia"               
-## [61] "Japan"                    "Taiwan"
+## Error: object 'student2012.sub.math.pca' not found
 ```
 
 ```r
 student2012.sub.summary.pca <- prcomp(student2012.sub.summary.nomiss[, c(2, 
     10, 11)], scale = T, retx = T)
+```
+
+```
+## Error: undefined columns selected
+```
+
+```r
 student2012.sub.summary.pca
 ```
 
 ```
-## Standard deviations:
-## [1] 1.7140 0.2086 0.1368
-## 
-## Rotation:
-##            PC1     PC2     PC3
-## math    0.5756  0.7597  0.3026
-## read    0.5768 -0.6394  0.5084
-## science 0.5797 -0.1181 -0.8062
+## Error: object 'student2012.sub.summary.pca' not found
 ```
 

@@ -2,7 +2,7 @@ Exploring maps
 ========================================================
 
 
-```{r load_libraries, message=FALSE}
+```{r load_libraries, message=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 library(stringr)
 library(ggplot2)
 library(dplyr)
@@ -15,7 +15,7 @@ library (grid)
 library (scales)	
 ```
 
-```{r load_data}
+```{r load_data, echo=FALSE, warning=FALSE, message=FALSE}
 setwd("..")
 sets <- c("item", "parent", "school", "scoredItem", "student")
 
@@ -36,7 +36,7 @@ sets %>% fn_build %>% lapply(load, .GlobalEnv)
 #rm(fn_build, sets)
 ```
 
-```{r modify_dictionaries}
+```{r modify_dictionaries, echo=FALSE, warning=FALSE, message=FALSE}
 # function to convert to data-frames
 fn_make_df <- function(named_vector){
   data.frame(
@@ -58,7 +58,7 @@ dict_student2012 <- fn_make_df(student2012dict)
 #rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
 ```
 
-```{r usefulfn}
+```{r usefulfn, echo=FALSE, warning=FALSE, message=FALSE}
 extractPolygons <- function(shapes) {
 
   dframe <- ldply(1:length(shapes@polygons), function(i) {
@@ -90,13 +90,13 @@ new_theme_empty$axis.title <- element_blank()
 new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
 ```
 
-```{r summarize}
+```{r summarize, warning=FALSE, message=FALSE}
 sort(table(student2012$CNT))
 schools.sampled <- summarise(group_by(student2012[,c(1,6)], CNT), numschools=length(unique(SCHOOLID)))
 schools.sampled[order(schools.sampled$numschools, decreasing=T),]
 ```
 
-```{r maps, fig.width=12, fig.height=7}
+```{r maps, fig.width=12, fig.height=7, warning=FALSE, message=FALSE}
 # Extract map polygons for modern world
 world <- getMap(resolution = "low")
 library(plyr)
@@ -222,7 +222,7 @@ p2 = ggplotGrob(p2)
 p1 + annotation_custom(grob = p2, xmin = -40, xmax = 80, ymin = -110, ymax = 10)
 ```
 
-```{r all, fig.width=8, fig.height=12}
+```{r all, fig.width=8, fig.height=12, warning=FALSE, message=FALSE}
 student2012.sub.iqr <- summarise(group_by(student2012.sub[,c(1,8:17)], name), q0=min(PV1MATH, na.rm=T),
                                  q25=quantile(PV1MATH, 0.25, na.rm=T), q50=median(PV1MATH, na.rm=T), 
                                  q75=quantile(PV1MATH, 0.75, na.rm=T), q100=max(PV1MATH, na.rm=T), 
@@ -255,7 +255,42 @@ ggplot(data=student2012.sub.iqr) + ylab("Science Score") + xlab("") + ylim(c(0,1
   coord_flip() + theme(legend.position="none")
 ```
 
-```{r pairs, fig.width=12, fig.height=12}
+```{r oz, fig.width=8, fig.height=12, warning=FALSE, message=FALSE}
+# Why is australia so varied?
+student2012.sub.oz <- student2012.sub[student2012.sub$name=="Australia",]
+student2012.sub.oz$SCHOOLID <- as.character(student2012.sub.oz$SCHOOLID)
+#table(student2012.sub.oz$SCHOOLID)
+#length(unique(student2012.sub.oz$SCHOOLID))
+student2012.sub.oz.mean <- summarise(group_by(student2012.sub[,c(1,6, 8)], SCHOOLID), math=mean(PV1MATH, na.rm=T), 
+                                     q0=min(PV1MATH, na.rm=T), q25=quantile(PV1MATH, p=0.25, na.rm=T), 
+                                     q50=median(PV1MATH, na.rm=T),
+                                     q75=quantile(PV1MATH, p=0.75, na.rm=T), q100=max(PV1MATH, na.rm=T))
+student2012.sub.oz.mean$SCHOOLID <- factor(student2012.sub.oz.mean$SCHOOLID, levels=student2012.sub.oz.mean$SCHOOLID[order(student2012.sub.oz.mean$q50)])
+ggplot(data=student2012.sub.oz.mean) + ylab("Math Score") + xlab("") + 
+  geom_point(aes(x=SCHOOLID, y=q50)) + geom_segment(aes(x=SCHOOLID, xend=SCHOOLID, y=q0, yend=q25), alpha=0.1) +
+  geom_segment(aes(x=SCHOOLID, xend=SCHOOLID, y=q75, yend=q100), alpha=0.1) +
+  coord_flip() + theme(legend.position="none")
+# So mostly the variation is student to student, not school to school like a friend suggested
+# Not the best way to display this, I think
+# Really want to be able to show that the best student at a low scoring school does better 
+# than the worst student at a high-scoring school
+```
+
+```{r schoolmath, fig.width=12, fig.height=12, warning=FALSE, message=FALSE}
+# Wonder how other countries compare
+student2012.sub <- student2012[, c(1, 6, 501)]
+colnames(student2012.sub)[1] <- "name"
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub.summary <- summarise(group_by(student2012.sub, name, SCHOOLID), math=median(PV1MATH, na.rm=T))
+student2012.sub.summary$SCHOOLID <- as.numeric(as.character(student2012.sub.summary$SCHOOLID))
+order <- summarise(group_by(student2012.sub, name, SCHOOLID), math=median(PV1MATH, na.rm=T))
+bymedian <- with(student2012.sub.summary, reorder(name, math, median))
+qplot(bymedian, math, data=student2012.sub.summary, ylim=c(0,1000), xlab="Math", ylab="") + coord_flip()
+# Pretty similar overall, Australia still comes up as having a big variance, a few low-scoring schools 
+# and a few high-scoring schools, Spain has a really low-scoring school
+```
+
+```{r pairs, fig.width=12, fig.height=12, warning=FALSE, message=FALSE}
 library(YaleToolkit)
 gpairs(student2012.sub.summary[, c(2, 10, 11)])
 # library(cranvas)

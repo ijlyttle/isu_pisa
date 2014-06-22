@@ -248,7 +248,8 @@ student2012.sub.summary.m$variable <- substr(student2012.sub.summary.m$variable,
     5, 6)
 student2012.sub.summary.m$variable <- as.numeric(student2012.sub.summary.m$variable)
 qplot(variable, value, data = student2012.sub.summary.m, group = name, geom = c("point", 
-    "smooth"), se = F) + facet_wrap(~name, ncol = 8)
+    "smooth"), se = F, xlab = "Possessions", ylab = "Math") + facet_wrap(~name, 
+    ncol = 8)
 ```
 
 ![plot of chunk plotstuff2](figure/plotstuff2.png) 
@@ -306,7 +307,7 @@ student2012.sub.summary.m$variable <- substr(student2012.sub.summary.m$variable,
     5, 5)
 student2012.sub.summary.m$variable <- as.numeric(student2012.sub.summary.m$variable)
 qplot(variable, value, data = student2012.sub.summary.m, group = name, geom = c("point", 
-    "smooth"), se = F) + facet_wrap(~name, ncol = 8)
+    "smooth"), se = F, xlab = "Age", ylab = "Math") + facet_wrap(~name, ncol = 8)
 ```
 
 ![plot of chunk agemath](figure/agemath2.png) 
@@ -314,5 +315,49 @@ qplot(variable, value, data = student2012.sub.summary.m, group = name, geom = c(
 ```r
 # Looking by country is important: generally starting school early leads to
 # better scores
+```
+
+
+
+```r
+student2012.sub <- student2012[, c(1, 12, 501)]
+colnames(student2012.sub)[1] <- "name"
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub.summary <- summarise(group_by(student2012.sub, name), male = mean(PV1MATH[ST04Q01 == 
+    "Male"], na.rm = T), female = mean(PV1MATH[ST04Q01 == "Female"], na.rm = T))
+student2012.sub.summary.m <- melt(student2012.sub.summary)
+colnames(student2012.sub.summary.m)[2] <- "gender"
+colnames(student2012.sub.summary.m)[3] <- "math"
+qplot(gender, math, data = student2012.sub.summary.m, geom = "boxplot") + theme(aspect.ratio = 1)
+```
+
+![plot of chunk gendermath](figure/gendermath1.png) 
+
+```r
+# Overall there is a gender gap in math, perhaps 10 points, and the high
+# scores are almost exclusively males
+student2012.sub.summary.m$name <- factor(student2012.sub.summary.m$name, levels = student2012.sub.summary$name[order(student2012.sub.summary$male)])
+student2012.sub.summary.m$gender <- factor(student2012.sub.summary.m$gender, 
+    levels = c("female", "male"))
+qplot(name, math, data = student2012.sub.summary.m, colour = gender) + coord_flip()
+```
+
+![plot of chunk gendermath](figure/gendermath2.png) 
+
+```r
+# Some countries have no gender gap, a few surprises females better than
+# males
+student2012.sub.summary.gap <- summarise(group_by(student2012.sub.summary, name), 
+    gap = male - female)
+student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
+    levels = student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$gap)])
+qplot(name, gap, data = student2012.sub.summary.gap, ylim = c(-30, 30)) + geom_hline(yintercept = 0, 
+    colour = "grey80") + coord_flip()
+```
+
+![plot of chunk gendermath](figure/gendermath3.png) 
+
+```r
+# Gap is interesting
 ```
 
