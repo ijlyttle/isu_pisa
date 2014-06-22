@@ -1,0 +1,203 @@
+Exploring possessions, and other demographics
+========================================================
+
+```{r load_libraries, message=FALSE}
+library(stringr)
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(ggvis)
+library(maps)
+library(ggmap)
+library(rworldmap)
+library (grid)    
+library (scales)	
+```
+
+```{r load_data, echo=FALSE}
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name){
+ 
+  template <- c("2012.rda", "2012dict.rda")
+ 
+  file_name %>% 
+    vapply(str_join, template, template) %>% 
+    file.path(".", "data", .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+# clean
+#rm(fn_build, sets)
+```
+
+```{r modify_dictionaries, echo=FALSE}
+# function to convert to data-frames
+fn_make_df <- function(named_vector){
+  data.frame(
+    variable = attr(named_vector, "names"),
+    description = named_vector,
+    row.names = NULL
+  )
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict) 
+dict_parent2012 <- fn_make_df(parent2012dict) 
+dict_school2012 <- fn_make_df(school2012dict) 
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+dict_student2012 <- fn_make_df(student2012dict) 
+
+# clean
+#rm(fn_make_df)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+```
+
+```{r usefulfn, echo=FALSE}
+extractPolygons <- function(shapes) {
+
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe$name <- shapes@polygons[[i]]@ID
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+
+# To get a blank background on map
+new_theme_empty <- theme_bw()
+new_theme_empty$line <- element_blank()
+new_theme_empty$rect <- element_blank()
+new_theme_empty$strip.text <- element_blank()
+new_theme_empty$axis.text <- element_blank()
+new_theme_empty$plot.title <- element_blank()
+new_theme_empty$axis.title <- element_blank()
+new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+```
+
+```{r countpossessions, warning=FALSE, message=FALSE}
+student2012.sub <- student2012[, c(1:7, 44:57, 61:66, seq(501, 550, 5))]
+colnames(student2012.sub)[1] <- "name"
+for (i in 8:21) {
+  student2012.sub[,i] <- as.character(student2012.sub[,i])
+  student2012.sub[is.na(student2012.sub[,i]), i] <- ""
+  student2012.sub[student2012.sub[,i]=="Yes",i] <- "1"
+  student2012.sub[student2012.sub[,i]=="No",i] <- "0"
+  student2012.sub[,i] <- as.numeric(student2012.sub[,i])
+}
+for (i in 22:26) {
+  student2012.sub[,i] <- as.character(student2012.sub[,i])
+  student2012.sub[is.na(student2012.sub[,i]), i] <- ""
+  student2012.sub[student2012.sub[,i]=="None",i] <- "0"
+  student2012.sub[student2012.sub[,i]=="One",i] <- "1"
+  student2012.sub[student2012.sub[,i]=="Two",i] <- "2"
+  student2012.sub[student2012.sub[,i]=="Three or more",i] <- "3"
+  student2012.sub[,i] <- as.numeric(student2012.sub[,i])
+}
+student2012.sub[,27] <- as.character(student2012.sub[,27])
+student2012.sub[is.na(student2012.sub[,27]), 27] <- ""
+student2012.sub[student2012.sub[,27]=="0-10 books ",27] <- "0"
+student2012.sub[student2012.sub[,27]=="11-25 books ",27] <- "1"
+student2012.sub[student2012.sub[,27]=="26-100 books ",27] <- "2"
+student2012.sub[student2012.sub[,27]=="101-200 books ",27] <- "3"
+student2012.sub[student2012.sub[,27]=="201-500 books ",27] <- "4"
+student2012.sub[student2012.sub[,27]=="More than 500 books",27] <- "5"
+student2012.sub[,27] <- as.numeric(student2012.sub[,27])
+student2012.sub$numposs <- apply(student2012.sub[,8:21], 1, sum, na.rm=T)
+student2012.sub$numedposs <- apply(student2012.sub[,22:27], 1, sum, na.rm=T)
+```
+
+```{r plotstuff, fig.width=8, fig.height=8, warning=FALSE, message=FALSE}
+qplot(numposs, PV1MATH, data=student2012.sub, alpha=I(0.1), geom=c("point", "smooth"))
+qplot(numedposs, PV1MATH, data=student2012.sub, alpha=I(0.1), geom=c("point", "smooth"))
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub$PV1MACC <- as.numeric(student2012.sub$PV1MACC)
+student2012.sub$PV1MACQ <- as.numeric(student2012.sub$PV1MACQ)
+student2012.sub$PV1MACS <- as.numeric(student2012.sub$PV1MACS)
+student2012.sub$PV1MACU <- as.numeric(student2012.sub$PV1MACU)
+student2012.sub$PV1MAPE <- as.numeric(student2012.sub$PV1MAPE)
+student2012.sub$PV1MAPF <- as.numeric(student2012.sub$PV1MAPF)
+student2012.sub$PV1MAPI <- as.numeric(student2012.sub$PV1MAPI)
+student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
+student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
+student2012.sub.summary <- summarise(group_by(student2012.sub[,c(1,8:39)], name), math=mean(PV1MATH, na.rm=T), 
+          read=mean(PV1READ, na.rm=T), science=mean(PV1SCIE, na.rm=T),
+          poss = mean(numposs, na.rm=T), edposs = mean(numedposs, na.rm=T))
+qplot(poss, math, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+qplot(poss, read, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+qplot(poss, science, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+head(student2012.sub.summary[order(student2012.sub.summary$math, decreasing=T),], 20) 
+# Vietnam is the outlier, few poss, high scores
+lm(math~poss, data=student2012.sub.summary)
+# Each increase in one possession tends to increase math score by 25 points (poss=7, 12)
+qplot(edposs, math, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+qplot(edposs, read, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+qplot(edposs, science, data=student2012.sub.summary) + geom_smooth(method="lm", se=F)
+lm(math~edposs, data=student2012.sub.summary)
+# Each increase in one possession tends to increase math score by 13 points (edposs=5, 14)
+qplot(edposs, poss, data=student2012.sub.summary)
+```
+
+
+```{r plotstuff2, fig.width=12, fig.height=12, warning=FALSE, message=FALSE}
+student2012.sub.summary <- summarise(group_by(student2012.sub[,c(1,8,28,38)], name), 
+              math05=mean(PV1MATH[numposs<6], na.rm=T), math06=mean(PV1MATH[numposs==6], na.rm=T), 
+              math07=mean(PV1MATH[numposs==7], na.rm=T), math08=mean(PV1MATH[numposs==8], na.rm=T),
+              math09=mean(PV1MATH[numposs==9], na.rm=T), math10=mean(PV1MATH[numposs==10], na.rm=T),
+              math11=mean(PV1MATH[numposs==11], na.rm=T), math12=mean(PV1MATH[numposs==12], na.rm=T),
+              math13=mean(PV1MATH[numposs==13], na.rm=T), math14=mean(PV1MATH[numposs==14], na.rm=T))
+student2012.sub.summary.m <- melt(student2012.sub.summary)
+student2012.sub.summary.m$variable <- substr(student2012.sub.summary.m$variable, 5, 6) 
+student2012.sub.summary.m$variable <- as.numeric(student2012.sub.summary.m$variable)
+qplot(variable, value, data=student2012.sub.summary.m, group=name, geom=c("point","smooth"), se=F) + 
+  facet_wrap(~name, ncol=8)
+```
+
+```{r age, fig.width=8, fig.height=12, warning=FALSE, message=FALSE}
+summary(student2012$ST06Q01)
+student2012$ST06Q01 <- as.numeric(student2012$ST06Q01)
+student2012.age.iqr <- summarise(group_by(student2012[,c(1,14)], CNT), q0=min(ST06Q01, na.rm=T),
+                                 q25=quantile(ST06Q01, 0.25, na.rm=T), q50=median(ST06Q01, na.rm=T), 
+                                 q75=quantile(ST06Q01, 0.75, na.rm=T), q100=max(ST06Q01, na.rm=T), 
+                                 count=length(ST06Q01))
+student2012.age.iqr$CNT <- factor(student2012.age.iqr$CNT, 
+      levels=student2012.age.iqr$CNT[order(student2012.age.iqr$q50)])
+ggplot(data=student2012.age.iqr) + ylab("Age") + xlab("") + 
+  geom_point(aes(x=CNT, y=q50, size=count)) + geom_segment(aes(x=CNT, xend=CNT, y=q0, yend=q25)) +
+  geom_segment(aes(x=CNT, xend=CNT, y=q75, yend=q100)) +
+  coord_flip() + theme(legend.position="none")
+```
+
+```{r agemath, fig.width=12, fig.height=12, warning=FALSE, message=FALSE}
+student2012.sub <- student2012[, c(1, 14, 501)]
+colnames(student2012.sub)[1] <- "name"
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub$ST06Q01 <- as.numeric(student2012.sub$ST06Q01)
+student2012.sub.summary <- summarise(group_by(student2012.sub, name), math=mean(PV1MATH, na.rm=T), 
+          age=mean(ST06Q01, na.rm=T))
+qplot(age, math, data=student2012.sub.summary)
+# Age at start school does not seem to make a difference on country level
+# qplot(ST06Q01, PV1MATH, data=student2012, alpha=I(0.1), xlab="Age", ylab="Math")
+student2012.sub.summary <- summarise(group_by(student2012.sub, name), math4=mean(PV1MATH[ST06Q01==4], na.rm=T), 
+          math5=mean(PV1MATH[ST06Q01==5], na.rm=T), math6=mean(PV1MATH[ST06Q01==6], na.rm=T), 
+          math7=mean(PV1MATH[ST06Q01==7], na.rm=T), math8=mean(PV1MATH[ST06Q01>7], na.rm=T))
+student2012.sub.summary.m <- melt(student2012.sub.summary)
+student2012.sub.summary.m$variable <- substr(student2012.sub.summary.m$variable, 5, 5)
+student2012.sub.summary.m$variable <- as.numeric(student2012.sub.summary.m$variable)
+qplot(variable, value, data=student2012.sub.summary.m, group=name, geom=c("point","smooth"), se=F) + facet_wrap(~name, ncol=8)
+# Looking by country is important: generally starting school early leads to better scores
+```
