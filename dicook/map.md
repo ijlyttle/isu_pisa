@@ -352,15 +352,8 @@ student2012.sub.summary <- summarise(group_by(student2012.sub[, c(1, 8:17)],
 ```
 
 ```r
-colnames(student2012.sub.math)[3:9] <- c("Change", "Quantity", "Spatial", "Data", 
-    "Employ", "Formulate", "Interpret")
-```
-
-```
-## Error: object 'student2012.sub.math' not found
-```
-
-```r
+colnames(student2012.sub.summary)[3:9] <- c("Change", "Quantity", "Spatial", 
+    "Data", "Employ", "Formulate", "Interpret")
 
 # Left join to only get countries that are measured
 student2012.sub.map <- left_join(student2012.sub.summary, world.polys)
@@ -481,6 +474,49 @@ p1 + annotation_custom(grob = p2, xmin = -40, xmax = 80, ymin = -110, ymax = 10)
 
 
 
+```r
+student2012.sub.iqr <- summarise(group_by(student2012.sub[, c(1, 8:17)], name), 
+    q0 = min(PV1MATH, na.rm = T), q25 = quantile(PV1MATH, 0.25, na.rm = T), 
+    q50 = median(PV1MATH, na.rm = T), q75 = quantile(PV1MATH, 0.75, na.rm = T), 
+    q100 = max(PV1MATH, na.rm = T), count = length(PV1MATH))
+student2012.sub.iqr$name <- factor(student2012.sub.iqr$name, levels = student2012.sub.summary$name[order(student2012.sub.summary$math)])
+ggplot(data = student2012.sub.iqr) + ylab("Math Score") + xlab("") + ylim(c(0, 
+    1000)) + geom_point(aes(x = name, y = q50, size = count)) + geom_segment(aes(x = name, 
+    xend = name, y = q0, yend = q25)) + geom_segment(aes(x = name, xend = name, 
+    y = q75, yend = q100)) + coord_flip() + theme(legend.position = "none")
+```
+
+![plot of chunk all](figure/all1.png) 
+
+```r
+student2012.sub.iqr <- summarise(group_by(student2012.sub[, c(1, 8:17)], name), 
+    q0 = min(PV1READ, na.rm = T), q25 = quantile(PV1READ, 0.25, na.rm = T), 
+    q50 = median(PV1READ, na.rm = T), q75 = quantile(PV1READ, 0.75, na.rm = T), 
+    q100 = max(PV1READ, na.rm = T), count = length(PV1READ))
+student2012.sub.iqr$name <- factor(student2012.sub.iqr$name, levels = student2012.sub.summary$name[order(student2012.sub.summary$read)])
+ggplot(data = student2012.sub.iqr) + ylab("Reading Score") + xlab("") + ylim(c(0, 
+    1000)) + geom_point(aes(x = name, y = q50, size = count)) + geom_segment(aes(x = name, 
+    xend = name, y = q0, yend = q25)) + geom_segment(aes(x = name, xend = name, 
+    y = q75, yend = q100)) + coord_flip() + theme(legend.position = "none")
+```
+
+![plot of chunk all](figure/all2.png) 
+
+```r
+student2012.sub.iqr <- summarise(group_by(student2012.sub[, c(1, 8:17)], name), 
+    q0 = min(PV1SCIE, na.rm = T), q25 = quantile(PV1SCIE, 0.25, na.rm = T), 
+    q50 = median(PV1SCIE, na.rm = T), q75 = quantile(PV1SCIE, 0.75, na.rm = T), 
+    q100 = max(PV1SCIE, na.rm = T), count = length(PV1SCIE))
+student2012.sub.iqr$name <- factor(student2012.sub.iqr$name, levels = student2012.sub.summary$name[order(student2012.sub.summary$science)])
+ggplot(data = student2012.sub.iqr) + ylab("Science Score") + xlab("") + ylim(c(0, 
+    1000)) + geom_point(aes(x = name, y = q50, size = count)) + geom_segment(aes(x = name, 
+    xend = name, y = q0, yend = q25)) + geom_segment(aes(x = name, xend = name, 
+    y = q75, yend = q100)) + coord_flip() + theme(legend.position = "none")
+```
+
+![plot of chunk all](figure/all3.png) 
+
+
 
 ```r
 library(YaleToolkit)
@@ -503,56 +539,55 @@ library(YaleToolkit)
 ```
 
 ```r
-gpairs(student2012.sub.math[, -1])
+gpairs(student2012.sub.summary[, c(2, 10, 11)])
 ```
 
-```
-## Error: object 'student2012.sub.math' not found
-```
+![plot of chunk pairs](figure/pairs1.png) 
 
 ```r
-# Should do a PCA, to look at what countries do better on what types of math
-# skills
-student2012.sub.math.nomiss <- subset(student2012.sub.math, !is.na(student2012.sub.math$Change) & 
-    !is.na(student2012.sub.math$Employ))
-```
-
-```
-## Error: object 'student2012.sub.math' not found
-```
-
-```r
-rownames(student2012.sub.math.nomiss) <- student2012.sub.math.nomiss[, 1]
-```
-
-```
-## Error: object 'student2012.sub.math.nomiss' not found
-```
-
-```r
-student2012.sub.math.pca <- prcomp(student2012.sub.math.nomiss[, -c(1, 2)], 
-    scale = T, retx = T)
-```
-
-```
-## Error: object 'student2012.sub.math.nomiss' not found
-```
-
-```r
+# library(cranvas) qstudent <- qdata(student2012.sub.summary) qscatter(math,
+# read, qstudent) qscatter(math, science, qstudent) qscatter(read, science,
+# qstudent) record_selector(name, qstudent) Should do a PCA, to look at what
+# countries do better on what types of math skills
+student2012.sub.summary.nomiss <- subset(student2012.sub.summary, !is.na(student2012.sub.summary$Change) & 
+    !is.na(student2012.sub.summary$Employ))
+rownames(student2012.sub.summary.nomiss) <- student2012.sub.summary.nomiss[, 
+    1]
+student2012.sub.math.pca <- prcomp(student2012.sub.summary.nomiss[, 2:9], scale = T, 
+    retx = T)
 student2012.sub.math.pca
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+## Standard deviations:
+## [1] 2.80567 0.27960 0.13583 0.10800 0.09927 0.09454 0.02951 0.01564
+## 
+## Rotation:
+##              PC1      PC2      PC3        PC4     PC5      PC6       PC7
+## math      0.3564 -0.02297  0.03942 -0.0000927  0.0925  0.04608  0.006654
+## Change    0.3549 -0.07813  0.24513 -0.6402382 -0.1132 -0.45989 -0.401432
+## Quantity  0.3535  0.30848  0.54781  0.4298670 -0.1855  0.31886 -0.370954
+## Spatial   0.3487 -0.70612 -0.20407  0.4209359  0.2533 -0.12219 -0.237019
+## Data      0.3533  0.33265 -0.50666 -0.2733700  0.4050  0.44632 -0.204832
+## Employ    0.3554 -0.01925  0.41703 -0.0932559  0.4417 -0.01805  0.673954
+## Formulate 0.3541 -0.27974 -0.18160 -0.1726793 -0.6940  0.36616  0.332283
+## Interpret 0.3522  0.45860 -0.36472  0.3389343 -0.1985 -0.57981  0.196063
+##                PC8
+## math      -0.92747
+## Change     0.11176
+## Quantity   0.14610
+## Spatial    0.16025
+## Data       0.16708
+## Employ     0.20275
+## Formulate  0.08663
+## Interpret  0.06123
 ```
 
 ```r
 qplot(PC2, PC3, data = data.frame(student2012.sub.math.pca$x)) + theme(aspect.ratio = 1)
 ```
 
-```
-## Error: object 'student2012.sub.math.pca' not found
-```
+![plot of chunk pairs](figure/pairs2.png) 
 
 ```r
 # High values on PC2 correspond to high data and interpretation, low
@@ -566,7 +601,37 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 2],
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+##  [1] "Ireland"                  "United Kingdom"          
+##  [3] "Greece"                   "Netherlands"             
+##  [5] "United States of America" "Norway"                  
+##  [7] "New Zealand"              "Croatia"                 
+##  [9] "Finland"                  "France"                  
+## [11] "Spain"                    "Sweden"                  
+## [13] "Australia"                "Israel"                  
+## [15] "Brazil"                   "Costa Rica"              
+## [17] "Germany"                  "Canada"                  
+## [19] "Italy"                    "Austria"                 
+## [21] "Luxembourg"               "Chile"                   
+## [23] "Belgium"                  "Vietnam"                 
+## [25] "Estonia"                  "Hungary"                 
+## [27] "Iceland"                  "Liechtenstein"           
+## [29] "Czech Republic"           "Lithuania"               
+## [31] "Republic of Serbia"       "Portugal"                
+## [33] "Slovenia"                 "Tunisia"                 
+## [35] "Poland"                   "Argentina"               
+## [37] "United Arab Emirates"     "Turkey"                  
+## [39] "Mexico"                   "Hong Kong S.A.R."        
+## [41] "Montenegro"               "Thailand"                
+## [43] "Bulgaria"                 "Uruguay"                 
+## [45] "Slovakia"                 "Peru"                    
+## [47] "Latvia"                   "Indonesia"               
+## [49] "Romania"                  "Singapore"               
+## [51] "Qatar"                    "Switzerland"             
+## [53] "Malaysia"                 "Jordan"                  
+## [55] "Macao-China"              "Russia"                  
+## [57] "Japan"                    "South Korea"             
+## [59] "Kazakhstan"               "Taiwan"                  
+## [61] "Albania"                  "China"
 ```
 
 ```r
@@ -578,6 +643,53 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 3],
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+##  [1] "Israel"                   "Estonia"                 
+##  [3] "Russia"                   "United Arab Emirates"    
+##  [5] "Croatia"                  "Lithuania"               
+##  [7] "Czech Republic"           "Slovakia"                
+##  [9] "Kazakhstan"               "Romania"                 
+## [11] "Republic of Serbia"       "Argentina"               
+## [13] "Slovenia"                 "Latvia"                  
+## [15] "Austria"                  "Luxembourg"              
+## [17] "Albania"                  "Singapore"               
+## [19] "Bulgaria"                 "Belgium"                 
+## [21] "Vietnam"                  "Hungary"                 
+## [23] "Uruguay"                  "Mexico"                  
+## [25] "Germany"                  "Hong Kong S.A.R."        
+## [27] "Liechtenstein"            "Finland"                 
+## [29] "Ireland"                  "Turkey"                  
+## [31] "France"                   "Montenegro"              
+## [33] "Italy"                    "Tunisia"                 
+## [35] "Canada"                   "Switzerland"             
+## [37] "China"                    "Spain"                   
+## [39] "Macao-China"              "Peru"                    
+## [41] "Poland"                   "Portugal"                
+## [43] "Iceland"                  "Netherlands"             
+## [45] "Qatar"                    "Costa Rica"              
+## [47] "South Korea"              "United Kingdom"          
+## [49] "Sweden"                   "Greece"                  
+## [51] "Brazil"                   "Malaysia"                
+## [53] "United States of America" "Chile"                   
+## [55] "Thailand"                 "Australia"               
+## [57] "Jordan"                   "New Zealand"             
+## [59] "Norway"                   "Indonesia"               
+## [61] "Japan"                    "Taiwan"
+```
+
+```r
+student2012.sub.summary.pca <- prcomp(student2012.sub.summary.nomiss[, c(2, 
+    10, 11)], scale = T, retx = T)
+student2012.sub.summary.pca
+```
+
+```
+## Standard deviations:
+## [1] 1.7140 0.2086 0.1368
+## 
+## Rotation:
+##            PC1     PC2     PC3
+## math    0.5756  0.7597  0.3026
+## read    0.5768 -0.6394  0.5084
+## science 0.5797 -0.1181 -0.8062
 ```
 
