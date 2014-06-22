@@ -131,7 +131,7 @@ student2012.sub$PV1MACS <- as.numeric(student2012.sub$PV1MACS)
 student2012.sub$PV1MACU <- as.numeric(student2012.sub$PV1MACU)
 student2012.sub$PV1MAPE <- as.numeric(student2012.sub$PV1MAPE)
 student2012.sub$PV1MAPF <- as.numeric(student2012.sub$PV1MAPF)
-student2012.sub$PV1MAPI <- as.numeric(studen=t2012.sub$PV1MAPI)
+student2012.sub$PV1MAPI <- as.numeric(student2012.sub$PV1MAPI)
 student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
 student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
 student2012.sub.summary <- summarise(group_by(student2012.sub[,c(1,8:39)], name), math=mean(PV1MATH, na.rm=T), 
@@ -163,7 +163,8 @@ student2012.sub.summary <- summarise(group_by(student2012.sub[,c(1,8,28,38)], na
 student2012.sub.summary.m <- melt(student2012.sub.summary)
 student2012.sub.summary.m$variable <- substr(student2012.sub.summary.m$variable, 5, 6) 
 student2012.sub.summary.m$variable <- as.numeric(student2012.sub.summary.m$variable)
-qplot(variable, value, data=student2012.sub.summary.m, group=name, geom=c("point","smooth"), se=F) + facet_wrap(~name, ncol=8)
+qplot(variable, value, data=student2012.sub.summary.m, group=name, geom=c("point","smooth"), se=F) + 
+  facet_wrap(~name, ncol=8)
 ```
 
 ```{r age, fig.width=8, fig.height=12, warning=FALSE, message=FALSE}
