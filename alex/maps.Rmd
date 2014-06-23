@@ -1,0 +1,132 @@
+Maps
+========================================================
+```{r load, cache=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+```
+
+```{r time, warning=FALSE, message=FALSE}
+#Relevant variables for hours studied
+hours = student2012 %>%
+    select(CNT, LMINS, MMINS, OUTHOURS, SMINS, ST57Q01, ST57Q02, ST57Q03, ST57Q04, ST57Q05,
+           PV1MATH, PV1SCIE, PV1READ) 
+
+hours$MMINS = as.numeric(hours$MMINS)
+hours$LMINS = as.numeric(hours$LMINS)
+hours$SMINS = as.numeric(hours$SMINS)
+hours$ST57Q01 = as.numeric(hours$ST57Q01)
+hours$ST57Q02 = as.numeric(hours$ST57Q02)
+hours$ST57Q03 = as.numeric(hours$ST57Q03)
+hours$ST57Q04 = as.numeric(hours$ST57Q04)
+hours$ST57Q05 = as.numeric(hours$ST57Q05)
+hours$PV1MATH = as.numeric(hours$PV1MATH)
+hours$PV1READ = as.numeric(hours$PV1READ)
+hours$PV1SCIE = as.numeric(hours$PV1SCIE)
+
+#change country names
+hours$CNT = as.character(hours$CNT)
+hours$CNT[hours$CNT=="Serbia"] <- "Republic of Serbia"
+hours$CNT[hours$CNT=="Korea"] <- "South Korea"
+hours$CNT[hours$CNT=="Chinese Taipei"] <- "Taiwan"
+hours$CNT[hours$CNT=="Slovak Republic"] <- "Slovakia"
+hours$CNT[hours$CNT=="Russian Federation"] <- "Russia"
+hours$CNT[hours$CNT=="Perm(Russian Federation)"] <- "Russia"
+hours$CNT[hours$CNT=="Hong Kong-China"] <- "Hong Kong S.A.R."
+hours$CNT[hours$CNT=="China-Shanghai"] <- "China"
+hours$CNT[hours$CNT=="China-Macau"] <- "China"
+hours$CNT[hours$CNT=="Connecticut (USA)"] <- "United States of America"
+hours$CNT[hours$CNT=="Florida (USA)"] <- "United States of America"
+hours$CNT[hours$CNT=="Massachusetts (USA)"] <- "United States of America"
+
+#calculate means by CNT
+hours = hours %>%
+    group_by(CNT) %>%
+    summarise(m_OUTHOURS = mean(OUTHOURS, na.rm=T), math = mean(PV1MATH, na.rm=T),
+              sci = mean(PV1SCIE, na.rm=T), read = mean(PV1READ, na.rm=T)) %>%
+    arrange(m_OUTHOURS) %>% mutate(mscore = (math + sci + read)/3)
+
+hours$CNT = factor(hours$CNT,
+                      levels = hours$CNT[order(hours$m_OUTHOURS)])
+names(hours)[1] = "name"
+print(hours)
+p1 = qplot(name, m_OUTHOURS, data = hours, color = m_OUTHOURS, size = mscore) + coord_flip()
+```
+
+
+```{r usefulfn, echo=FALSE, warning=FALSE, message=FALSE}
+extractPolygons <- function(shapes) {
+
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe$name <- shapes@polygons[[i]]@ID
+    dframe$area <- shapes@polygons[[i]]@area
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+
+# To get a blank background on map
+new_theme_empty <- theme_bw()
+new_theme_empty$line <- element_blank()
+new_theme_empty$rect <- element_blank()
+new_theme_empty$strip.text <- element_blank()
+new_theme_empty$axis.text <- element_blank()
+new_theme_empty$plot.title <- element_blank()
+new_theme_empty$axis.title <- element_blank()
+new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+```
+
+
+```{r map, warning=FALSE, message=FALSE}
+library(maps)
+library(rworldmap)
+world <- getMap(resolution = "low")
+world.polys <- extractPolygons(world)
+hours.map = left_join(hours, world.polys)
+
+p2 = ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey70")) + 
+  geom_polygon(data=hours.map, aes(x=X1, y=X2, order=order, group=group, fill=m_OUTHOURS)) +
+  new_theme_empty + theme(legend.position="none")
+
+p1 = ggplotGrob(p1)
+p2 + annotation_custom(grob = p1, xmin = -40, xmax = 80, ymin = -110, ymax = 10)
+```
