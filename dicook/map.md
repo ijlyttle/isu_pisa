@@ -444,12 +444,53 @@ qplot(bymedian, math, data = student2012.sub.summary, ylim = c(0, 1000), xlab = 
 
 ```r
 library(YaleToolkit)
+student2012.sub <- student2012[, c(1:7, seq(501, 550, 5))]
+colnames(student2012.sub)[1] <- "name"
+student2012.sub$name <- as.character(student2012.sub$name)
+# Check mismatches of names unique(anti_join(student2012.sub,
+# world.polys)[1])
+student2012.sub$name[student2012.sub$name == "Serbia"] <- "Republic of Serbia"
+student2012.sub$name[student2012.sub$name == "Korea"] <- "South Korea"
+student2012.sub$name[student2012.sub$name == "Chinese Taipei"] <- "Taiwan"
+student2012.sub$name[student2012.sub$name == "Slovak Republic"] <- "Slovakia"
+student2012.sub$name[student2012.sub$name == "Russian Federation"] <- "Russia"
+student2012.sub$name[student2012.sub$name == "Perm(Russian Federation)"] <- "Russia"
+student2012.sub$name[student2012.sub$name == "Hong Kong-China"] <- "Hong Kong S.A.R."
+student2012.sub$name[student2012.sub$name == "China-Shanghai"] <- "China"
+student2012.sub$name[student2012.sub$name == "China-Macau"] <- "China"
+student2012.sub$name[student2012.sub$name == "Connecticut (USA)"] <- "United States of America"
+student2012.sub$name[student2012.sub$name == "Florida (USA)"] <- "United States of America"
+student2012.sub$name[student2012.sub$name == "Massachusetts (USA)"] <- "United States of America"
+
+# Only need one of the plausible values, checked they are effectively
+# identical
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub$PV1MACC <- as.numeric(student2012.sub$PV1MACC)
+student2012.sub$PV1MACQ <- as.numeric(student2012.sub$PV1MACQ)
+student2012.sub$PV1MACS <- as.numeric(student2012.sub$PV1MACS)
+student2012.sub$PV1MACU <- as.numeric(student2012.sub$PV1MACU)
+student2012.sub$PV1MAPE <- as.numeric(student2012.sub$PV1MAPE)
+student2012.sub$PV1MAPF <- as.numeric(student2012.sub$PV1MAPF)
+student2012.sub$PV1MAPI <- as.numeric(student2012.sub$PV1MAPI)
+student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
+student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
+student2012.sub.summary <- summarise(group_by(student2012.sub[, c(1, 8:17)], 
+    name), math = mean(PV1MATH, na.rm = T), mCC = mean(PV1MACC, na.rm = T), 
+    mCQ = mean(PV1MACQ, na.rm = T), mCS = mean(PV1MACS, na.rm = T), mCU = mean(PV1MACU, 
+        na.rm = T), mPE = mean(PV1MAPE, na.rm = T), mPF = mean(PV1MAPF, na.rm = T), 
+    mPI = mean(PV1MAPI, na.rm = T), read = mean(PV1READ, na.rm = T), science = mean(PV1SCIE, 
+        na.rm = T), mathr = diff(range(PV1MATH, na.rm = T)), mCCr = diff(range(PV1MACC, 
+        na.rm = T)), mCQr = diff(range(PV1MACQ, na.rm = T)), mCSr = diff(range(PV1MACS, 
+        na.rm = T)), mCUr = diff(range(PV1MACU, na.rm = T)), mPEr = diff(range(PV1MAPE, 
+        na.rm = T)), mPFr = diff(range(PV1MAPF, na.rm = T)), mPIr = diff(range(PV1MAPI, 
+        na.rm = T)), readr = diff(range(PV1READ, na.rm = T)), sciencer = diff(range(PV1SCIE, 
+        na.rm = T)))
+colnames(student2012.sub.summary)[3:9] <- c("Change", "Quantity", "Spatial", 
+    "Data", "Employ", "Formulate", "Interpret")
 gpairs(student2012.sub.summary[, c(2, 10, 11)])
 ```
 
-```
-## Error: undefined columns selected
-```
+![plot of chunk pairs](figure/pairs1.png) 
 
 ```r
 # library(cranvas) qstudent <- qdata(student2012.sub.summary) qscatter(math,
@@ -462,27 +503,39 @@ rownames(student2012.sub.summary.nomiss) <- student2012.sub.summary.nomiss[,
     1]
 student2012.sub.math.pca <- prcomp(student2012.sub.summary.nomiss[, 2:9], scale = T, 
     retx = T)
-```
-
-```
-## Error: undefined columns selected
-```
-
-```r
 student2012.sub.math.pca
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+## Standard deviations:
+## [1] 2.80567 0.27960 0.13583 0.10800 0.09927 0.09454 0.02951 0.01564
+## 
+## Rotation:
+##              PC1      PC2      PC3        PC4     PC5      PC6       PC7
+## math      0.3564 -0.02297  0.03942 -0.0000927  0.0925  0.04608  0.006654
+## Change    0.3549 -0.07813  0.24513 -0.6402382 -0.1132 -0.45989 -0.401432
+## Quantity  0.3535  0.30848  0.54781  0.4298670 -0.1855  0.31886 -0.370954
+## Spatial   0.3487 -0.70612 -0.20407  0.4209359  0.2533 -0.12219 -0.237019
+## Data      0.3533  0.33265 -0.50666 -0.2733700  0.4050  0.44632 -0.204832
+## Employ    0.3554 -0.01925  0.41703 -0.0932559  0.4417 -0.01805  0.673954
+## Formulate 0.3541 -0.27974 -0.18160 -0.1726793 -0.6940  0.36616  0.332283
+## Interpret 0.3522  0.45860 -0.36472  0.3389343 -0.1985 -0.57981  0.196063
+##                PC8
+## math      -0.92747
+## Change     0.11176
+## Quantity   0.14610
+## Spatial    0.16025
+## Data       0.16708
+## Employ     0.20275
+## Formulate  0.08663
+## Interpret  0.06123
 ```
 
 ```r
 qplot(PC2, PC3, data = data.frame(student2012.sub.math.pca$x)) + theme(aspect.ratio = 1)
 ```
 
-```
-## Error: object 'student2012.sub.math.pca' not found
-```
+![plot of chunk pairs](figure/pairs2.png) 
 
 ```r
 # High values on PC2 correspond to high data and interpretation, low
@@ -496,7 +549,37 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 2],
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+##  [1] "Ireland"                  "United Kingdom"          
+##  [3] "Greece"                   "Netherlands"             
+##  [5] "United States of America" "Norway"                  
+##  [7] "New Zealand"              "Croatia"                 
+##  [9] "Finland"                  "France"                  
+## [11] "Spain"                    "Sweden"                  
+## [13] "Australia"                "Israel"                  
+## [15] "Brazil"                   "Costa Rica"              
+## [17] "Germany"                  "Canada"                  
+## [19] "Italy"                    "Austria"                 
+## [21] "Luxembourg"               "Chile"                   
+## [23] "Belgium"                  "Vietnam"                 
+## [25] "Estonia"                  "Hungary"                 
+## [27] "Iceland"                  "Liechtenstein"           
+## [29] "Czech Republic"           "Lithuania"               
+## [31] "Republic of Serbia"       "Portugal"                
+## [33] "Slovenia"                 "Tunisia"                 
+## [35] "Poland"                   "Argentina"               
+## [37] "United Arab Emirates"     "Turkey"                  
+## [39] "Mexico"                   "Hong Kong S.A.R."        
+## [41] "Montenegro"               "Thailand"                
+## [43] "Bulgaria"                 "Uruguay"                 
+## [45] "Slovakia"                 "Peru"                    
+## [47] "Latvia"                   "Indonesia"               
+## [49] "Romania"                  "Singapore"               
+## [51] "Qatar"                    "Switzerland"             
+## [53] "Malaysia"                 "Jordan"                  
+## [55] "Macao-China"              "Russia"                  
+## [57] "Japan"                    "South Korea"             
+## [59] "Kazakhstan"               "Taiwan"                  
+## [61] "Albania"                  "China"
 ```
 
 ```r
@@ -508,23 +591,102 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[, 3],
 ```
 
 ```
-## Error: object 'student2012.sub.math.pca' not found
+##  [1] "Israel"                   "Estonia"                 
+##  [3] "Russia"                   "United Arab Emirates"    
+##  [5] "Croatia"                  "Lithuania"               
+##  [7] "Czech Republic"           "Slovakia"                
+##  [9] "Kazakhstan"               "Romania"                 
+## [11] "Republic of Serbia"       "Argentina"               
+## [13] "Slovenia"                 "Latvia"                  
+## [15] "Austria"                  "Luxembourg"              
+## [17] "Albania"                  "Singapore"               
+## [19] "Bulgaria"                 "Belgium"                 
+## [21] "Vietnam"                  "Hungary"                 
+## [23] "Uruguay"                  "Mexico"                  
+## [25] "Germany"                  "Hong Kong S.A.R."        
+## [27] "Liechtenstein"            "Finland"                 
+## [29] "Ireland"                  "Turkey"                  
+## [31] "France"                   "Montenegro"              
+## [33] "Italy"                    "Tunisia"                 
+## [35] "Canada"                   "Switzerland"             
+## [37] "China"                    "Spain"                   
+## [39] "Macao-China"              "Peru"                    
+## [41] "Poland"                   "Portugal"                
+## [43] "Iceland"                  "Netherlands"             
+## [45] "Qatar"                    "Costa Rica"              
+## [47] "South Korea"              "United Kingdom"          
+## [49] "Sweden"                   "Greece"                  
+## [51] "Brazil"                   "Malaysia"                
+## [53] "United States of America" "Chile"                   
+## [55] "Thailand"                 "Australia"               
+## [57] "Jordan"                   "New Zealand"             
+## [59] "Norway"                   "Indonesia"               
+## [61] "Japan"                    "Taiwan"
 ```
 
 ```r
 student2012.sub.summary.pca <- prcomp(student2012.sub.summary.nomiss[, c(2, 
     10, 11)], scale = T, retx = T)
-```
-
-```
-## Error: undefined columns selected
-```
-
-```r
 student2012.sub.summary.pca
 ```
 
 ```
-## Error: object 'student2012.sub.summary.pca' not found
+## Standard deviations:
+## [1] 1.7140 0.2086 0.1368
+## 
+## Rotation:
+##            PC1     PC2     PC3
+## math    0.5756  0.7597  0.3026
+## read    0.5768 -0.6394  0.5084
+## science 0.5797 -0.1181 -0.8062
 ```
+
+
+
+```r
+oz <- subset(world.polys, name == "Australia")
+oz.center <- c(mean(oz$X1), mean(oz$X2))
+nz <- subset(world.polys, name == "New Zealand")
+nz.center <- c(mean(nz$X1), mean(nz$X2))
+ind <- subset(world.polys, name == "Indonesia")
+ind.center <- c(mean(ind$X1), mean(ind$X2))
+student2012.sub <- student2012[student2012$CNT == "Australia" | student2012$CNT == 
+    "New Zealand" | student2012$CNT == "Indonesia", c(1, 6, 501)]
+colnames(student2012.sub)[1] <- "name"
+colnames(student2012.sub)[3] <- "math"
+p1 <- qplot(math, name, data = student2012.sub, xlim = c(0, 1000))
+summarise(group_by(student2012.sub, name), math = mean(math, na.rm = T))
+```
+
+```
+## Source: local data frame [3 x 2]
+## 
+##          name  math
+## 1   Australia 492.8
+## 2   Indonesia 376.1
+## 3 New Zealand 501.4
+```
+
+```r
+oz$X1 <- scale(oz$X1, center = T, scale = T)
+oz$X2 <- scale(oz$X2, center = T, scale = T)
+nz$X1 <- scale(nz$X1, center = T, scale = T)
+nz$X2 <- scale(nz$X2, center = T, scale = T)
+ind$X1 <- scale(ind$X1, center = T, scale = T)
+ind$X2 <- scale(ind$X2, center = T, scale = T)
+p2 <- qplot(X1, X2, data = oz, group = group, order = order, geom = "polygon") + 
+    new_theme_empty
+p2 = ggplotGrob(p2)
+p3 <- qplot(X1, X2, data = ind, group = group, order = order, geom = "polygon") + 
+    new_theme_empty
+p3 = ggplotGrob(p3)
+p4 <- qplot(X1, X2, data = nz, group = group, order = order, geom = "polygon") + 
+    new_theme_empty
+p4 = ggplotGrob(p4)
+p1 + annotation_custom(grob = p2, xmin = 900, xmax = 1000, ymin = 0.8, ymax = 1.2) + 
+    annotation_custom(grob = p3, xmin = 900, xmax = 1000, ymin = 1.5, ymax = 2.5) + 
+    annotation_custom(grob = p4, xmin = 900, xmax = 1000, ymin = 2.5, ymax = 3.5)
+```
+
+![plot of chunk exploded-map](figure/exploded-map.png) 
 
