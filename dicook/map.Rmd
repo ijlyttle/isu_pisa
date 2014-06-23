@@ -316,3 +316,33 @@ rownames(student2012.sub.math.pca$x)[order(student2012.sub.math.pca$x[,3], decre
 student2012.sub.summary.pca <- prcomp(student2012.sub.summary.nomiss[,c(2,10,11)], scale=T, retx=T)
 student2012.sub.summary.pca
 ```
+
+```{r exploded-map}
+oz <- subset(world.polys, name=="Australia")
+oz.center <- c(mean(oz$X1), mean(oz$X2))
+nz <- subset(world.polys, name=="New Zealand")
+nz.center <- c(mean(nz$X1), mean(nz$X2))
+ind <- subset(world.polys, name=="Indonesia")
+ind.center <- c(mean(ind$X1), mean(ind$X2))
+student2012.sub <- student2012[student2012$CNT=="Australia"|student2012$CNT=="New Zealand"|student2012$CNT=="Indonesia", 
+                               c(1, 6, 501)]
+colnames(student2012.sub)[1] <- "name"
+colnames(student2012.sub)[3] <- "math"
+p1 <- qplot(math, name, data=student2012.sub, xlim=c(0,1000))
+summarise(group_by(student2012.sub, name), math=mean(math, na.rm=T))
+oz$X1 <- scale(oz$X1, center=T, scale=T)
+oz$X2 <- scale(oz$X2, center=T, scale=T)
+nz$X1 <- scale(nz$X1, center=T, scale=T)
+nz$X2 <- scale(nz$X2, center=T, scale=T)
+ind$X1 <- scale(ind$X1, center=T, scale=T)
+ind$X2 <- scale(ind$X2, center=T, scale=T)
+p2 <- qplot(X1, X2, data=oz, group=group, order=order, geom="polygon") + new_theme_empty
+p2 = ggplotGrob(p2)      	
+p3 <- qplot(X1, X2, data=ind, group=group, order=order, geom="polygon") + new_theme_empty
+p3 = ggplotGrob(p3)        
+p4 <- qplot(X1, X2, data=nz, group=group, order=order, geom="polygon") + new_theme_empty
+p4 = ggplotGrob(p4)        
+p1 + annotation_custom(grob = p2, xmin = 900, xmax = 1000, ymin = 0.8, ymax = 1.2) +
+  annotation_custom(grob = p3, xmin = 900, xmax = 1000, ymin = 1.5, ymax = 2.5) + 
+  annotation_custom(grob = p4, xmin = 900, xmax = 1000, ymin = 2.5, ymax = 3.5)
+```
