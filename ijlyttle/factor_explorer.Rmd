@@ -33,13 +33,14 @@ sessionInfo()
 ```
 
 ```{r load_data}
-sets <- c("item", "parent", "school", "scoredItem", "student")
+#sets <- c("item", "parent", "school", "scoredItem", "student")
+sets <- "student"
 
 # function to build the file names
 fn_build <- function(file_name){
  
   template <- c("2012.rda", "2012dict.rda")
- 
+  
   file_name %>% 
     vapply(str_join, template, template) %>% 
     file.path("..", "data", .)
@@ -65,10 +66,10 @@ fn_make_df <- function(named_vector){
 }
 
 # there's a clever way to do this, but beyond me for naw
-dict_item2012 <- fn_make_df(item2012dict) 
-dict_parent2012 <- fn_make_df(parent2012dict) 
-dict_school2012 <- fn_make_df(school2012dict) 
-dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+# dict_item2012 <- fn_make_df(item2012dict) 
+# dict_parent2012 <- fn_make_df(parent2012dict) 
+# dict_school2012 <- fn_make_df(school2012dict) 
+# dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
 dict_student2012 <- fn_make_df(student2012dict) 
 
 # clean
@@ -130,7 +131,7 @@ selectInput(
   "country",
   label = "Countries",
   choices = levels(student2012$CNT),
-  selected = c("United States of America", "Canada"),
+  selected = c("United States of America", "Peru", "China-Shanghai"),
   multiple = TRUE
 )
 
@@ -138,14 +139,14 @@ selectInput(
   "x_factor",
   label = "X-axis factor",
   choices = var_names_factor,
-  selected = "ST04Q01"
+  selected = "ST27Q03"
 )
 
 selectInput(
   "fill_factor",
   label = "Fill factor",
   choices = var_names_factor,
-  selected = "ST26Q03"
+  selected = "ST28Q01"
 )
 ```
 
@@ -211,48 +212,77 @@ renderPlot({
   ggplot(
     data = rct_data()
   ) + 
+  geom_rect(
+    aes(fill = CNT),
+    xmin = -Inf, xmax = Inf, 
+    ymin = -Inf, ymax = Inf,
+    alpha = 0.5,
+    data = data.frame(CNT = unique(rct_data()$CNT))
+  ) + 
   geom_violin(
     aes_string(
       x = input$x_factor, 
       y = input$subject),
       scale = "width"
   ) + 
+#   geom_boxplot(
+#     aes_string(
+#       x = input$x_factor,
+#       y = input$subject,
+#       group = input$fill_factor
+#     ),
+#     fill = "white",
+#     alpha = 1,
+#   ) + 
   geom_boxplot(
     aes_string(
       x = input$x_factor,
       y = input$subject,
-      fill = input$fill_factor
+      alpha = input$fill_factor
     ),
-    alpha = 0.75
+    fill = "blue"
   ) + 
-#   geom_dotplot(
-#     aes_string(
-#       x = input$x_factor,
-#       y = input$subject,
-#       fill = input$fill_factor
-#     ),
-#     binaxis = "y", 
-#     stackdir = "center", 
-#     position = "dodge") + 
   facet_grid(CNT ~ .) + 
   scale_x_discrete(name = rct_labels()[["x"]]) +  
   scale_y_continuous(limits = c(0, 1000), name = rct_labels()[["y"]]) +
-  scale_fill_brewer(type = "seq", name = rct_labels()[["fill"]]) 
+  scale_alpha_discrete(range = c(0.1, 0.9), na.value = 0, name = rct_labels()[["fill"]]) +  
+  scale_fill_brewer(type = "seq", palette = "BuGn", guide = FALSE) 
 })
 
 renderPlot({
   ggplot(
-    aes_string(
-      x = input$x_factor,
-      fill = input$fill_factor
-    ),
     data = rct_data()
   ) +
-  geom_bar(position = "dodge", color = "black") +   
+  geom_rect(
+    aes(fill = CNT),
+    xmin = -Inf, xmax = Inf, 
+    ymin = -Inf, ymax = Inf,
+    alpha = 0.5,
+    data = data.frame(CNT = unique(rct_data()$CNT))
+  ) + 
+  geom_bar(
+    aes_string(
+      x = input$x_factor,
+      group = input$fill_factor
+    ),
+    position = "dodge", 
+    fill = "white", 
+    alpha = 1,
+    color = "black"
+  ) +   
+  geom_bar(
+    aes_string(
+      x = input$x_factor,
+      alpha = input$fill_factor
+    ),
+    position = "dodge", 
+    fill = "blue"
+  ) +   
   facet_grid(CNT ~ ., scales = "free_y") + 
   scale_x_discrete(name = rct_labels()[["x"]]) +  
   scale_y_continuous(name = "number of students") +
-  scale_fill_brewer(type = "seq", name = rct_labels()[["fill"]]) 
+  scale_alpha_discrete(range = c(0.1, 0.9), na.value = 0, name = rct_labels()[["fill"]]) +  
+  scale_fill_brewer(type = "seq", palette = "BuGn", guide = FALSE) 
 })
 ```
 
