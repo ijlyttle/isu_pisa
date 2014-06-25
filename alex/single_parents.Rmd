@@ -1,0 +1,129 @@
+Single parents
+==============
+
+```{r load, echo=FALSE, results='hide'}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+
+```
+
+
+Grandparents at home doesn't have much of an effect on scores.  If we look at the average test scores (averaging math, science and reading), there is an obvious difference between have both parents versus have neither parent.  However for single parents, having only a father will generally mean a much lower score.
+```{r singleparents}
+athome = student2012 %>% select(CNT, SCHOOLID, STIDSTD, OECD, PV1MATH, PV1SCIE, PV1READ,
+                                ST11Q01, ST11Q02, ST11Q03,
+                                ST11Q04, ST11Q05, ST11Q06)
+athome$PV1MATH = as.numeric(athome$PV1MATH)
+athome$PV1SCIE = as.numeric(athome$PV1SCIE)
+athome$PV1READ = as.numeric(athome$PV1READ)
+athome$CNT = as.character(athome$CNT)
+athome$CNT[athome$CNT=="Serbia"] <- "Republic of Serbia"
+athome$CNT[athome$CNT=="Korea"] <- "South Korea"
+athome$CNT[athome$CNT=="Chinese Taipei"] <- "Taiwan"
+athome$CNT[athome$CNT=="Slovak Republic"] <- "Slovakia"
+athome$CNT[athome$CNT=="Russian Federation"] <- "Russia"
+athome$CNT[athome$CNT=="Perm(Russian Federation)"] <- "Russia"
+athome$CNT[athome$CNT=="Hong Kong-China"] <- "Hong Kong S.A.R."
+athome$CNT[athome$CNT=="China-Shanghai"] <- "China"
+athome$CNT[athome$CNT=="China-Macau"] <- "China"
+athome$CNT[athome$CNT=="Connecticut (USA)"] <- "United States of America"
+athome$CNT[athome$CNT=="Florida (USA)"] <- "United States of America"
+athome$CNT[athome$CNT=="Massachusetts (USA)"] <- "United States of America"
+
+
+#########################################
+#overall
+overall = athome %>% group_by(CNT) %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_overall = (mmath + mread + msci) / 3) %>% arrange(desc(overall_overall))
+
+#both parents
+both = athome %>% group_by(CNT) %>% filter(ST11Q01 == "Yes" & ST11Q02 == "Yes") %>%
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_both = (mmath + mread + msci) / 3) %>% arrange(desc(overall_both))
+
+#single mothers
+mother = athome %>% group_by(CNT) %>% filter(ST11Q01 == "Yes" & ST11Q02 == "No") %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_mother = (mmath + mread + msci) / 3) %>% arrange(desc(overall_mother))
+
+#single fathers
+father = athome %>% group_by(CNT) %>% filter(ST11Q01 == "No" & ST11Q02 == "Yes") %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_father = (mmath + mread + msci) / 3) %>% arrange(desc(overall_father))
+
+#neither mother nor father
+neither = athome %>% group_by(CNT) %>% filter(ST11Q01 == "No" & ST11Q02 == "No") %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_neither = (mmath + mread + msci) / 3) %>% arrange(desc(overall_neither))
+
+#grandparents
+grand = athome %>% group_by(CNT) %>% filter(ST11Q05 == "Yes") %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_grand = (mmath + mread + msci) / 3) %>% arrange(desc(overall_grand))
+
+#no grandparents
+nogrand= athome %>% group_by(CNT) %>% filter(ST11Q05 == "No") %>% 
+  summarise(mmath = mean(PV1MATH), msci = mean(PV1SCIE), mread = mean(PV1READ), n = length(CNT)) %>%
+  mutate(overall_grand = (mmath + mread + msci) / 3) %>% arrange(desc(overall_grand))
+
+#########################################
+athome = athome %>% filter(!is.na(athome$ST11Q01) & !is.na(athome$ST11Q02))
+athome$parents = NA
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "Yes", ]$parents = "both"
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "No", ]$parents = "mother"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "Yes", ]$parents = "father"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "No", ]$parents = "neither"
+#qplot(x = parents, y = PV1MATH, geom = "boxplot", facets = ~CNT, data = athome) + coord_flip()
+
+
+
+single_parents = merge(mother[,c(1,6)], father[,c(1,6)], by.x = c("CNT"), by.y = "CNT")
+single_parents$diff = single_parents$overall_mother - single_parents$overall_father
+single_parents = single_parents %>% arrange(desc(diff))
+single_parents$CNT = factor(single_parents$CNT,
+                            levels = single_parents$CNT[order(single_parents$diff)])
+single_parents %>% left_join(overall %>% select(CNT, overall_overall))
+df = merge(single_parents, overall %>% select(CNT, overall_overall), by.x = 'CNT', by.y = 'CNT')
+df = merge(df, athome %>% group_by(CNT) %>% summarise(oecd = OECD[1]))
+#single mother scores - single father scores
+qplot(CNT, diff, data = df, color = oecd) + coord_flip()
+```
+
+Comparing having both parents to just having a mother, it appears there are many countries where there isn't a huge difference in test scores.
+```{r single-both, eval=FALSE}
+#both parents to single mothers only
+df2 = merge(mother[,c(1,6)], both[, c(1,6)], by.x = c("CNT"), by.y = c("CNT"))
+df2$diff = df2$overall_both - df2$overall_mother
+df2 %>% arrange(desc(diff))
+```

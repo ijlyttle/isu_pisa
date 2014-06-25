@@ -1,0 +1,124 @@
+Grouping schools by poverty
+========================================================
+
+```{r load, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+
+
+#choose which of the 5 PVs to use for each subject
+student2012$math = as.numeric(student2012[, "PV1MATH"])
+student2012$read = as.numeric(student2012[, "PV1READ"])
+student2012$sci = as.numeric(student2012[, "PV1SCIE"])
+```
+
+```{r usefulfn, echo=FALSE, message=FALSE, warning=FALSE}
+fix_country = function(df) {
+df$CNT = as.character(df$CNT)
+df$CNT[df$CNT=="Serbia"] <- "Republic of Serbia"
+df$CNT[df$CNT=="Korea"] <- "South Korea"
+df$CNT[df$CNT=="Chinese Taipei"] <- "Taiwan"
+df$CNT[df$CNT=="Slovak Republic"] <- "Slovakia"
+df$CNT[df$CNT=="Russian Federation"] <- "Russia"
+df$CNT[df$CNT=="Perm(Russian Federation)"] <- "Russia"
+df$CNT[df$CNT=="Hong Kong-China"] <- "Hong Kong S.A.R."
+df$CNT[df$CNT=="China-Shanghai"] <- "China"
+df$CNT[df$CNT=="China-Macau"] <- "China"
+df$CNT[df$CNT=="Connecticut (USA)"] <- "United States of America"
+df$CNT[df$CNT=="Florida (USA)"] <- "United States of America"
+df$CNT[df$CNT=="Massachusetts (USA)"] <- "United States of America"
+
+df
+}
+
+```
+
+```{r school}
+school2012.sub = school2012 %>% select(CNT, SCHOOLID, SC22Q01,
+                                       SC22Q02, SC22Q03, SC22Q04,
+                                       SC22Q05, SC22Q06, SC22Q07,
+                                       SC22Q08, SC22Q09, SC22Q10,
+                                       SC22Q11, SC22Q12, SC22Q13)
+student2012.sub = student2012 %>% select(CNT, SCHOOLID, math, read, sci, ST08Q01, ST09Q01)
+school2012.sub = fix_country(school2012.sub)
+student2012.sub = fix_country(student2012.sub)
+
+
+truancy = student2012.sub %>% group_by(CNT, SCHOOLID) %>% left_join(school2012.sub, by = c("CNT", "SCHOOLID"))
+```
+
+```{r truancy}
+#school perception of truancy vs math scores
+#percentage of schools reporting high truancy issues
+df = school2012.sub %>% group_by(CNT) %>% summarise( truancy = sum(SC22Q01 == "A lot", na.rm=T) / length(CNT) ) %>% arrange(desc(truancy)) %>% 
+  left_join(
+    student2012.sub %>% group_by(CNT) %>% summarise(m_math = mean(math))
+  )
+#russia and china are outliers
+qplot(x = truancy, y = m_math, data = df) + stat_smooth(method="lm", se = FALSE)
+
+#student self reported truancy within the last two weeeks
+#percentage of high truancy students
+df2 = student2012.sub %>% group_by(CNT) %>% summarise(truancy_student = sum(ST08Q01 == "Five or more times  " | ST08Q01 == "Three or four times  " | ST08Q01 == "One or two times  ", na.rm=T) / length(CNT)) %>% arrange(desc(truancy_student)) %>% 
+  left_join(
+    student2012.sub %>% group_by(CNT) %>% summarise(m_math = mean(math))
+  )
+
+qplot(truancy_student, m_math, data = df2)
+```
+
+```{r drugs}
+#percentage of schools reporting drug problems
+drugs = school2012.sub %>% group_by(CNT) %>% summarise(drug = sum(SC22Q07 == "A lot" | SC22Q07 == "To some extent", na.rm=T) / length(CNT)) %>% arrange(desc(drug)) %>%
+   left_join(
+    student2012.sub %>% group_by(CNT) %>% summarise(m_math = mean(math))
+  )
+
+
+school2012.sub %>% group_by(CNT) %>% summarise(drug = sum(SC22Q07 == "A lot", na.rm=T) / length(CNT)) %>% arrange(desc(drug))
+```
+
+```{r competition}
+comp = school2012 %>% 
+  select(CNT, SCHOOLID, SC04Q01) %>% 
+  group_by(CNT) %>%
+  summarise(other = 
+              sum(SC04Q01 == "Two or More", na.rm=T) / length(CNT)) %>% 
+  arrange(desc(other)) %>%
+   left_join(
+    student2012.sub %>% group_by(CNT) %>% summarise(m_math = mean(math))
+  )
+
+qplot(m_math, other, data = comp)
+```

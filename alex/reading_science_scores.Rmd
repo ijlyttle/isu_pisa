@@ -1,0 +1,83 @@
+looking at reading and science scores
+==============
+
+Since everyone has been primarily focusing on math scores I looked at science and reading scores a bit.
+```{r load, echo=FALSE, results='hide'}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+
+```
+
+
+```{r readplots}
+student2012.sub = student2012 %>% select(CNT, SCHOOLID, STIDSTD, OECD, PV1SCIE, PV1READ, ST04Q01)
+student2012.sub$PV1SCIE = as.numeric(student2012.sub$PV1SCIE)
+student2012.sub$PV1READ = as.numeric(student2012.sub$PV1READ)
+student2012.sub$CNT = as.character(student2012.sub$CNT)
+student2012.sub$CNT[student2012.sub$CNT=="Serbia"] <- "Republic of Serbia"
+student2012.sub$CNT[student2012.sub$CNT=="Korea"] <- "South Korea"
+student2012.sub$CNT[student2012.sub$CNT=="Chinese Taipei"] <- "Taiwan"
+student2012.sub$CNT[student2012.sub$CNT=="Slovak Republic"] <- "Slovakia"
+student2012.sub$CNT[student2012.sub$CNT=="Russian Federation"] <- "Russia"
+student2012.sub$CNT[student2012.sub$CNT=="Perm(Russian Federation)"] <- "Russia"
+student2012.sub$CNT[student2012.sub$CNT=="Hong Kong-China"] <- "Hong Kong S.A.R."
+student2012.sub$CNT[student2012.sub$CNT=="China-Shanghai"] <- "China"
+student2012.sub$CNT[student2012.sub$CNT=="China-Macau"] <- "China"
+student2012.sub$CNT[student2012.sub$CNT=="Connecticut (USA)"] <- "United States of America"
+student2012.sub$CNT[student2012.sub$CNT=="Florida (USA)"] <- "United States of America"
+student2012.sub$CNT[student2012.sub$CNT=="Massachusetts (USA)"] <- "United States of America"
+
+df = student2012.sub %>% group_by(CNT, ST04Q01) %>% summarise(msci = mean(PV1SCIE),
+                                                         mread = mean(PV1READ)) 
+male = df %>% filter(ST04Q01 == "Male")
+female = df %>% filter(ST04Q01 == "Female")
+
+male_female = data.frame(CNT = male$CNT, msci_m = male$msci, mread_m = male$mread,
+                         msci_f = female$msci, mread_f = female$mread)
+male_female$sci_diff = male_female$msci_m - male_female$msci_f
+male_female$read_diff = male_female$mread_m - male_female$mread_f 
+
+
+read_diff = male_female %>% select(CNT, read_diff)
+read_diff$CNT = factor(read_diff$CNT,
+                       levels = read_diff$CNT[order(read_diff$read_diff)])
+qplot(CNT, read_diff, data = read_diff) + coord_flip()
+
+```
+
+```{r sciplots}
+sci_diff =male_female %>% select(CNT, sci_diff)
+sci_diff$CNT = factor(sci_diff$CNT,
+                       levels = sci_diff$CNT[order(sci_diff$sci_diff)])
+qplot(CNT, sci_diff, data = sci_diff) + coord_flip()
+```
