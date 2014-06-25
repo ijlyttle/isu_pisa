@@ -1,0 +1,59 @@
+albania is weird
+=============
+
+```{r load, echo=FALSE, results='hide'}
+library(ggplot2)
+library(dplyr)
+setwd("..")
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name) {
+
+    template <- c("2012.rda", "2012dict.rda")
+
+    file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
+        .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector) {
+    data.frame(variable = attr(named_vector, "names"), description = named_vector, 
+        row.names = NULL)
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict)
+dict_parent2012 <- fn_make_df(parent2012dict)
+dict_school2012 <- fn_make_df(school2012dict)
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
+dict_student2012 <- fn_make_df(student2012dict)
+
+rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+
+
+student2012$math = as.numeric(student2012[, "PV1MATH"])
+student2012$read = as.numeric(student2012[, "PV1READ"])
+student2012$sci = as.numeric(student2012[, "PV1SCIE"])
+```
+
+```{r outhours}
+student.sub = student2012 %>% 
+  select(CNT, OUTHOURS, math) %>% filter(!is.na(OUTHOURS))
+
+qplot(x = OUTHOURS, y = math, 
+      data = student.sub, facets = ~CNT, 
+      alpha = I(0.05))
+
+```
+
+```{r albania}
+qplot(x = OUTHOURS, y = math, 
+      data = student.sub %>% filter(CNT == "Albania"), 
+      alpha = I(0.05))
+
+```
