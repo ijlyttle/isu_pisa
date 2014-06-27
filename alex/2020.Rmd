@@ -66,17 +66,17 @@ qplot(x = OUTHOURS, y = math,
       data = student2012 %>% 
         select(OUTHOURS, math) %>% 
         filter(!is.na(OUTHOURS)), 
-      alpha = I(0.1)) + stat_smooth()
+      alpha = I(0.05)) + stat_smooth()
 qplot(x = OUTHOURS, y = read, 
       data = student2012 %>% 
         select(OUTHOURS, read) %>% 
         filter(!is.na(OUTHOURS)), 
-      alpha = I(0.1) ) + stat_smooth()
+      alpha = I(0.05) ) + stat_smooth()
 qplot(x = OUTHOURS, y = sci, 
       data = student2012 %>% 
         select(OUTHOURS, sci) %>% 
         filter(!is.na(OUTHOURS)), 
-      alpha = I(0.1) ) + stat_smooth()
+      alpha = I(0.05)) + stat_smooth()
 ```
 
 
