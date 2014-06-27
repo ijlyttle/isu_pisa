@@ -1,17 +1,14 @@
-albania is weird
+Equality for all: Only in student2012.sub
 =============
-
-```{r load, echo=FALSE, results='hide'}
+```{r load, echo=FALSE, results='hide', warning = FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 setwd("..")
-sets <- c("item", "parent", "school", "scoredItem", "student")
+sets <- c("school", "student")
 
 # function to build the file names
 fn_build <- function(file_name) {
-
     template <- c("2012.rda", "2012dict.rda")
-
     file_name %>% vapply(paste0, template, template) %>% file.path(".", "data", 
         .)
 }
@@ -19,41 +16,59 @@ fn_build <- function(file_name) {
 # load the data
 sets %>% fn_build %>% lapply(load, .GlobalEnv)
 
-
 # function to convert to data-frames
 fn_make_df <- function(named_vector) {
     data.frame(variable = attr(named_vector, "names"), description = named_vector, 
         row.names = NULL)
 }
 
-# there's a clever way to do this, but beyond me for naw
-dict_item2012 <- fn_make_df(item2012dict)
-dict_parent2012 <- fn_make_df(parent2012dict)
 dict_school2012 <- fn_make_df(school2012dict)
-dict_scoredItem2012 <- fn_make_df(scoredItem2012dict)
 dict_student2012 <- fn_make_df(student2012dict)
-
-rm(fn_make_df, fn_build, sets, item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
-
+rm(fn_make_df, fn_build, sets, school2012dict, student2012dict)
 
 student2012$math = as.numeric(student2012[, "PV1MATH"])
 student2012$read = as.numeric(student2012[, "PV1READ"])
 student2012$sci = as.numeric(student2012[, "PV1SCIE"])
 ```
 
-```{r outhours}
-student.sub = student2012 %>% 
-  select(CNT, OUTHOURS, math) %>% filter(!is.na(OUTHOURS))
+```{r vars}
+student2012.sub = student2012 %>% select(CNT, SCHOOLID, math, read, sci, OUTHOURS, STIDSTD, ST04Q01, ST11Q01, ST11Q02, ST15Q01, ST19Q01, ST26Q01, ST26Q02, ST26Q03, ST26Q04, ST26Q05, ST26Q06, ST26Q07, ST26Q08, ST26Q09, ST26Q10, ST26Q11, ST26Q12, ST26Q13, ST26Q14, ST27Q01, ST27Q02, ST27Q03, ST27Q04, ST27Q05, ST28Q01, OECD)
 
-qplot(x = OUTHOURS, y = math, 
-      data = student.sub, facets = ~CNT, 
-      alpha = I(0.05))
+for (i in 13:26) {
+    student2012.sub[, i] <- as.character(student2012.sub[, i])
+    student2012.sub[is.na(student2012.sub[, i]), i] <- ""
+    student2012.sub[student2012.sub[, i] == "Yes", i] <- "1"
+    student2012.sub[student2012.sub[, i] == "No", i] <- "0"
+    student2012.sub[, i] <- as.numeric(student2012.sub[, i])
+}
+for (i in 27:31) {
+    student2012.sub[, i] <- as.character(student2012.sub[, i])
+    student2012.sub[is.na(student2012.sub[, i]), i] <- ""
+    student2012.sub[student2012.sub[, i] == "None", i] <- "0"
+    student2012.sub[student2012.sub[, i] == "One", i] <- "1"
+    student2012.sub[student2012.sub[, i] == "Two", i] <- "2"
+    student2012.sub[student2012.sub[, i] == "Three or more", i] <- "3"
+    student2012.sub[, i] <- as.numeric(student2012.sub[, i])
+}
+student2012.sub[, 32] <- as.character(student2012.sub[, 32])
+student2012.sub[is.na(student2012.sub[,32]), 32] <- ""
+student2012.sub[student2012.sub[, 32] == "0-10 books ", 32] <- "0"
+student2012.sub[student2012.sub[, 32] == "11-25 books ", 32] <- "1"
+student2012.sub[student2012.sub[, 32] == "26-100 books ", 32] <- "2"
+student2012.sub[student2012.sub[, 32] == "101-200 books ", 32] <- "3"
+student2012.sub[student2012.sub[, 32] == "201-500 books ", 32] <- "4"
+student2012.sub[student2012.sub[, 32] == "More than 500 books", 32] <- "5"
+student2012.sub[, 32] <- as.numeric(student2012.sub[, 32])
 
+#aggregate possessions
+student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
+student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
+
+#separate albania
+student2012.sub$OECD = as.character(student2012.sub$OECD)
+student2012.sub[student2012.sub$CNT == "Albania", ]$OECD = "Albania"
 ```
 
-```{r albania}
-qplot(x = OUTHOURS, y = math, 
-      data = student.sub %>% filter(CNT == "Albania"), 
-      alpha = I(0.05))
-
+```{r possessions, echo=FALSE}
+qplot()
 ```
