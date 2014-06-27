@@ -109,6 +109,7 @@ drugs = school2012.sub %>% group_by(CNT) %>% summarise(drug = sum(SC22Q07 == "A 
 school2012.sub %>% group_by(CNT) %>% summarise(drug = sum(SC22Q07 == "A lot", na.rm=T) / length(CNT)) %>% arrange(desc(drug))
 ```
 
+Competition between schools
 ```{r competition}
 comp = school2012 %>% 
   select(CNT, SCHOOLID, SC04Q01) %>% 
@@ -122,3 +123,53 @@ comp = school2012 %>%
 
 qplot(m_math, other, data = comp)
 ```
+
+
+Math teacher shortages
+```{r shortages}
+school2012.sub = school2012 %>% select(CNT, SCHOOLID, SC11Q02, SC11Q03, SC14Q02, SC14Q07, SC14Q08, SC14Q09, SC14Q10, SC14Q11, SC14Q12, SC14Q13)
+student2012.sub = student2012 %>% select(CNT, SCHOOLID, math, read, sci)
+school2012.sub = fix_country(school2012.sub)
+student2012.sub = fix_country(student2012.sub)
+
+scores_by_school = student2012.sub %>% group_by(CNT, SCHOOLID) %>% summarise(mmath = mean(math), mread = mean(read), msci = mean(sci))
+
+
+df = scores_by_school %>% left_join(school2012.sub)
+qplot(SC14Q02, mmath2, data = df %>% group_by(CNT, SC14Q02) %>% summarise(mmath2 = mean(mmath)), facets = ~CNT)
+qplot(SC14Q10, mmath2, data = df %>% group_by(CNT, SC14Q10) %>% summarise(mmath2 = mean(mmath)), facets = ~CNT)
+```
+
+
+looking at just the US
+```{r shortages1}
+library(ggplot2)
+qplot(SC14Q02, mmath, data = df %>% group_by(CNT, SC14Q02) %>% 
+        filter(CNT == "United States of America"), geom="boxplot")
+```
+
+
+```{r shortages2}
+library(ggplot2)
+df2 = df%>% select(CNT, SCHOOLID, mmath, mread, msci, SC14Q02,
+                  SC14Q07, SC14Q08, SC14Q09, SC14Q10, SC14Q11,
+                  SC14Q12, SC14Q13)
+for(i in 6:13) {
+  df2[,i] = as.numeric(df2[,i])
+}
+
+df2$sum = apply(df2[,6:13], 1, sum, na.rm=T)
+qplot(x = sum, y = m2, data = df2 %>% group_by(CNT, sum) %>% summarise(m2 = mean(mmath)), facets=~CNT)
+
+qplot(x = pSC14Q07, mmath2, data = 
+df2 %>% group_by(CNT) %>% 
+  summarise(pSC14Q07 = sum(SC14Q07 == 4, na.rm=T) / length(CNT),
+            mmath2 = mean(mmath)) %>% 
+  arrange(pSC14Q07)
+)
+```
+
+
+
+
+
