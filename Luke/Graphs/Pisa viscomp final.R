@@ -1,7 +1,7 @@
 setwd("/Users/lukefostvedt/Documents/PISA 2012/RDA files/")
 library(stringr)
 library(ggplot2)
-library(reshape)
+library(reshape2)
 library(dplyr)
 library(lubridate)
 library(ggvis)
@@ -9,6 +9,11 @@ library(doBy)
 library(maps)
 library(ggmap)
 library(rworldmap)
+library(grid)
+library(scales)
+
+
+
 sessionInfo()
 ################## IMPORTANT #######################
 # ************************************************
@@ -53,137 +58,8 @@ rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012
 load("student2012pvmeans.Rdata")
 student2012 <- cbind(student2012,a)
 
-student2012$ST15Q01 <- addNA(student2012$ST15Q01)
-student2012$ST19Q01 <- addNA(student2012$ST19Q01)
-
-student2012$name <- as.character(student2012$CNT)
-# unique(anti_join(student2012.sub, world.polys)[1])
-student2012$name[student2012$name=="United Arab Emirates"] <- "UAE"
-student2012$name[student2012$name=="United Kingdom"] <- "UK"
-student2012$name[student2012$name=="Serbia"] <- "Serbia"
-student2012$name[student2012$name=="Korea"] <- "South Korea"
-student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
-student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
-student2012$name[student2012$name=="Russian Federation"] <- "Russia"
-student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
-student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong"
-student2012$name[student2012$name=="China-Shanghai"] <- "China"
-student2012$name[student2012$name=="Macau"] <- "China"
-student2012$name[student2012$name=="Connecticut (USA)"] <- "USA"
-student2012$name[student2012$name=="Florida (USA)"] <- "USA"
-student2012$name[student2012$name=="Massachusetts (USA)"] <- "USA"
-student2012$name[student2012$name=="United States of America"] <- "USA"
-unique(student2012$name)
-student2012$name <- factor(student2012$name)
-
-student2012$UID <- paste(student2012$STRATUM,student2012$SCHOOLID,sep="")
-school2012$UID <- paste(school2012$STRATUM,school2012$SCHOOLID,sep="")
-ind <- match(student2012$UID,school2012$UID)
-studschool <- cbind(student2012,school2012[ind,-c(1:6)])
-
-
-# Mother's Occupation ST15Q01, Father's ST19Q01
-aa1 <- a1 <- summaryBy(data=student2012, pvM + ESCS ~ ST15Q01 +ST19Q01 + CNT,FUN=mean)
-#a2 <- melt(a1)
-levels(a1$ST15Q01) <- levels(a1$ST19Q01)<- c("Full-time","Part-time","Unemployed","Other","NA")
-#a1$ST15Q01 <- factor(factor(a1$ST15Q01),levels=rev(levels(a1$ST15Q01)))
-#a1$ST19Q01 <- factor(factor(a1$ST19Q01),levels=rev(levels(a1$ST19Q01)))
-
-ind <- which(a1$ST15Q01=="Full-time")
-a1$CNT <- factor(a1$CNT,levels(a1$CNT)[order(a1$pvM.mean[ind])])
-#a1$CNT[ind] <- reorder(factor(a1$CNT[ind]),a1$pvM.mean[ind],mean)
-p <- qplot(CNT, pvM.mean, col=ST15Q01, data = a1) +coord_flip()+ facet_grid(~ST19Q01);p
-#ggsave(p,file="Parentmathachievement.pdf",height=10,width=18)
-
-a1 <- cbind(student2012[,c("name","ST15Q01")],Parent="Mother")
-a2 <- cbind(student2012[,c("name","ST19Q01")],Parent="Father")
-levels(a1$ST15Q01) <-  c("Full-time","Part-time","Unemployed","Other","NA")
-levels(a2$ST19Q01) <- c("Full-time","Part-time","Unemployed","Other","NA")
-
-names(a1) <- names(a2) <- c("Country","Occupation","Parent")
-a3 <- rbind(a1,a2)
-p <- ggplot(a3, aes(Occupation, fill=Parent)) + geom_bar(position="dodge")
-#ggsave(p,file="ParentJobBar.pdf",width=6,height=4)
-
-
-a6 <- summaryBy(data=student2012, pvM + ESCS ~ ST15Q01+ name,FUN=mean,rm.na=T)
-a7 <- summaryBy(data=student2012, pvM + ESCS ~ ST19Q01+ name,FUN=mean,rm.na=T)
-colnames(a6) <- colnames(a7) <- c("Job.Status","Country","Math","ESCS")
-levels(a6$Job.Status) <- levels(a7$Job.Status)  <- c("Full-Time","Part-Time","Unemployed","Other","NA")
-
-a8 <- rbind(cbind(a6,Parent="Mother"),cbind(a7,Parent="Father"))
-#a2 <- melt(a1)
-ind <- which(a8$Job.Status=="Other"& a8$Parent=="Mother")
-a8$Country <- factor(a8$Country,levels(a8$Country)[order(a8$Math[ind])])
-p <- qplot(Country, Math, col=Job.Status, data = a8) +coord_flip() + facet_wrap(~Parent);p
-#ggsave(p,file="Parentmathachievement.pdf",height=9,width=11)
-
-
-
-
-
-
-
-# Out of School Study time
-b1 <- summaryBy(data=student2012, pvM + pvR + pvS+ ST57Q01+ ST57Q02 +ST57Q03+ ST57Q04+ ST57Q05+ ST57Q06 ~CNT,FUN=mean, na.rm=T)
-names(b1) <- c("CNT","pvM","pvR","pvS","ST57Q01", "ST57Q02","ST57Q03", "ST57Q04", "ST57Q05", "ST57Q06" )
-# Out of school study time (total hours HW)
-b1$CNT <- reorder(factor(b1$CNT),b1$pvS, mean)
-b2 <- melt(b1[,c("CNT","pvM","pvR","pvS")],id="CNT")
-b2 <- cbind(b2, b1[match(b2$CNT,b1$CNT), 5:10])
-qplot(CNT, value,color=variable,size=ST57Q01, data = b2)+ coord_flip()
-head(b2)
-qplot(ST57Q01, value,color=variable,size=ST57Q02, data = b2)+ coord_flip()+facet_wrap(~CNT)
-
-student.sub <- studschool[,c("name","pvM","pvR","pvS","ST57Q01","OECD","SC03Q01")]
-study <- melt(student.sub,id=c("name","ST57Q01","OECD","SC03Q01"))
-names(study) <- c("Country","HomeworkHours","OECD","AREA","Subject","Score")
-levels(study$Subject) <- c("Math","Reading","Science")
-p <- ggplot(data = study, aes(HomeworkHours,Score,colour=Subject) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)+ xlab("Out-of-School Study Hours")
-#ggsave(p,file="studytime.pdf",height=13,width=13)
-p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") +xlim(0,30)
-ggsave(p,file="HistHWschool.pdf",width=8,height=6)
-
-student.sub <- studschool[,c("name","pvM","ST57Q01","SC03Q01")]
-study <- student.sub
-names(study) <- c("Country","Math","HomeworkHours","Schoolplace")
-
-p <- ggplot(data = study, aes(HomeworkHours,Math,colour=Schoolplace) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)
-#ggsave(p,file="studytime.pdf",height=13,width=13)
-p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") + facet_grid(SC03Q01~.) +xlim(0,30)
-ggsave(p,file="HistHWschool.pdf",width=9,height=8)
-
-
-
-
-# Time spent learning these materials
-c1 <- summaryBy(data=student2012, pvM + pvR + pvS+ ST57Q01+ LMINS+MMINS+SMINS ~CNT,FUN=mean, na.rm=T)
-
-
-f1 <- summaryBy(data=student2012, pvM + pvR + pvS+ ST57Q01+ LMINS+MMINS+SMINS ~CNT,FUN=function(x) length(x), keep.names=TRUE)
-
-f2 <- summaryBy(data=student2012, pvM + pvR + pvS+ ST57Q01+ LMINS+MMINS+SMINS ~CNT,FUN=function(x) sum(is.na(x)), keep.names=TRUE)
-
-
-names(c1) <- c("CNT","pvM","pvR","pvS","ST57Q01", "LMINS","MMINS","SMINS")
-# Out of school study time (total hours HW)
-c1$CNT <- reorder(factor(c1$CNT),b1$pvM, mean)
-c2 <- melt(c1[,c("CNT","pvM","pvR","pvS")],id="CNT")
-c2 <- cbind(c2, c1[match(c2$CNT,c1$CNT), 5:8])
-qplot(CNT, value,color=variable,size=ST57Q01, data = c2)+ coord_flip()
-head(c2)
-
-
-student.learn <- student2012[,c("CNT","pvM","pvR","pvS","ST57Q01", "LMINS","MMINS","SMINS")]
-learn <- melt(student.learn,id=c("CNT","ST57Q01", "LMINS","MMINS","SMINS"))
-
-r <- ggplot(data = learn, aes(x=LMINS,y=value,colour=variable) )+facet_wrap(~CNT)+stat_smooth(se=F)
-#ggsave(r,file="learntime.pdf")
-
-
-
-
 head(student2012)
+
 ## making a variable that identifies which students live in a home where 
 # the mother's occupation is  housewife
 ind <- which(student2012$OCOD1 == "Housewife")
@@ -214,10 +90,10 @@ student2012.yes$CNT <- reorder(factor(student2012.yes$CNT),student2012.yes$score
 # This function is in library(reshape)
 # Not a housewife
 b1 <-  melt(student2012.no)
-qplot(CNT, value, color=variable, data = b1)+ coord_flip()
+qplot(CNT, value, color=variable, data = b) coord_flip()
 # Housewife
 b <- melt(student2012.yes)
-qplot(CNT, value, color=variable, data = b)+ coord_flip()
+qplot(CNT, value, color=variable, data = b) coord_flip()
 
 
 # Plotting housewife v. no housewife ordered by overall score 
@@ -260,6 +136,11 @@ d1 <- aa[which(rownames(aa)=="Housewife"),] / table(data$CNT)
 d1[which(d1==0)] <- NA
 
 
+################## IMPORTANT #######################
+# ************************************************
+# The following is Di's map code
+# ************************************************
+####################################################
 
 
 student2012.sub <- student2012[,c(1,12)]
