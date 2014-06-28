@@ -139,7 +139,7 @@ student.sub <- studschool[,c("name","pvM","pvR","pvS","ST57Q01","OECD","SC03Q01"
 study <- melt(student.sub,id=c("name","ST57Q01","OECD","SC03Q01"))
 names(study) <- c("Country","HomeworkHours","OECD","AREA","Subject","Score")
 levels(study$Subject) <- c("Math","Reading","Science")
-p <- ggplot(data = study, aes(HomeworkHours,Score,colour=Subject) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)
+p <- ggplot(data = study, aes(HomeworkHours,Score,colour=Subject) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)+ xlab("Out-of-School Study Hours")
 #ggsave(p,file="studytime.pdf",height=13,width=13)
 p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") +xlim(0,30)
 ggsave(p,file="HistHWschool.pdf",width=8,height=6)
