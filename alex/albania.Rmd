@@ -134,4 +134,24 @@ qplot(CNT, read_difference, data = scores.df, color = OECD, size = OECD) + coord
   geom_hline(yintercept=0, colour="grey80") + theme_bw() + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
 ```
 
+```{r another idea}
+.width = 1
 
+data_small <- 
+  student2012 %>%
+  select(OECD, CNT, OUTHOURS) %>%
+  filter(!is.na(OUTHOURS))
+
+ggplot(mapping = aes(x = OUTHOURS)) + 
+  geom_histogram(
+    mapping = aes(y = ..density.., fill = OECD), 
+    binwidth = .width,
+    data = data_small %>% filter(OECD == "Albania")
+  ) + 
+  geom_line(
+    mapping = aes(group = CNT, color = OECD), 
+    stat = "density", 
+    alpha = 0.3,
+    data = data_small %>% filter(OECD != "Albania")
+  ) 
+```
