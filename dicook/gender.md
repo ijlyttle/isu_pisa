@@ -59,13 +59,16 @@ library(scales)
 ```
 
 ```r
-student2012.sub <- student2012[, c(1, 12, 501, 541, 546)]
+student2012.sub <- student2012[, c(1, 12, 501, 541, 546, 634)]
 colnames(student2012.sub)[1] <- "name"
 student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
 student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
 student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
+student2012.sub$SENWGT_STU <- as.numeric(student2012.sub$SENWGT_STU)
 student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name), mathgap = mean(PV1MATH[ST04Q01 == 
-    "Male"], na.rm = T) - mean(PV1MATH[ST04Q01 == "Female"], na.rm = T), mtest.stat = t.test(PV1MATH[ST04Q01 == 
+    "Male"], na.rm = T) - mean(PV1MATH[ST04Q01 == "Female"], na.rm = T), wmathgap = weighted.mean(PV1MATH[ST04Q01 == 
+    "Male"], w = SENWGT_STU[ST04Q01 == "Male"], na.rm = T) - weighted.mean(PV1MATH[ST04Q01 == 
+    "Female"], w = SENWGT_STU[ST04Q01 == "Female"], na.rm = T), mtest.stat = t.test(PV1MATH[ST04Q01 == 
     "Male"], PV1MATH[ST04Q01 == "Female"])$statistic, mp.value = t.test(PV1MATH[ST04Q01 == 
     "Male"], PV1MATH[ST04Q01 == "Female"])$p.value, readgap = mean(PV1READ[ST04Q01 == 
     "Male"], na.rm = T) - mean(PV1READ[ST04Q01 == "Female"], na.rm = T), rtest.stat = t.test(PV1READ[ST04Q01 == 
@@ -78,6 +81,14 @@ student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name), mathga
     maxmale = max(PV1MATH[ST04Q01 == "Male"], na.rm = T), maxfemale = max(PV1MATH[ST04Q01 == 
         "Female"], na.rm = T), propmale = length(PV1MATH[ST04Q01 == "Male"])/length(PV1MATH), 
     propfemale = length(PV1MATH[ST04Q01 == "Female"])/length(PV1MATH))
+qplot(mathgap, wmathgap, data = student2012.sub.summary.gap, xlab = "Mean", 
+    ylab = "Weighted Mean", xlim = c(-30, 30), ylim = c(-30, 30)) + geom_abline(slope = 1) + 
+    theme(aspect.ratio = 1)
+```
+
+![plot of chunk gendermath](figure/gendermath1.png) 
+
+```r
 student2012.sub.summary.gap$msig <- ifelse(student2012.sub.summary.gap$mp.value > 
     0.05, "none", TRUE)
 student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig == TRUE & 
@@ -93,10 +104,17 @@ qplot(name, mathgap, data = student2012.sub.summary.gap, size = propmale, color 
     colour = "grey80") + coord_flip() + theme_bw() + theme(legend.position = "bottom")
 ```
 
-![plot of chunk gendermath](figure/gendermath1.png) 
+![plot of chunk gendermath](figure/gendermath2.png) 
 
 ```r
-# ggsave('gendermathgap.pdf', width=7, height=14)
+# Test colors qplot(name, mathgap, data=student2012.sub.summary.gap,
+# size=propmale, color=msig) + xlab('') + scale_colour_manual('Significant',
+# values=c('male'=dichromat('skyblue'), 'female'=dichromat('pink'),
+# 'none'=dichromat('lightgreen'))) + scale_y_continuous('Math Score Gap',
+# breaks=seq(-30, 30, 5)) + scale_size('Prop male') +
+# geom_hline(yintercept=0, colour='grey80') + coord_flip() + theme_bw() +
+# theme(legend.position='bottom') ggsave('gendermathgap.pdf', width=7,
+# height=14)
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
     levels = student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$maxmale)])
 qplot(name, maxmale, data = student2012.sub.summary.gap, color = I("skyblue")) + 
@@ -104,7 +122,7 @@ qplot(name, maxmale, data = student2012.sub.summary.gap, color = I("skyblue")) +
     coord_flip() + theme_bw()
 ```
 
-![plot of chunk gendermath](figure/gendermath2.png) 
+![plot of chunk gendermath](figure/gendermath3.png) 
 
 ```r
 # ggsave('gendermathtop.pdf', width=3.5, height=7)
@@ -115,7 +133,7 @@ qplot(name, minmale, data = student2012.sub.summary.gap, color = I("skyblue")) +
     coord_flip() + theme_bw()
 ```
 
-![plot of chunk gendermath](figure/gendermath3.png) 
+![plot of chunk gendermath](figure/gendermath4.png) 
 
 ```r
 # ggsave('gendermathbottom.pdf', width=3.5, height=7)
@@ -134,7 +152,7 @@ qplot(name, readgap, data = student2012.sub.summary.gap, size = propmale, color 
     coord_flip() + theme_bw() + theme(legend.position = "none")
 ```
 
-![plot of chunk gendermath](figure/gendermath4.png) 
+![plot of chunk gendermath](figure/gendermath5.png) 
 
 ```r
 # ggsave('genderreadgap.pdf', width=5, height=8)
@@ -153,7 +171,7 @@ qplot(name, sciencegap, data = student2012.sub.summary.gap, size = propmale,
     coord_flip() + theme_bw()
 ```
 
-![plot of chunk gendermath](figure/gendermath5.png) 
+![plot of chunk gendermath](figure/gendermath6.png) 
 
 ```r
 # ggsave('gendergap.pdf', width=10, height=14)
@@ -215,6 +233,12 @@ ggplot(data = world.polys) + geom_path(aes(x = X1, y = X2, order = order, group 
 ![plot of chunk maps](figure/maps3.png) 
 
 ```r
-# ggsave('gendermap.pdf', width=12, height=8)
+# ggsave('gendermap.pdf', width=12, height=8) ggplot(data=world.polys) +
+# geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I('grey90')) +
+# geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order,
+# group=group, fill=rsig)) + scale_fill_manual('Significant',
+# values=c('male'=dichromat('skyblue'), 'female'=dichromat('pink'),
+# 'none'=dichromat('lightgreen'))) + new_theme_empty +
+# theme(legend.position='none')
 ```
 
