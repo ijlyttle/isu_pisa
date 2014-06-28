@@ -201,7 +201,7 @@ qplot(SC14Q02, mmath, data = df %>% group_by(CNT, SC14Q02) %>%
 ```
 
 
-```{r shortages2}
+```{r shortages2, eval=FALSE}
 library(ggplot2)
 df2 = df%>% select(CNT, SCHOOLID, mmath, mread, msci, SC14Q02,
                   SC14Q07, SC14Q08, SC14Q09, SC14Q10, SC14Q11,

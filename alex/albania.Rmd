@@ -1,4 +1,4 @@
-Albania is awesome
+Albania
 =============
 ```{r load, echo=FALSE, results='hide', warning = FALSE, message=FALSE}
 library(ggplot2)
@@ -123,22 +123,24 @@ scores.df = data.frame(OECD = male$OECD, CNT = male$CNT, math_difference = male$
 
 
 scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$math_difference)])
+scores.df$OECD = factor(scores.df$OECD, levels = scores.df$OECD[])
+
 qplot(CNT, math_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
   scale_y_continuous("math score gap: male - female scores", breaks=seq(-30, 30, 5)) +
-  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
-
-
+  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("") +  
+  scale_colour_manual(values = c("#ca0020", "#f4a582", "#92c5de"))
 
 scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$read_difference)])
 qplot(CNT, read_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
   scale_y_continuous("read score gap: male - female scores") +
-  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
+  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("") +  
+  scale_colour_manual(values = c("#ca0020", "#f4a582", "#92c5de"))
 
 #qplot(CNT, value, data = melt(scores.df, id = c("OECD", "CNT")), color = OECD, size = OECD, facets = ~variable) + 
 #  coord_flip() + xlab("") + ylab("Score difference: male - female") + scale_size_manual(values = c(4, 2.5, 2.5))
 ```
 
-```{r another idea}
+```{r another idea, fig.width=8, warning = FALSE, message=FALSE}
 .width = 1
 
 data_small <- 
@@ -147,8 +149,8 @@ data_small <-
   filter(!is.na(OUTHOURS))
 
 ggplot(mapping = aes(x = OUTHOURS)) + 
-  scale_x_continuous(name = "what are OUTHOURS?") +
-  scale_y_continuous(name = "is there a better description than density?") +
+  scale_x_continuous(name = "out of school study time (hours)", limits = c(0,60)) +
+  scale_y_continuous(name = "density") +
   geom_histogram(
     mapping = aes(y = ..density.., fill = OECD), 
     binwidth = .width,
@@ -170,5 +172,7 @@ ggplot(mapping = aes(x = OUTHOURS)) +
       title = "Other Countries",
       override.aes = list(alpha = 1)
     )
-  )
+    
+  ) +
+  scale_colour_manual(values = c("#f4a582", "#92c5de")) + guides(colour = guide_legend(override.aes = list(alpha = 1)))
 ```
