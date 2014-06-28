@@ -75,15 +75,16 @@ library(reshape2)
 df = melt(student2012.sub %>% group_by(CNT, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("CNT", "numposs", "OECD"))
 
 df$group = paste0(df$CNT, df$variable)
-qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions")
+qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
 
-qplot(x = numposs, y = mmath, data = student2012.sub %>% group_by(CNT, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), facets =~OECD, geom = "line", group = CNT) + ylab("math Scores") 
+qplot(x = numposs, y = mmath, data = student2012.sub %>% group_by(CNT, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), facets =~OECD, geom = "line", group = CNT) + ylab("math Scores")
 ```
 
 
 ```{r OUTHOURS, echo=FALSE, fig.width=15, warning=FALSE, message=FALSE}
-ggplot(subset(student2012.sub, !is.na(OUTHOURS)), aes(x = OUTHOURS, fill = CNT)) + geom_density(alpha = I(0.4)) + facet_wrap(~OECD) + theme(legend.position = "none")
-qplot(x = OUTHOURS, data = student2012.sub, geom = "density", facets = ~CNT, fill = I("grey"))
+ggplot(subset(student2012.sub, !is.na(OUTHOURS)), aes(x = OUTHOURS, fill = CNT)) + geom_density(alpha = I(0.4)) + facet_wrap(~OECD) + theme(legend.position = "none") + scale_x_continuous("out of school study time (hours)", limits = c(0, 65))
+
+qplot(x = OUTHOURS, data = student2012.sub, geom = "density", facets = ~CNT, fill = I("grey")) 
 qplot(x = OUTHOURS, data = student2012.sub %>% filter(CNT == "Albania"), geom="density", fill = I("grey"))
 qplot(x = OUTHOURS, data = student2012.sub %>% filter(CNT == "Albania"))
 ```
@@ -93,7 +94,7 @@ father.df = melt(student2012 %>% select(CNT, ST15Q01, ST19Q01, math, sci, read, 
 father.df$group = paste0(father.df$CNT, father.df$variable)
 levels(father.df$ST15Q01) = c("full time", "part time", "unemployed", "retired")
 
-qplot(x = ST15Q01, y = value, color = variable, facets = ~OECD, data = father.df, group = group, geom = "line") + xlab("father's employment status") + ylab("test scores")
+qplot(x = ST15Q01, y = value, color = variable, facets = ~OECD, data = father.df, group = group, geom = "line") + xlab("father's employment status") + ylab("test scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
 ```
 
 
@@ -107,11 +108,11 @@ truancy.df = melt( student2012.sub %>%
   id = c("CNT", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
 truancy.df$group = paste0(truancy.df$CNT, truancy.df$variable)
 
-qplot(x = SC22Q01, y = value, color = variable, facets = ~OECD, data = truancy.df, group = group, geom = "line") + xlab("reported truancy") + ylab("test scores")
+qplot(x = SC22Q01, y = value, color = variable, facets = ~OECD, data = truancy.df, group = group, geom = "line") + xlab("reported truancy") + ylab("test scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
 ```
 
 
-```{r gendergap, echo=FALSE, warning = FALSE}
+```{r gendergap, echo=FALSE, warning = FALSE, fig.height = 10}
 scores = student2012 %>%
   select(CNT, math, read, ST04Q01, OECD) %>% 
   group_by(OECD, CNT, ST04Q01) %>%
@@ -124,14 +125,17 @@ scores.df = data.frame(OECD = male$OECD, CNT = male$CNT, math_difference = male$
 scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$math_difference)])
 qplot(CNT, math_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
   scale_y_continuous("math score gap: male - female scores", breaks=seq(-30, 30, 5)) +
-  geom_hline(yintercept=0, colour="grey80") + theme_bw() + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
+  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
 
 
 
 scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$read_difference)])
 qplot(CNT, read_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
   scale_y_continuous("read score gap: male - female scores") +
-  geom_hline(yintercept=0, colour="grey80") + theme_bw() + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
+  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("")
+
+#qplot(CNT, value, data = melt(scores.df, id = c("OECD", "CNT")), color = OECD, size = OECD, facets = ~variable) + 
+#  coord_flip() + xlab("") + ylab("Score difference: male - female") + scale_size_manual(values = c(4, 2.5, 2.5))
 ```
 
 ```{r another idea}
