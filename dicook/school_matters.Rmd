@@ -184,11 +184,11 @@ qplot(levels, math, data = df.m, facets = ~CNT,
       scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
       theme(legend.position="bottom") 
 #ggsave("shortages.pdf", width=14, height=14)
-qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", colour=I("#1B9E77"))
+qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", fill=I("#1B9E77"))
 #ggsave("teacher-shortages.pdf", width=5, height=5)
-qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage")
+qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage", fill=I("#D95F02"))
 #ggsave("computer-shortages.pdf", width=5, height=5)
-qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage")
+qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fill=I("#7570B3"))
 #ggsave("library-shortages.pdf", width=5, height=5)
 ```
 
