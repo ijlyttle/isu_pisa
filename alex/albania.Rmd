@@ -147,15 +147,28 @@ data_small <-
   filter(!is.na(OUTHOURS))
 
 ggplot(mapping = aes(x = OUTHOURS)) + 
+  scale_x_continuous(name = "what are OUTHOURS?") +
+  scale_y_continuous(name = "is there a better description than density?") +
   geom_histogram(
     mapping = aes(y = ..density.., fill = OECD), 
     binwidth = .width,
     data = data_small %>% filter(OECD == "Albania")
+  ) + 
+  scale_fill_manual(
+    values = "black",
+    breaks = "Albania",
+    guide = guide_legend(title = "")
   ) + 
   geom_line(
     mapping = aes(group = CNT, color = OECD), 
     stat = "density", 
     alpha = 0.3,
     data = data_small %>% filter(OECD != "Albania")
-  ) 
+  ) +
+  scale_color_discrete(
+    guide = guide_legend(
+      title = "Other Countries",
+      override.aes = list(alpha = 1)
+    )
+  )
 ```
