@@ -29,12 +29,12 @@ This paper will evaluate the role of several factors in which we see inequalitie
 # - IJL
 ```
 
-```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE}
+```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
 library(dplyr)
 library(stringr)
 ```
 
-```{r load_data, echo = FALSE, message = FALSE, warning = FALSE}
+```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
 # This is the scaffolding to import the data
 sets <- c("item", "parent", "school", "scoredItem", "student")
 
