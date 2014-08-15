@@ -10,6 +10,71 @@ The OECD describes the PISA survey as ``the world's global metric for quality, e
 
 This paper will evaluate the role of several factors in which we see inequalities in mathematics, reading, and science outcomes. In section XXXgender, we will evaluate in what subjects we observe gender inequalities. In section XXX we will evaluate inequalities based on the household structure and occupation of the parents. In section XXXpossessions we will look at what home possessions are good predictors of inequalities. Lastly, in sections XXXschool, we will look at the role of school influences. 
 
+```{r read_me, echo = FALSE}
+# Some notes for we authours:
+# 
+# * If you want to run this code interactively, change your working directory to
+# `paper`.
+# 
+# * If there are packges we are all using, let's load them all once, in the
+# load_packages chunk.
+# 
+# * If there are packages particular to your section, please consider loading
+# them there, then detaching at the end of your section.
+# 
+# * I am being a bit presumptuous by leaving stringr loaded - maybe it makes
+# sense to detach it. I'm sure we'll figure out wich way to go with each of our
+# loaded packages.
+# 
+# - IJL
+```
+
+```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE}
+library(dplyr)
+library(stringr)
+```
+
+```{r load_data, echo = FALSE, message = FALSE, warning = FALSE}
+# This is the scaffolding to import the data
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name){
+ 
+  template <- c("2012.rda", "2012dict.rda")
+  
+  file_name %>% 
+    vapply(str_join, template, template) %>% 
+    file.path("..", "data", .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+# clean
+rm(fn_build, sets)
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector){
+  data.frame(
+    variable = attr(named_vector, "names"),
+    description = named_vector,
+    row.names = NULL
+  )
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict) 
+dict_parent2012 <- fn_make_df(parent2012dict) 
+dict_school2012 <- fn_make_df(school2012dict) 
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+dict_student2012 <- fn_make_df(student2012dict) 
+
+# clean
+rm(fn_make_df)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+```
+
 ### Teachers, computers, and libraries at school matter
 
 ### Gender gap in math is not universal but the reading gap is
