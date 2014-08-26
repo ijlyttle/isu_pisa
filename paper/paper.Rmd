@@ -129,7 +129,11 @@ detach("package:plyr")
 
 ### School start age affects performance
 
-We should decide on country names, to coordinate map info and the test data. This si some really ugly code to convert names to be the same between the two. Could be made cleaner, much cleaner!
+***We should decide on country names, to coordinate map info and the test data. This si some really ugly code to convert names to be the same between the two. Could be made cleaner, much cleaner!
+
+Broken out by country we have computed the average math test score by age that the children started school. In additon, for each country we computed the median age that children in the study started school. There are differences in typical school start age between countries. Ireland has the youngest median start age - children head to school at age 4. Britain, and its past colonies, Australia, Canada and New Zealand, have a median start age of 5. For many other countries the median start age is 6, and for northern Europe, much of Asia and Brazil median start age is as late as 7. Some countries appear to have rigid starting ages, eg in Japan all children start at age 6.
+
+Within a country, looking at the average math score for each start age, the score typically declines, especially after age 6. This is almost uniformly the pattern across all of the countries in the study. For several countries - Russia, Denmark, Bulgaria - if a child starts school at age 4 their math scores were much better on average than another other starting age group. School start age matters, that children need to start school in the 4-6 age range to expect better math scores, on average. 
 
 ```{r age, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
