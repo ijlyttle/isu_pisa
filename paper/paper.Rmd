@@ -122,6 +122,30 @@ library(plyr)
 world.polys <- extractPolygons(world)
 detach("package:plyr")
 ```
+
+```{r dataprep, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+colnames(student2012)[1] <- "name"
+# Now add data
+student2012$name <- as.character(student2012$name)
+student2012$name[student2012$name=="Serbia"] <- "Republic of Serbia"
+student2012$name[student2012$name=="Korea"] <- "South Korea"
+student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
+student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
+student2012$name[student2012$name=="Russian Federation"] <- "Russia"
+student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
+student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+student2012$name[student2012$name=="China-Shanghai"] <- "China"
+student2012$name[student2012$name=="China-Macau"] <- "China"
+student2012$name[student2012$name=="Connecticut (USA)"] <- "United States of America"
+student2012$name[student2012$name=="Florida (USA)"] <- "United States of America"
+student2012$name[student2012$name=="Massachusetts (USA)"] <- "United States of America"
+student2012$ST06Q01 <- as.numeric(student2012$ST06Q01)
+student2012$PV1MATH <- as.numeric(student2012$PV1MATH)
+student2012$PV1READ <- as.numeric(student2012$PV1READ)
+student2012$PV1SCIE <- as.numeric(student2012$PV1SCIE)
+student2012$SENWGT_STU <- as.numeric(student2012$SENWGT_STU)
+```
+
 ### Teachers, computers, and libraries at school matter
 
 ### Gender gap in math is not universal but the reading gap is
@@ -136,26 +160,6 @@ Within a country, looking at the average math score for each start age, the scor
 
 ```{r age, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
-colnames(student2012.sub)[1] <- "name"
-# Now add data
-student2012.sub$name <- as.character(student2012.sub$name)
-student2012.sub$name[student2012.sub$name=="Serbia"] <- "Republic of Serbia"
-student2012.sub$name[student2012.sub$name=="Korea"] <- "South Korea"
-student2012.sub$name[student2012.sub$name=="Chinese Taipei"] <- "Taiwan"
-student2012.sub$name[student2012.sub$name=="Slovak Republic"] <- "Slovakia"
-student2012.sub$name[student2012.sub$name=="Russian Federation"] <- "Russia"
-student2012.sub$name[student2012.sub$name=="Perm(Russian Federation)"] <- "Russia"
-student2012.sub$name[student2012.sub$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
-student2012.sub$name[student2012.sub$name=="China-Shanghai"] <- "China"
-student2012.sub$name[student2012.sub$name=="China-Macau"] <- "China"
-student2012.sub$name[student2012.sub$name=="Connecticut (USA)"] <- "United States of America"
-student2012.sub$name[student2012.sub$name=="Florida (USA)"] <- "United States of America"
-student2012.sub$name[student2012.sub$name=="Massachusetts (USA)"] <- "United States of America"
-student2012.sub$ST06Q01 <- as.numeric(student2012.sub$ST06Q01)
-student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
-student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
-student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
-student2012.sub$SENWGT_STU <- as.numeric(student2012.sub$SENWGT_STU)
 student2012.sub.age <- summarise(group_by(student2012.sub, name), 
                   math4 = mean(PV1MATH[ST06Q01 == 4], na.rm = T), 
                   math5 = mean(PV1MATH[ST06Q01 == 5], na.rm = T), 
