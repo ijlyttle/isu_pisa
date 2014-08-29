@@ -400,6 +400,16 @@ p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwid
 ```
 ### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
+It seems that television is the great equalizer. As part of our investigation, we set out to explore how household factors, as indicators of inequality, affect student test scores.
+
+Math scores correlate with the number of household TVs, but how depends on where you live. Nevertheless, access to a quiet study space is generally a plus.
+
+For each country, students’ math scores are compared with number of TVs at home. Countries are grouped by direction and strength of the correlation; groups of countries are mapped (above) and identified (right).
+
+Students are considered by group, and categorized by household factors: number of TVs, and access to a quiet study space.  At far left, number of students in each category; at near left, math scores are summarized for students in each category.
+
+Find your own correlations: http://bit.ly/pisa2012_explorer
+
 ### Parents matter
 
 ### The weird and wacky republic of Albania
