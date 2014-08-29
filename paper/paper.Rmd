@@ -38,6 +38,7 @@ library(lubridate)
 library(ggvis)
 library(maps)
 library(ggmap)
+library(htmltools)
 library(rworldmap)
 library (grid)    
 library (scales) 
@@ -328,15 +329,37 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 
 ### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
-It seems that television is the great equalizer. As part of our investigation, we set out to explore how household factors, as indicators of inequality, affect student test scores.
+One of the factors in the PISA 2012 dataset is the number of televisions in the student's household. In the dataset, possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
 
-Math scores correlate with the number of household TVs, but how depends on where you live. Nevertheless, access to a quiet study space is generally a plus.
+A linear regression as made for the students of each country, using the math score as the dependent variable and the number of televisions as the independent variable (as an ordered factor). Using R's `lm()` function, the direction and significance of the correlation was determined for each country. Significance is indicated by the p-value for a given regression being less than the popular 0.05.
 
-For each country, students’ math scores are compared with number of TVs at home. Countries are grouped by direction and strength of the correlation; groups of countries are mapped (above) and identified (right).
+For many countries, a significant relationship was be found between math scores and number of household televisions. The interesting part was to notice that those countries with a significant *positive* relationship appear to include much of the developing world (with lower median-scores), while those countries with a significant *negative* relationship appear to include much of the developed world (with higher median-scores).
 
-Students are considered by group, and categorized by household factors: number of TVs, and access to a quiet study space.  At far left, number of students in each category; at near left, math scores are summarized for students in each category.
+Although results shown here are for math only, a similar set of relationships is found using the reading and science scores. 
+
+It seems that television is a great equalizer. 
+
+```{r place_map_countries, echo=FALSE}
+tags$div(
+  style = "height: 400px",
+  tags$p(
+    tags$img(
+      align = "right",
+      src = "img/ijl_map.png",
+      style="max-height: 100%"
+    ),
+    tags$img(
+      align = "left",
+      src = "img/ijl_countries.png",
+      style="max-height: 100%"
+    )
+  )
+)
+```
+
 
 Find your own correlations: http://bit.ly/pisa2012_explorer
+
 
 ### Parents matter
 
@@ -344,8 +367,15 @@ Find your own correlations: http://bit.ly/pisa2012_explorer
 
 ### Play with the data yourself
 
-Shiny app
+The PISA dataset contains dozens of household factors; we wanted a way to make our data-exploration more efficient. Moreover, we wanted a way that we could make explorations independent of each other, as during the course of the invesigation our team was in three cities over two hemispheres.
+
+To make our exploration easier, we developed a "Shiny" app. 
+
+Shiny is a open-source tool, developed by RStudio, that allows an investigator to create a web-based appication powered by R. 
+
 
 ### Acknowledgements
 
-Software packages
+Shiny, by RStudio
+
+plyr, dplyr, and ggplot2, by Hadley Wickham
