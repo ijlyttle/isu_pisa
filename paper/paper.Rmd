@@ -433,6 +433,46 @@ athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "No", ]$parents = "Neither"
 ```{r par_athome, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, facets = ~name, data = athome) + coord_flip() + ylab("Math Scores") + xlab("Family Structure") 
 ```
+
+One of the variables the survey addressed was the occupation of each of the parents. There were five possible categories: “Full-Time”, “Part-Time”, “Not working, but looking for a job”, “Other (e.g. home duties, retired)”, and no response. The distribution of the number of parents who selected each of the categories can be seen in the bar chart. The chart shows that father’s primarily have full-time jobs. However, there are large numbers of mothers who work full-time, part-time, or are stay-at-home moms. With women making up a larger portion of the work-force, it is interesting to look at how the parent’s occupation relates to the student’s performance in mathematics, reading, and science.
+
+```{r parentsjob, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+#student2012 <- student2012
+student2012$ST15Q01 <- addNA(student2012$ST15Q01)
+student2012$ST19Q01 <- addNA(student2012$ST19Q01)
+
+#student2012$name <- as.character(student2012$CNT)
+# unique(anti_join(student2012.sub, world.polys)[1])
+#student2012$name[student2012$name=="United Arab Emirates"] <- "UAE"
+#student2012$name[student2012$name=="United Kingdom"] <- "UK"
+#student2012$name[student2012$name=="Serbia"] <- "Serbia"
+#student2012$name[student2012$name=="Korea"] <- "South Korea"
+#student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
+#student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
+#student2012$name[student2012$name=="Russian Federation"] <- "Russia"
+#student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
+#student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong"
+#student2012$name[student2012$name=="China-Shanghai"] <- "China"
+#student2012$name[student2012$name=="Macau"] <- "China"
+#student2012$name[student2012$name=="Connecticut (USA)"] <- "USA"
+#student2012$name[student2012$name=="Florida (USA)"] <- "USA"
+#student2012$name[student2012$name=="Massachusetts (USA)"] <- "USA"
+#student2012$name[student2012$name=="United States of America"] <- "USA"
+#unique(student2012$name)
+#student2012$name <- factor(student2012$name)
+
+a6 <- summaryBy(data=student2012, PV1MATH + ESCS ~ ST15Q01+name, FUN=mean, rm.na=T)
+a7 <- summaryBy(data=student2012, PV1MATH + ESCS ~ ST19Q01+name, FUN=mean, rm.na=T)
+colnames(a6) <- colnames(a7) <- c("Job.Status","name","Math","ESCS")
+levels(a6$Job.Status) <- levels(a7$Job.Status)  <- c("Full-Time","Part-Time","Unemployed","Other","NA")
+
+a8 <- rbind(cbind(a6, Parent="Mother"), cbind(a7, Parent="Father"))
+#a2 <- melt(a1)
+ind <- which(a8$Job.Status=="Other" & a8$Parent=="Mother")
+a8$name <- factor(a8$name, a8$name[order(a8$Math[ind])])
+qplot(name, Math, col=Job.Status, data = a8) + coord_flip() + facet_wrap(~Parent)
+```
+
 ### The weird and wacky republic of Albania
 
 ```{r clean, echo=FALSE}
