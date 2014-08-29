@@ -397,6 +397,7 @@ p <- ggplot(data = study, aes(HomeworkHours,Math,colour=Schoolplace) )+xlim(0,20
 #ggsave(p,file="studytime.pdf",height=13,width=13)
 p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") + facet_grid(SC03Q01~.) +xlim(0,30)
 ```
+
 ### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
 One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
@@ -415,6 +416,23 @@ It seems that television is a great equalizer.
 
 ### Parents matter
 
+The role of parents in a child's education and success later in life is of great interest to both educators and policy makers. The relationship between eduational achievement and both household structure and parent's occupational status were evaluated. To look at the relationship between educational success and family structure, boxplots were made of the student's scores conditioned whether the student had a two-parent household, only a mother at home, only a father at home, or no parents at home. The relationship was evaluated for every participating country. The majority of the students did live in a two-parent household, but there were still sizable numbers of students who did not. The information regarding a parent's occupational was provided in a way that can be broadly catergorized with five catergories: "Full-employment", "Part-time", "Unemployed-looking for work", "Other: Home duties, retired, etc.", and "Missing". The means achievement in mathematics for each of the categories was calculated and plotted for each country. 
+
+```{r par_athomebar, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+athome = student2012[,c("name", "SCHOOLID", "STIDSTD", "OECD", "PV1MATH", "PV1SCIE", "PV1READ","ST11Q01", "ST11Q02", "ST11Q03","ST11Q04", "ST11Q05", "ST11Q06")]
+athome = filter(athome, !is.na(athome$ST11Q01) & !is.na(athome$ST11Q02))
+athome$parents = NA
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "Yes", ]$parents = "Both"
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "No", ]$parents = "Mother"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "Yes", ]$parents = "Father"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "No", ]$parents = "Neither"
+#athome$name <- reorder(athome$name, athome$PV1MATH, mean, decreasing=F)
+#qplot(x = parents, data = athome) 
+```
+
+```{r par_athome, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, facets = ~name, data = athome) + coord_flip() + ylab("Math Scores") + xlab("Family Structure") 
+```
 ### The weird and wacky republic of Albania
 
 ```{r clean, echo=FALSE}
