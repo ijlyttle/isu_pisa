@@ -319,7 +319,7 @@ orderedbymedianage <- student2012.sub.agemedian$name[order(student2012.sub.ageme
 student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian)
 student2012.sub.age.m.median$medianstart <- factor(student2012.sub.age.m.median$medianstart)
 student2012.sub.age.m.median$name <- factor(student2012.sub.age.m.median$name, levels=orderedbymedianage)
-qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math Score", 
+qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math Scores", 
       geom=c("point","smooth"), se=F, group=name, colour=medianstart) + 
  facet_wrap(~name, ncol=8) + theme_bw() + theme(legend.position="none")
 # ggsave("school-start.pdf", width=14, height=14)
@@ -398,22 +398,6 @@ p <- ggplot(data = study, aes(HomeworkHours,Math,colour=Schoolplace) )+xlim(0,20
 p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") + facet_grid(SC03Q01~.) +xlim(0,30)
 ```
 
-### More TVs yield higher math scores in the developing world, but lower in the developed countries
-
-One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
-
-A linear model is fitted the students of each country, using the math score as the dependent variable and the number of televisions as the independent variable (as an ordered factor). The direction and significance of the correlation was determined for each country. Significance is indicated by the p-value for a given regression being less than the conventional 0.05.
-
-For many countries, a significant relationship was be found between math scores and number of household televisions. The interesting part was to notice that those countries with a significant *positive* relationship appear to include much of the developing world (with lower median-scores), while those countries with a significant *negative* relationship appear to include much of the developed world (with higher median-scores).
-
-The figure below illustrates the relationship, along with another factor, student has a place to study. It is a complex diagram, but of interest is the middle column of plots - the boxplots overlaid on other information show the math scores of students relative to the number of TVs in the household, separately plotted for countries falling into one of three categories, negative, zero or  positive correlation. The white regions are violin plots of math scores by presence or absence of a place to study. A place to study universally leads to better math scores on average. The map is colored by correlation between number of TVs and math scores. The bar charts indicates sample size for the categories. The dot plots show average math scores by country, separately for each correlation group.
-
-Although results shown here are for math only, a similar set of relationships is found using the reading and science scores. 
-
-It seems that television is a great equalizer. 
-
-!["TVs"](shiny-pisa.jpg)
-
 ### Parents matter
 
 The role of parents in a child's education and success later in life is of great interest to both educators and policy makers. The relationship between eduational achievement and both household structure and parent's occupational status were evaluated. To look at the relationship between educational success and family structure, boxplots were made of the student's scores conditioned whether the student had a two-parent household, only a mother at home, only a father at home, or no parents at home. The relationship was evaluated for every participating country. The majority of the students did live in a two-parent household, but there were still sizable numbers of students who did not. The information regarding a parent's occupational was provided in a way that can be broadly catergorized with five catergories: "Full-employment", "Part-time", "Unemployed-looking for work", "Other: Home duties, retired, etc.", and "Missing". The means achievement in mathematics for each of the categories was calculated and plotted for each country. 
@@ -476,14 +460,14 @@ qplot(name, Math, col=Job.Status, data = a8) + coord_flip() + facet_wrap(~Parent
 ### The weird and wacky republic of Albania
 
 ```{r clean, echo=FALSE}
-student2012$CNT = student2012$name
+#student2012$CNT = student2012$name
 student2012$OECD <- as.character(student2012$OECD)
-student2012[student2012$CNT == "Albania", ]$OECD = "Albania"
+#student2012[student2012$name == "Albania", ]$OECD = "Albania"
 student2012$math = as.numeric(student2012[, "PV1MATH"])
 student2012$read = as.numeric(student2012[, "PV1READ"])
 student2012$sci = as.numeric(student2012[, "PV1SCIE"])
 
-student2012.sub = student2012 %>% dplyr::select(CNT, SCHOOLID, math, read, sci, OUTHOURS, STIDSTD, ST04Q01, ST11Q01, ST11Q02, ST15Q01, ST19Q01, ST26Q01, ST26Q02, ST26Q03, ST26Q04, ST26Q05, ST26Q06, ST26Q07, ST26Q08, ST26Q09, ST26Q10, ST26Q11, ST26Q12, ST26Q13, ST26Q14, ST27Q01, ST27Q02, ST27Q03, ST27Q04, ST27Q05, ST28Q01, OECD)
+student2012.sub = student2012 %>% dplyr::select(name, SCHOOLID, math, read, sci, OUTHOURS, STIDSTD, ST04Q01, ST11Q01, ST11Q02, ST15Q01, ST19Q01, ST26Q01, ST26Q02, ST26Q03, ST26Q04, ST26Q05, ST26Q06, ST26Q07, ST26Q08, ST26Q09, ST26Q10, ST26Q11, ST26Q12, ST26Q13, ST26Q14, ST27Q01, ST27Q02, ST27Q03, ST27Q04, ST27Q05, ST28Q01, OECD)
 
 for (i in 13:26) {
     student2012.sub[, i] <- as.character(student2012.sub[, i])
@@ -516,25 +500,33 @@ student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
 student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
 ```
 
-```{r albania-possessions, echo=FALSE}
-df = melt(student2012.sub %>% group_by(CNT, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("CNT", "numposs", "OECD"))
+```{r albania-possessions, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+#df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("name", "numposs", "OECD"))
+df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math)), id=c("name", "numposs", "OECD"))
 
-df$group = paste0(df$CNT, df$variable)
-qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
+#df$group = paste0(df$name, df$variable)
+#qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
+qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math Scores") + xlab("Number of Possessions") + theme_bw()
 ```
 
-```{r truancyschool, echo=FALSE}
-school2012$CNT = school2012$name
-school2012.sub = school2012 %>% dplyr::select(CNT, SCHOOLID, SC22Q01)
-student2012.sub = student2012 %>% dplyr::select(CNT, SCHOOLID, math, read, sci, OECD)
+```{r truancyschool, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+#school2012$name = school2012$name
+school2012.sub = school2012 %>% dplyr::select(name, SCHOOLID, SC22Q01)
+student2012.sub = student2012 %>% dplyr::select(name, SCHOOLID, math, read, sci, OECD)
+#truancy.df = melt( student2012.sub %>% 
+#  group_by(name, SCHOOLID) %>% 
+#  left_join(school2012.sub, by = c("name", "SCHOOLID")) %>% 
+#  group_by(name, SC22Q01, OECD) %>% summarise(math = mean(math), read = mean(read), sci = mean(sci)), 
+#  id = c("name", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
 truancy.df = melt( student2012.sub %>% 
-  group_by(CNT, SCHOOLID) %>% 
-  left_join(school2012.sub, by = c("CNT", "SCHOOLID")) %>% 
-  group_by(CNT, SC22Q01, OECD) %>% summarise(math = mean(math), read = mean(read), sci = mean(sci)), 
-  id = c("CNT", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
-truancy.df$group = paste0(truancy.df$CNT, truancy.df$variable)
+  group_by(name, SCHOOLID) %>% 
+  left_join(school2012.sub, by = c("name", "SCHOOLID")) %>% 
+  group_by(name, SC22Q01, OECD) %>% summarise(math = mean(math)), 
+  id = c("name", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
+#truancy.df$group = paste0(truancy.df$name, truancy.df$variable)
 
-qplot(x = SC22Q01, y = value, color = variable, facets = ~OECD, data = truancy.df, group = group, geom = "line") + xlab("reported truancy") + ylab("test scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
+#qplot(x = SC22Q01, y = value, color = variable, facets = ~name, data = truancy.df, group = group, geom = "line") + xlab("Reported Truancy") + ylab("Test Scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
+qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, geom = "line", group=name) + xlab("Reported Truancy") + ylab("Math Scores") + theme_bw()
 ```
 
 ```{r studytime, warning = FALSE, message=FALSE, echo=FALSE}
@@ -542,7 +534,7 @@ qplot(x = SC22Q01, y = value, color = variable, facets = ~OECD, data = truancy.d
 
 data_small <- 
   student2012 %>%
-  dplyr::select(OECD, CNT, OUTHOURS) %>%
+  dplyr::select(OECD, name, OUTHOURS) %>%
   filter(!is.na(OUTHOURS))
 
 ggplot(mapping = aes(x = OUTHOURS)) + 
@@ -559,7 +551,7 @@ ggplot(mapping = aes(x = OUTHOURS)) +
     guide = guide_legend(title = "")
   ) + 
   geom_line(
-    mapping = aes(group = CNT, color = OECD), 
+    mapping = aes(group = name, color = OECD), 
     stat = "density", 
     alpha = 0.3,
     data = data_small %>% filter(OECD != "Albania")
@@ -574,30 +566,21 @@ ggplot(mapping = aes(x = OUTHOURS)) +
   scale_colour_manual(values = c("#f4a582", "#92c5de")) + guides(colour = guide_legend(override.aes = list(alpha = 1)))
 ```
 
-```{r gendergap, echo=FALSE, warning = FALSE, fig.height = 10}
-scores = student2012 %>%
-  dplyr::select(CNT, math, read, ST04Q01, OECD) %>% 
-  group_by(OECD, CNT, ST04Q01) %>%
-  summarise(math = mean(math), read = mean(read))
-male = scores %>% filter(ST04Q01 == "Male")
-female = scores %>% filter(ST04Q01 == "Female")
-scores.df = data.frame(OECD = male$OECD, CNT = male$CNT, math_difference = male$math - female$math, read_difference = male$read - female$read)
+### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
+One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
 
-scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$math_difference)])
-scores.df$OECD = factor(scores.df$OECD, levels = scores.df$OECD[])
+A linear model is fitted the students of each country, using the math score as the dependent variable and the number of televisions as the independent variable (as an ordered factor). The direction and significance of the correlation was determined for each country. Significance is indicated by the p-value for a given regression being less than the conventional 0.05.
 
-qplot(CNT, math_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
-  scale_y_continuous("math score gap: male - female scores", breaks=seq(-30, 30, 5)) +
-  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("") +  
-  scale_colour_manual(values = c("#ca0020", "#f4a582", "#92c5de"))
+For many countries, a significant relationship was be found between math scores and number of household televisions. The interesting part was to notice that those countries with a significant *positive* relationship appear to include much of the developing world (with lower median-scores), while those countries with a significant *negative* relationship appear to include much of the developed world (with higher median-scores).
 
-scores.df$CNT = factor(scores.df$CNT, levels = scores.df$CNT[order(scores.df$read_difference)])
-qplot(CNT, read_difference, data = scores.df, color = OECD, size = OECD) + coord_flip() +
-  scale_y_continuous("read score gap: male - female scores") +
-  geom_hline(yintercept=0, colour="grey80") + scale_size_manual(values = c(4, 2.5, 2.5)) + xlab("") +  
-  scale_colour_manual(values = c("#ca0020", "#f4a582", "#92c5de"))
-```
+The figure below illustrates the relationship, along with another factor, student has a place to study. It is a complex diagram, but of interest is the middle column of plots - the boxplots overlaid on other information show the math scores of students relative to the number of TVs in the household, separately plotted for countries falling into one of three categories, negative, zero or  positive correlation. The white regions are violin plots of math scores by presence or absence of a place to study. A place to study universally leads to better math scores on average. The map is colored by correlation between number of TVs and math scores. The bar charts indicates sample size for the categories. The dot plots show average math scores by country, separately for each correlation group.
+
+Although results shown here are for math only, a similar set of relationships is found using the reading and science scores. 
+
+It seems that television is a great equalizer. 
+
+!["TVs"](shiny-pisa.jpg)
 
 ### Play with the data yourself
 
