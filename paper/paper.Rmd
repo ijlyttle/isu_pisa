@@ -40,7 +40,8 @@ library(maps)
 library(ggmap)
 library(rworldmap)
 library (grid)    
-library (scales) 
+library (scales)
+library(doBy)
 ```
 
 ```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
@@ -125,30 +126,70 @@ detach("package:plyr")
 
 *** We should decide on country names, to coordinate map info and the test data. This si some really ugly code to convert names to be the same between the two. Could be made cleaner, much cleaner!
 
-```{r dataprep, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r dataprep, echo = FALSE, message = FALSE, warning = FALSE}
 colnames(student2012)[1] <- "name"
-# Now add data
 student2012$name <- as.character(student2012$name)
-student2012$name[student2012$name=="Serbia"] <- "Republic of Serbia"
-student2012$name[student2012$name=="Korea"] <- "South Korea"
-student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
-student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
-student2012$name[student2012$name=="Russian Federation"] <- "Russia"
-student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
-student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
-student2012$name[student2012$name=="China-Shanghai"] <- "China"
-student2012$name[student2012$name=="China-Macau"] <- "China"
-student2012$name[student2012$name=="Connecticut (USA)"] <- "United States of America"
-student2012$name[student2012$name=="Florida (USA)"] <- "United States of America"
-student2012$name[student2012$name=="Massachusetts (USA)"] <- "United States of America"
+colnames(school2012)[1] <- "name"
+school2012$name <- as.character(school2012$name)
+
+fix_country = function(df) {
+df$name = as.character(df$name)
+df$name[df$name=="Serbia"] <- "Republic of Serbia"
+df$name[df$name=="Korea"] <- "South Korea"
+df$name[df$name=="Chinese Taipei"] <- "Taiwan"
+df$name[df$name=="Slovak Republic"] <- "Slovakia"
+df$name[df$name=="Russian Federation"] <- "Russia"
+df$name[df$name=="Perm(Russian Federation)"] <- "Russia"
+df$name[df$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+df$name[df$name=="China-Shanghai"] <- "China"
+df$name[df$name=="China-Macau"] <- "China"
+df$name[df$name=="Connecticut (USA)"] <- "United States of America"
+df$name[df$name=="Florida (USA)"] <- "United States of America"
+df$name[df$name=="Massachusetts (USA)"] <- "United States of America"
+
+df
+}
+
+# Now add data
+#student2012$name[student2012$name=="Serbia"] <- "Republic of Serbia"
+#student2012$name[student2012$name=="Korea"] <- "South Korea"
+#student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
+#student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
+#student2012$name[student2012$name=="Russian Federation"] <- "Russia"
+#student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
+#student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+#student2012$name[student2012$name=="China-Shanghai"] <- "China"
+#student2012$name[student2012$name=="China-Macau"] <- "China"
+#student2012$name[student2012$name=="Connecticut (USA)"] <- "United States of America"
+#student2012$name[student2012$name=="Florida (USA)"] <- "United States of America"
+#student2012$name[student2012$name=="Massachusetts (USA)"] <- "United States of America"
 student2012$ST06Q01 <- as.numeric(student2012$ST06Q01)
 student2012$PV1MATH <- as.numeric(student2012$PV1MATH)
 student2012$PV1READ <- as.numeric(student2012$PV1READ)
 student2012$PV1SCIE <- as.numeric(student2012$PV1SCIE)
 student2012$SENWGT_STU <- as.numeric(student2012$SENWGT_STU)
+
+school2012 = fix_country(school2012)
+student2012 = fix_country(student2012)
 ```
 
-### Teachers, computers, and libraries at school matter
+### Teachers, computers, and libraries at school make a difference in math scores
+
+```{r shortages, echo = FALSE, message = FALSE, warning = FALSE}
+school2012.sub = school2012[, c(1, 6, 34, 35, 40, 45, 46, 47, 48, 49, 50, 51)] #%>% select(name, SCHOOLID, SC11Q02, SC11Q03, SC14Q02, SC14Q07, SC14Q08, SC14Q09, SC14Q10, SC14Q11, SC14Q12, SC14Q13)
+student2012.sub = student2012[, c(1, 6, 501, 541, 546, 634)] #%>% select(name, SCHOOLID, PV1MATH, PV1READ, PV1SCIE)
+
+scores_by_school = summarise(group_by(student2012.sub, name, SCHOOLID), mmath = mean(PV1MATH), 
+                                      mread = mean(PV1READ), msci = mean(PV1SCIE))
+
+
+df = scores_by_school %>% left_join(school2012.sub)
+df2 <- summarise(group_by(df, name, SC14Q02), mmath2 = mean(mmath))
+qplot(SC14Q02, mmath2, data = df2, facets = ~name)
+df3 <- summarise(group_by(df, name, SC14Q10), mmath2 = mean(mmath))
+qplot(SC14Q10, mmath2, data = df3, facets = ~name)
+```
+
 
 ### The gender gap in math is not universal but the reading gap is, in favor of girls
 
@@ -326,6 +367,37 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 ```
 ### Time spent out of school studying is important, but only up to a point
 
+***Need to get this code working
+
+```
+# Out of School Study time
+b1 <- summaryBy(data=student2012, pvM + pvR + pvS+ ST57Q01+ ST57Q02 +ST57Q03+ ST57Q04+ ST57Q05+ ST57Q06 ~CNT,FUN=mean, na.rm=T)
+names(b1) <- c("CNT","pvM","pvR","pvS","ST57Q01", "ST57Q02","ST57Q03", "ST57Q04", "ST57Q05", "ST57Q06" )
+# Out of school study time (total hours HW)
+b1$CNT <- reorder(factor(b1$CNT),b1$pvS, mean)
+b2 <- melt(b1[,c("CNT","pvM","pvR","pvS")],id="CNT")
+b2 <- cbind(b2, b1[match(b2$CNT,b1$CNT), 5:10])
+qplot(CNT, value,color=variable,size=ST57Q01, data = b2)+ coord_flip()
+head(b2)
+qplot(ST57Q01, value,color=variable,size=ST57Q02, data = b2)+ coord_flip()+facet_wrap(~CNT)
+
+student.sub <- studschool[,c("name","pvM","pvR","pvS","ST57Q01","OECD","SC03Q01")]
+study <- melt(student.sub,id=c("name","ST57Q01","OECD","SC03Q01"))
+names(study) <- c("Country","HomeworkHours","OECD","AREA","Subject","Score")
+levels(study$Subject) <- c("Math","Reading","Science")
+p <- ggplot(data = study, aes(HomeworkHours,Score,colour=Subject) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)+ xlab("Out-of-School Study Hours")
+#ggsave(p,file="studytime.pdf",height=13,width=13)
+p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") +xlim(0,30)
+ggsave(p,file="HistHWschool.pdf",width=8,height=6)
+
+student.sub <- studschool[,c("name","pvM","ST57Q01","SC03Q01")]
+study <- student.sub
+names(study) <- c("Country","Math","HomeworkHours","Schoolplace")
+
+p <- ggplot(data = study, aes(HomeworkHours,Math,colour=Schoolplace) )+xlim(0,20)+facet_wrap(~Country)+stat_smooth(se=F)
+#ggsave(p,file="studytime.pdf",height=13,width=13)
+p <- ggplot(data=student.sub, aes(ST57Q01, ..density..)) + geom_histogram(binwidth=5) + xlab("Out-of-School Study Hours") + facet_grid(SC03Q01~.) +xlim(0,30)
+```
 ### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
 ### Parents matter
