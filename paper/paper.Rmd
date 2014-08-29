@@ -427,10 +427,6 @@ tags$div(
 )
 ```
 
-
-Find your own correlations: http://bit.ly/pisa2012_explorer
-
-
 ### Parents matter
 
 ### The weird and wacky republic of Albania
@@ -561,12 +557,21 @@ qplot(CNT, read_difference, data = scores.df, color = OECD, size = OECD) + coord
 
 ### Play with the data yourself
 
-The PISA dataset contains dozens of household factors; we wanted a way to make our data-exploration more efficient. Moreover, we wanted a way that we could make explorations independent of each other, as during the course of the invesigation our team was in three cities over two hemispheres.
+The PISA dataset contains hundreds of factors; we wanted a way to make our data-exploration more efficient.
 
-To make our exploration easier, we developed a "Shiny" app. 
+Moreover, for much of the time when the authors made their initial investigations, we (they?) were remote from each other: four team-members, in three cities across, two hemispheres. Thanks to a ten-hour dime difference, we would meet, virtually, only occasionally, and we had to make the most of our limited time.
+
+To make our exploration easier, we developed a "Shiny" app, so that we could show each other our ideas interactively. 
+
+"Let's look at *this* factor, combined with *that* factor!" 
+
+"Let's look at that other factor, instead."
 
 Shiny is a open-source tool, developed by RStudio, that allows an investigator to create a web-based appication powered by R. 
 
+We then decided to look at only household factors. Inner factor, using boxplots. Outer factor, using violin plots. Added correlation by country.
+
+Find your own correlations: http://bit.ly/pisa2012_explorer
 
 ### Acknowledgements
 
