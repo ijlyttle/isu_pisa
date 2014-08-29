@@ -1,0 +1,318 @@
+---
+output: pdf_document
+---
+Seven Things That Affect Education Around the World
+========================================================
+
+Luke Fostveldt, Alex Shum, Ian Lyttle, Di Cook
+
+Reducing inequities in education outcomes is of great interest to politicians. Dissecting the causes of inequality is a much tougher challenge with no panacea. Nonetheless, tackling inequality in educational outcomes is essential from both moral and economic viewpoints. The Programme for International Student Assessment (PISA) is a triennial survey conducted by the Organization for Economic Cooperation and Development (OECD) with a rotating additional emphasis on one of mathematics, reading, and science. In 2012, the additional emphasis was on mathematics. All 34 member countries of the OECD and 31 partnering countries and economies participated in the survey. This represents over 80% of the global economy. The OECD estimates that if all students could reach a level-2 proficiency in mathematics -- a level-2 proficiency means that a student can only handle the ``simplest and most obvious tasks" -- it would add a collective US$200 trillion to the world's collective GDP. 
+
+The OECD describes the PISA survey as ``the world's global metric for quality, equity and efficiency in school education" (citep[p. 3]{PISA2014a}). The goal of the PISA survey is to assess the workforce readiness of 15-year old students. Nearly 500,000 students were tested across the 65 countries and economies. Students are examined on how well they can apply the knowledge they learned in school to applications outside of school. Additional information about the students, parents, and schools is also collected. The students completed a questionnaire providing information about themselves, their homes, their schools, and a variety of psychological views regarding factors they believe affects their performance in school. Schools principals responded to a questionnaire covering the school system and learning experiences for students. In some countries, parents completed a questionnaire requesting information about their perceptions regarding the school system, expectations for their child, and their involvement in their child's schooling.  
+
+
+This paper will evaluate the role of several factors in which we see inequalities in mathematics, reading, and science outcomes. In section XXXgender, we will evaluate in what subjects we observe gender inequalities. In section XXX we will evaluate inequalities based on the household structure and occupation of the parents. In section XXXpossessions we will look at what home possessions are good predictors of inequalities. Lastly, in sections XXXschool, we will look at the role of school influences. 
+
+```{r read_me, echo = FALSE}
+# Some notes for we authours:
+# 
+# * If you want to run this code interactively, change your working directory to
+# `paper`.
+# 
+# * If there are packges we are all using, let's load them all once, in the
+# load_packages chunk.
+# 
+# * If there are packages particular to your section, please consider loading
+# them there, then detaching at the end of your section.
+# 
+# * I am being a bit presumptuous by leaving stringr loaded - maybe it makes
+# sense to detach it. I'm sure we'll figure out wich way to go with each of our
+# loaded packages.
+# 
+# - IJL
+```
+
+```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
+library(dplyr)
+library(stringr)
+library(stringr)
+library(reshape2)
+library(ggplot2)
+library(lubridate)
+library(ggvis)
+library(maps)
+library(ggmap)
+library(rworldmap)
+library (grid)    
+library (scales) 
+```
+
+```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
+# This is the scaffolding to import the data
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name){
+ 
+  template <- c("2012.rda", "2012dict.rda")
+  
+  file_name %>% 
+    vapply(str_join, template, template) %>% 
+    file.path("..", "data", .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+# clean
+rm(fn_build, sets)
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector){
+  data.frame(
+    variable = attr(named_vector, "names"),
+    description = named_vector,
+    row.names = NULL
+  )
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict) 
+dict_parent2012 <- fn_make_df(parent2012dict) 
+dict_school2012 <- fn_make_df(school2012dict) 
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+dict_student2012 <- fn_make_df(student2012dict) 
+
+# clean
+rm(fn_make_df)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+dim(student2012)
+length(table(student2012$STIDSTD))
+```
+
+```{r mapdata, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
+# Produce the maps
+extractPolygons <- function(shapes) {
+
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe$name <- shapes@polygons[[i]]@ID
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+
+# To get a blank background on map
+new_theme_empty <- theme_bw()
+new_theme_empty$line <- element_blank()
+new_theme_empty$rect <- element_blank()
+new_theme_empty$strip.text <- element_blank()
+new_theme_empty$axis.text <- element_blank()
+new_theme_empty$plot.title <- element_blank()
+new_theme_empty$axis.title <- element_blank()
+new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+
+world <- getMap(resolution = "low")
+library(plyr)
+world.polys <- extractPolygons(world)
+detach("package:plyr")
+```
+### Teachers, computers, and libraries at school matter
+
+### Gender gap in math is not universal but the reading gap is
+
+### School start age affects performance
+
+***We should decide on country names, to coordinate map info and the test data. This si some really ugly code to convert names to be the same between the two. Could be made cleaner, much cleaner!
+
+Broken out by country we have computed the average math test score by age that the children started school. In additon, for each country we computed the median age that children in the study started school. There are differences in typical school start age between countries. Ireland has the youngest median start age - children head to school at age 4. Britain, and its past colonies, Australia, Canada and New Zealand, have a median start age of 5. For many other countries the median start age is 6, and for northern Europe, much of Asia and Brazil median start age is as late as 7. Some countries appear to have rigid starting ages, eg in Japan all children start at age 6.
+
+Within a country, looking at the average math score for each start age, the score typically declines, especially after age 6. This is almost uniformly the pattern across all of the countries in the study. For several countries - Russia, Denmark, Bulgaria - if a child starts school at age 4 their math scores were much better on average than another other starting age group. School start age matters, that children need to start school in the 4-6 age range to expect better math scores, on average. 
+
+```{r age, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
+colnames(student2012.sub)[1] <- "name"
+# Now add data
+student2012.sub$name <- as.character(student2012.sub$name)
+student2012.sub$name[student2012.sub$name=="Serbia"] <- "Republic of Serbia"
+student2012.sub$name[student2012.sub$name=="Korea"] <- "South Korea"
+student2012.sub$name[student2012.sub$name=="Chinese Taipei"] <- "Taiwan"
+student2012.sub$name[student2012.sub$name=="Slovak Republic"] <- "Slovakia"
+student2012.sub$name[student2012.sub$name=="Russian Federation"] <- "Russia"
+student2012.sub$name[student2012.sub$name=="Perm(Russian Federation)"] <- "Russia"
+student2012.sub$name[student2012.sub$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+student2012.sub$name[student2012.sub$name=="China-Shanghai"] <- "China"
+student2012.sub$name[student2012.sub$name=="China-Macau"] <- "China"
+student2012.sub$name[student2012.sub$name=="Connecticut (USA)"] <- "United States of America"
+student2012.sub$name[student2012.sub$name=="Florida (USA)"] <- "United States of America"
+student2012.sub$name[student2012.sub$name=="Massachusetts (USA)"] <- "United States of America"
+student2012.sub$ST06Q01 <- as.numeric(student2012.sub$ST06Q01)
+student2012.sub$PV1MATH <- as.numeric(student2012.sub$PV1MATH)
+student2012.sub$PV1READ <- as.numeric(student2012.sub$PV1READ)
+student2012.sub$PV1SCIE <- as.numeric(student2012.sub$PV1SCIE)
+student2012.sub$SENWGT_STU <- as.numeric(student2012.sub$SENWGT_STU)
+student2012.sub.age <- summarise(group_by(student2012.sub, name), 
+                  math4 = mean(PV1MATH[ST06Q01 == 4], na.rm = T), 
+                  math5 = mean(PV1MATH[ST06Q01 == 5], na.rm = T), 
+                  math6 = mean(PV1MATH[ST06Q01 == 6], na.rm = T), 
+                  math7 = mean(PV1MATH[ST06Q01 == 7], na.rm = T), 
+                  math8 = mean(PV1MATH[ST06Q01 >  7], na.rm = T))
+student2012.sub.age.m <- melt(student2012.sub.age)
+student2012.sub.age.m$variable <- substr(student2012.sub.age.m$variable, 5, 5)
+student2012.sub.age.m$variable <- as.numeric(student2012.sub.age.m$variable)
+student2012.sub.agemedian <- summarise(group_by(student2012.sub, name), medianstart = median(ST06Q01, na.rm=T))
+orderedbymedianage <- student2012.sub.agemedian$name[order(student2012.sub.agemedian$medianstart)]
+student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian)
+student2012.sub.age.m.median$medianstart <- factor(student2012.sub.age.m.median$medianstart)
+student2012.sub.age.m.median$name <- factor(student2012.sub.age.m.median$name, levels=orderedbymedianage)
+qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math Score", 
+      geom=c("point","smooth"), se=F, group=name, colour=medianstart) + 
+ facet_wrap(~name, ncol=8) + theme_bw() + theme(legend.position="none")
+# ggsave("school-start.pdf", width=14, height=14)
+#student2012.sub.age <- summarise(group_by(student2012.sub, name), 
+#                  read4 = mean(PV1READ[ST06Q01 == 4], na.rm = T), 
+#                  read5 = mean(PV1READ[ST06Q01 == 5], na.rm = T), 
+#                  read6 = mean(PV1READ[ST06Q01 == 6], na.rm = T), 
+#                  read7 = mean(PV1READ[ST06Q01 == 7], na.rm = T), 
+#                  read8 = mean(PV1READ[ST06Q01 >  7], na.rm = T))
+#student2012.sub.age.m <- melt(student2012.sub.age)
+#student2012.sub.age.m$variable <- substr(student2012.sub.age.m$variable, 5, 5)
+#student2012.sub.age.m$variable <- as.numeric(student2012.sub.age.m$variable)
+#qplot(variable, value, data=student2012.sub.age.m, xlab="Age at start", ylab="Reading Score", 
+#      geom=c("point","smooth"), se=F, group=name) + 
+# facet_wrap(~name, ncol=8) + theme_bw() 
+#student2012.sub.age <- summarise(group_by(student2012.sub, name), 
+#                  scie4 = mean(PV1SCIE[ST06Q01 == 4], na.rm = T), 
+#                  scie5 = mean(PV1SCIE[ST06Q01 == 5], na.rm = T), 
+#                  scie6 = mean(PV1SCIE[ST06Q01 == 6], na.rm = T), 
+#                  scie7 = mean(PV1SCIE[ST06Q01 == 7], na.rm = T), 
+#                  scie8 = mean(PV1SCIE[ST06Q01 >  7], na.rm = T))
+#student2012.sub.age.m <- melt(student2012.sub.age)
+#student2012.sub.age.m$variable <- substr(student2012.sub.age.m$variable, 5, 5)
+#student2012.sub.age.m$variable <- as.numeric(student2012.sub.age.m$variable)
+#qplot(variable, value, data=student2012.sub.age.m, xlab="Age at start", ylab="Science Score", 
+#      geom=c("point","smooth"), se=F, group=name) + 
+# facet_wrap(~name, ncol=8) + theme_bw() 
+```
+
+```{r maps, fig.width=12, fig.height=7, echo = FALSE, message = FALSE, warning = FALSE}
+# Extract map polygons for modern world
+world <- getMap(resolution = "low")
+library(plyr)
+world.polys <- extractPolygons(world)
+detach("package:plyr")
+
+student2012.sub.agemedian$medianstart <- factor(student2012.sub.agemedian$medianstart)
+student2012.sub.map <- left_join(student2012.sub.agemedian, world.polys)
+ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
+  geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=medianstart)) +
+  scale_fill_discrete("Median Start Age") +
+  new_theme_empty + theme(legend.position="bottom")
+#ggsave("agestartmap.pdf", width=12, height=7)
+```
+### Time spent out of school studying is important, but only up to a point
+For each country we have provided loess smoothed curves of the relationship between mathematics and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. It is possible that there may be a selection issue occuring where more talented students spend less time studying as they complete their homework faster. However, the relationship shows those spending 
+
+```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+student.luke <- student2012[,c("CNT","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
+study.luke <- melt(student.luke,id=c("CNT","ST57Q01"))
+studyplot <- ggplot(data = study.luke, aes(ST57Q01,value,colour=variable) )+facet_wrap(~CNT)+stat_smooth(se=F)
+studyplot
+```
+
+
+```{r studyingbar, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+studybar <- ggplot(data = study.luke, aes(ST57Q01) ) + geom_histogram(binwidth=4) + xlab("Hours spent studying")
+studybar
+```
+
+
+### More TVs yield higher math scores in the developing world, but lower in the developed countries
+
+### Parents matter
+
+The role of parents in a child's education and success later in life is of great interest to both educators and policy makers. The relationship between eduational achievement and both household structure and parent's occupational status were evaluated. To look at the relationship between educational success and family structure, boxplots were made of the student's scores conditioned whether the student had a two-parent household, only a mother at home, only a father at home, or no parents at home. The relationship was evaluated for every participating country. The majority of the students did live in a two-parent household, but there were still sizable numbers of students who did not. The information regarding a parent's occupational was provided in a way that can be broadly catergorized with five catergories: "Full-employment", "Part-time", "Unemployed-looking for work", "Other: Home duties, retired, etc.", and "Missing". The means achievement in mathematics for each of the categories was calculated and plotted for each country. 
+
+
+### subsection: Number of parents in the home
+Looking at the number of parents in a household shows that student in two-parent household are on average performing better than student's not in a two-parent household. Students with just a mother at home do tend to perform better than students with only a father at home. Students with no parents at home are performing the worst, on average.
+
+```{r par_athomebar, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+athome = studentLuke[,c("name", "SCHOOLID", "STIDSTD", "OECD", "PV1MATH", "PV1SCIE", "PV1READ","ST11Q01", "ST11Q02", "ST11Q03","ST11Q04", "ST11Q05", "ST11Q06")]
+athome = athome %>% filter(!is.na(athome$ST11Q01) & !is.na(athome$ST11Q02))
+athome$parents = NA
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "Yes", ]$parents = "Both"
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "No", ]$parents = "Mother"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "Yes", ]$parents = "Father"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "No", ]$parents = "Neither"
+athome$name <- reorder(athome$name,athome$PV1MATH,mean)
+pbarhome <- qplot(x = parents, data = athome) 
+pbarhome
+
+```
+
+
+
+```{r par_athome, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, facets = ~name, data = athome) + coord_flip() + ylab("Math") + xlab("Family Structure") 
+phome
+```
+
+
+### subsection: Parent's Occupation Status
+One of the variables the survey addressed was the occupation status of each of the parents. There were five possible categories: “Full-Time”, “Part-Time”, “Not working, but looking for a job”, “Other (e.g. home duties, retired)”, and no response. The distribution of the number of parents who selected each of the categories can be seen in the bar chart. The chart shows that father’s primarily have full-time jobs. However, there are large numbers of mothers who work full-time, part-time, or are stay-at-home moms. With women making up a larger portion of the work-force, it is interesting to look at how the parent’s occupation relates to the student’s performance in mathematics, reading, and science. 
+
+
+```{r parentsjob, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+studentLuke <- student2012
+studentLuke$ST15Q01 <- addNA(studentLuke$ST15Q01)
+studentLuke$ST19Q01 <- addNA(studentLuke$ST19Q01)
+
+studentLuke$name <- as.character(studentLuke$CNT)
+# unique(anti_join(studentLuke.sub, world.polys)[1])
+studentLuke$name[studentLuke$name=="United Arab Emirates"] <- "UAE"
+studentLuke$name[studentLuke$name=="United Kingdom"] <- "UK"
+studentLuke$name[studentLuke$name=="Serbia"] <- "Serbia"
+studentLuke$name[studentLuke$name=="Korea"] <- "South Korea"
+studentLuke$name[studentLuke$name=="Chinese Taipei"] <- "Taiwan"
+studentLuke$name[studentLuke$name=="Slovak Republic"] <- "Slovakia"
+studentLuke$name[studentLuke$name=="Russian Federation"] <- "Russia"
+studentLuke$name[studentLuke$name=="Perm(Russian Federation)"] <- "Russia"
+studentLuke$name[studentLuke$name=="Hong Kong-China"] <- "Hong Kong"
+studentLuke$name[studentLuke$name=="China-Shanghai"] <- "China"
+studentLuke$name[studentLuke$name=="Macau"] <- "China"
+studentLuke$name[studentLuke$name=="Connecticut (USA)"] <- "USA"
+studentLuke$name[studentLuke$name=="Florida (USA)"] <- "USA"
+studentLuke$name[studentLuke$name=="Massachusetts (USA)"] <- "USA"
+studentLuke$name[studentLuke$name=="United States of America"] <- "USA"
+unique(studentLuke$name)
+studentLuke$name <- factor(studentLuke$name)
+
+a6 <- summaryBy(data=studentLuke, PV1MATH + ESCS ~ ST15Q01+ name,FUN=mean,rm.na=T)
+a7 <- summaryBy(data=studentLuke, PV1MATH + ESCS ~ ST19Q01+ name,FUN=mean,rm.na=T)
+colnames(a6) <- colnames(a7) <- c("Job.Status","Country","Math","ESCS")
+levels(a6$Job.Status) <- levels(a7$Job.Status)  <- c("Full-Time","Part-Time","Unemployed","Other","NA")
+
+a8 <- rbind(cbind(a6,Parent="Mother"),cbind(a7,Parent="Father"))
+#a2 <- melt(a1)
+ind <- which(a8$Job.Status=="Other"& a8$Parent=="Mother")
+a8$Country <- factor(a8$Country,levels(a8$Country)[order(a8$Math[ind])])
+p <- qplot(Country, Math, col=Job.Status, data = a8) +coord_flip() + facet_wrap(~Parent)
+p
+```
+
+The Figure ?*? shows the average performance of student’s performance based on the parent’s occupational status. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color. As you can see in each of the plots below, students’ with a mother who works part-time or full-time tend outperform those students with a stay-at-home mother. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time students tend to have much lower achievement that if the father stayed at home. When the father has a full-time jobs, the student’s have the highest average achievement among the possible work status’ for the father. The patterns described hold across mathematics, reading, and science. 
+
+
+### The weird and wacky republic of Albania
+
+
