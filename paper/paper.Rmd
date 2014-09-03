@@ -453,9 +453,9 @@ p
 
 The Figure ?*? shows the average performance of student’s performance based on the parent’s occupational status. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color. As you can see in each of the plots below, students’ with a mother who works part-time or full-time tend outperform those students with a stay-at-home mother. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time students tend to have much lower achievement that if the father stayed at home. When the father has a full-time jobs, the student’s have the highest average achievement among the possible work status’ for the father. The patterns described hold across mathematics, reading, and science. 
 
-
-
 ### The weird and wacky republic of Albania
+
+Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations'test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math and reading scores.  Additionally number of possessions and truancy rates affected test scores for every nation except Albania.  
 
 ```{r clean, echo=FALSE}
 #student2012$CNT = student2012$name
@@ -498,6 +498,8 @@ student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
 student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
 ```
 
+Generally students with more possessions are expected to perform better in math, reading and science.  The number of possessions is a stand in for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating total number of possessions together, the figure ?*? shows that increasing number of possessions is correlated with higher test scores in all nations except Albania.
+
 ```{r albania-possessions, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("name", "numposs", "OECD"))
 df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math)), id=c("name", "numposs", "OECD"))
@@ -506,6 +508,8 @@ df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath 
 #qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
 qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math Scores") + xlab("Number of Possessions") + theme_bw()
 ```
+
+A similar aberration is seen with school reported truancy rates.  Each school reports the level of student truancy: not at all, very little, to some extent, or a lot.  We group schools together by reported truancy level and aggregate the test scores for students at these schools.  Generally students at schools with high truancy rates average lower test scores than students at schools with lower truancy rates except for schools in Albania.
 
 ```{r truancyschool, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #school2012$name = school2012$name
@@ -521,6 +525,8 @@ truancy.df = melt( student2012.sub %>%
   left_join(school2012.sub, by = c("name", "SCHOOLID")) %>% 
   group_by(name, SC22Q01, OECD) %>% summarise(math = mean(math)), 
   id = c("name", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
+levels(truancy.df$SC22Q01) = c("Not", "Little", "Some", "Lot")
+
 #truancy.df$group = paste0(truancy.df$name, truancy.df$variable)
 
 #qplot(x = SC22Q01, y = value, color = variable, facets = ~name, data = truancy.df, group = group, geom = "line") + xlab("Reported Truancy") + ylab("Test Scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
@@ -563,6 +569,7 @@ ggplot(mapping = aes(x = OUTHOURS)) +
   ) +
   scale_colour_manual(values = c("#f4a582", "#92c5de")) + guides(colour = guide_legend(override.aes = list(alpha = 1)))
 ```
+
 
 ### More TVs yield higher math scores in the developing world, but lower in the developed countries
 
