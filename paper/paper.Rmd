@@ -400,14 +400,14 @@ For each country we have provided loess smoothed curves of the relationship betw
 
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
-study.luke <- melt(student.luke,id=c("name","ST57Q01"))
-studyplot <- ggplot(data = study.luke, aes(ST57Q01, value, colour=variable)) + facet_wrap(~name) + stat_smooth(se=F)
+#study.luke <- melt(student.luke,id=c("name","ST57Q01"))
+studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH)) + facet_wrap(~name) + stat_smooth(se=F)
 studyplot
 ```
 
 
 ```{r studyingbar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
-studybar <- ggplot(data = study.luke, aes(ST57Q01) ) + geom_histogram(binwidth=4) + xlab("Hours spent studying")
+studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=4) + xlab("Hours spent studying")
 studybar
 ```
 
@@ -416,7 +416,7 @@ studybar
 ### a. Number of parents in the home
 Looking at the number of parents in a household shows that student in two-parent household are on average performing better than student's not in a two-parent household. Students with just a mother at home do tend to perform better than students with only a father at home. Students with no parents at home are performing the worst, on average.
 
-```{r par_athomebar, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r par_athomebar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
 athome = student2012[,c("name", "SCHOOLID", "STIDSTD", "OECD", "PV1MATH", "PV1SCIE", "PV1READ","ST11Q01", "ST11Q02", "ST11Q03","ST11Q04", "ST11Q05", "ST11Q06")]
 athome = athome %>% filter(!is.na(athome$ST11Q01) & !is.na(athome$ST11Q02))
 athome$parents = NA
