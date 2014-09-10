@@ -170,56 +170,7 @@ school2012 = fix_country(school2012)
 student2012 = fix_country(student2012)
 ```
 
-# 1. Teachers, computers, and libraries at school make a difference in math scores
-
-```{r shortages, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE}
-school2012.sub = school2012[, c("name", "SCHOOLID", "SC14Q02", "SC14Q07", "SC14Q10")]
-student2012.sub = student2012[, c("name", "SCHOOLID", "PV1MATH", "PV1READ", "PV1SCIE")]
-
-scores_by_school = student2012.sub %>% group_by(name, SCHOOLID) %>% 
-  summarise(mmath = mean(PV1MATH), mread = mean(PV1READ), msci = mean(PV1SCIE))
-
-df = scores_by_school %>% left_join(school2012.sub)
-df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2,3))
-df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2,3))
-df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2,3))
-df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
-#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
-#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
-colnames(df2)[2] <- "levels"
-df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
-colnames(df3)[2] <- "levels"
-df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
-colnames(df4)[2] <- "levels"
-df.all <- merge(df2, df3)
-df.all <- merge(df.all, df4)
-df.m <- melt(df.all, id=c("name", "levels"))
-colnames(df.m)[4] <- "math"
-qplot(levels, math, data = df.m, facets = ~name, 
-      xlab="Shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-      ylab="Math Score", geom=c("point","line"), group=variable, colour=variable) +
-      scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
-      theme(legend.position="bottom") 
-#ggsave("shortages.pdf", width=14, height=14)
-```
-
-```{r shortagesbars, fig.width=4, fig.height=4, warning=FALSE, message=FALSE, echo=FALSE}
-qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", fill=I("#1B9E77"))
-#ggsave("teacher-shortages.pdf", width=5, height=5)
-qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage", fill=I("#D95F02"))
-#ggsave("computer-shortages.pdf", width=5, height=5)
-qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fill=I("#7570B3"))
-#ggsave("library-shortages.pdf", width=5, height=5)
-```
-
-
-# 2. The gender gap in math is not universal but the reading gap is, in favor of girls
+# 1. The gender gap in math is not universal but the reading gap is, in favor of girls
 
 For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. T-statistics were calculated to determine the statistical significance of the difference. The results are plotted in the graphs below. Each dot corresponds to a difference between girls and boys scores, for each country. Color indicates statistical significance (blue in favor of boys, pink in favor of girls and green means there was no significant difference). The size of the dot indicates the proportion of boys in the sample size. For most countries it is roughly equal, but some countries have an imblance, for example, Malaysia has more girls tested than boys. The maps color the countries by the presence of a gender gap.
 
@@ -325,6 +276,58 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 #  scale_fill_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
 #  new_theme_empty + theme(legend.position="none")
 ```
+
+
+# 2. Teachers, computers, and libraries at school make a difference in math scores
+
+The school table has information about shortages on items viewed as being important for good instruction. The plot below examines at three of these, lack of teachers, lack of computers and shortage of library materials, in relation to math, reading and science scores from the student table, across countries. For most countries scores decrease on average the greater the shortage. 
+
+```{r shortages, fig.width=4, fig.height=4, warning=FALSE, message=FALSE, echo=FALSE}
+school2012.sub = school2012[, c("name", "SCHOOLID", "SC14Q02", "SC14Q07", "SC14Q10")]
+student2012.sub = student2012[, c("name", "SCHOOLID", "PV1MATH", "PV1READ", "PV1SCIE")]
+
+scores_by_school = student2012.sub %>% group_by(name, SCHOOLID) %>% 
+  summarise(mmath = mean(PV1MATH), mread = mean(PV1READ), msci = mean(PV1SCIE))
+
+df = scores_by_school %>% left_join(school2012.sub)
+df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2,3))
+df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2,3))
+df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2,3))
+df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
+#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
+#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
+colnames(df2)[2] <- "levels"
+df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
+colnames(df3)[2] <- "levels"
+df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
+colnames(df4)[2] <- "levels"
+df.all <- merge(df2, df3)
+df.all <- merge(df.all, df4)
+df.m <- melt(df.all, id=c("name", "levels"))
+colnames(df.m)[4] <- "math"
+qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", fill=I("#1B9E77"))
+#ggsave("teacher-shortages.pdf", width=5, height=5)
+qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage", fill=I("#D95F02"))
+#ggsave("computer-shortages.pdf", width=5, height=5)
+qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fill=I("#7570B3"))
+#ggsave("library-shortages.pdf", width=5, height=5)
+#ggsave("shortages.pdf", width=14, height=14)
+```
+
+```{r shortagesbars, fig.width=10, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE}
+qplot(levels, math, data = df.m, facets = ~name, 
+      xlab="Shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+      ylab="Math Score", geom=c("point","line"), group=variable, colour=variable) +
+      scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
+      theme(legend.position="bottom") 
+```
+
 
 # 3. Starting school at an older age generated lower average math score. 
 
