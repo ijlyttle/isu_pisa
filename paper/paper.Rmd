@@ -535,7 +535,7 @@ p
 
 # 6. Albania is not like anyone else!
 
-Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math and reading scores.  Additionally number of possessions and truancy rates affected test scores for every nation except Albania.  
+Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math scores.  Additionally, number of possessions and truancy rates affected test scores for every nation except Albania.  
 
 ```{r clean, echo=FALSE, message = FALSE, warning = FALSE}
 #student2012$CNT = student2012$name
@@ -578,7 +578,7 @@ student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
 student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
 ```
 
-Generally, students with more possessions are expected to perform better in math, reading and science.  The number of possessions is a surrogate for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating total number of possessions together, the figure ?*? shows that increasing number of possessions is correlated with higher test scores in all nations except Albania.
+Generally, students with more possessions score higher on average.  The number of possessions is a surrogate for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating these number of possessions together, to get a total, we can see that scores increase on average as possessions increase in all nations, except Albania.
 
 ```{r albania-possessions, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("name", "numposs", "OECD"))
@@ -589,7 +589,7 @@ df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath 
 qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math Scores") + xlab("Number of Possessions") + theme_bw()
 ```
 
-A similar aberration is seen with school reported truancy rates.  Each school reports the level of student truancy: not at all, very little, to some extent, or a lot.  We group schools together by reported truancy level and aggregate the test scores for students at these schools.  Generally students at schools with high truancy rates average lower test scores than students at schools with lower truancy rates except for schools in Albania.
+A similar aberration is seen with school reported truancy rates.  Each school reports the level of student truancy: not at all, very little, to some extent, or a lot.  We group schools together by reported truancy level and aggregate the test scores for students at these schools.  Generally students at schools with high truancy rates average lower test scores than students at schools with lower truancy rates, except for schools in Albania.
 
 ```{r truancyschool, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #school2012$name = school2012$name
@@ -617,16 +617,15 @@ qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geo
 
 # 7. More TVs yield higher math scores in the developing world, but lower in the developed countries.
 
-One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
+One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this investigation, the "zero" and "one" categories were combined to form a "one or less" category.
 
-A linear model is fitted the students of each country, using the math score as the dependent variable and the number of televisions as the independent variable (as an ordered factor). The direction and significance of the correlation was determined for each country. Significance is indicated by the p-value for a given regression being less than the conventional 0.05.
+A linear model was fitted for the students of each country, using the math score as the dependent variable and the number of televisions as the independent variable (as an ordered factor). The direction and significance of the correlation was determined for each country. Significance is indicated by the p-value for a given regression being less than 0.05.
 
 For many countries, a significant relationship was be found between math scores and number of household televisions. The interesting part was to notice that those countries with a significant *positive* relationship appear to include much of the developing world (with lower median-scores), while those countries with a significant *negative* relationship appear to include much of the developed world (with higher median-scores).
 
-The figure below illustrates the relationship, along with another factor, student has a place to study. It is a complex diagram, but of interest is the middle column of plots - the boxplots overlaid on other information show the math scores of students relative to the number of TVs in the household, separately plotted for countries falling into one of three categories, negative, zero or  positive correlation. The white regions are violin plots of math scores by presence or absence of a place to study. A place to study universally leads to better math scores on average. The map is colored by correlation between number of TVs and math scores. The bar charts indicates sample size for the categories. The dot plots show average math scores by country, separately for each correlation group.
+The figure below illustrates the relationship, along with another factor, the student has a place to study. It is a complex diagram, but of interest is the middle column of plots - the boxplots overlaid on other information show the math scores of students relative to the number of TVs in the household, separately plotted for countries falling into one of three categories, negative, zero or  positive correlation. The white regions are violin plots of math scores by presence or absence of a place to study. A place to study universally leads to better math scores on average. The map is colored by correlation between number of TVs and math scores. The bar charts indicates sample size for the categories. The dot plots show average math scores by country, separately for each correlation group.
 
-Although results shown here are for math only, a similar set of relationships is found using the reading and science scores. 
-
+It is interesing that the more TVs in the household in developed countries leads to lower math scores on average. Although results shown here are for math only, a similar set of relationships is found using the reading and science scores. 
 It seems that television is a great equalizer. 
 
 !["TVs"](shiny-pisa.jpg)
@@ -634,6 +633,10 @@ It seems that television is a great equalizer.
 ### Play with the data yourself.
 
 The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
+
+# Summary
+
+Overall, we have seen that there are many factors that affect the average math scores, but the major source of variation in the data is from individual to individual. You as a person are more than your demographic -  you count, your individual efforts matter.
 
 ### Acknowledgements
 
