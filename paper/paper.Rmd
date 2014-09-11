@@ -417,7 +417,11 @@ qplot(levels, math, data = df.m, facets = ~name,
 
 # 4. Time spent out of school studying is important, but only up to a point.
 
-For each country we have provided loess-smoothed curves of the relationship between mathematics score and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. It is possible that there may be a selection issue occuring where more talented students spend less time studying as they complete their homework faster. However, the relationship shows those spending 
+For each country we have provided loess-smoothed curves of the relationship between the mathematics score and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. This pattern is consistent across most countries with a few notable exceptions. Most of the Asian countries still have gains for longer hours studied. 
+
+The vast majority of students spend less than 10 hours studying per week. It is among the students that spend 5 or less hours per week that could see improvement in their scores if they put in more time. The pattern tends to level off at 10 hours. 
+
+It is possible that there may be a selection issue occuring where more talented students spend less time studying as they complete their homework faster. Nonetheless the pattern suggest decreasing benefits to increased out of school study time after 10 hour.
 
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
