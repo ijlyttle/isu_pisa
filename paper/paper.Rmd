@@ -417,7 +417,7 @@ qplot(levels, math, data = df.m, facets = ~name,
 
 # 4. Time spent out of school studying is important, but only up to a point.
 
-For each country we have provided loess-smoothed curves of the relationship between mathematics score and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. It is possible that there may be a selection issue occuring where more talented students spend less time studying as they complete their homework faster. However, the relationship shows those spending 
+For each country we have provided loess-smoothed curves of the relationship between mathematics score and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. It is possible that there may be a selection issue occuring, where more-talented students spend less time studying as they complete their homework faster. However, the relationship shows those spending === NEED THE REST OF THE SENTENCE ===
 
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
@@ -602,7 +602,7 @@ It seems that television is a great equalizer.
 
 ### Play with the data yourself.
 
-The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's and [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
+The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
 
 ### Acknowledgements
 
