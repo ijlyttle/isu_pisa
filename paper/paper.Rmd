@@ -422,7 +422,7 @@ For each country we have provided loess-smoothed curves of the relationship betw
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
 #study.luke <- melt(student.luke,id=c("name","ST57Q01"))
-studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH)) + facet_wrap(~name) + stat_smooth(se=F)
+studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH), xlab="Time spent", ylab="Math scores") + facet_wrap(~name) + stat_smooth(se=F)
 studyplot
 ```
 
@@ -584,44 +584,6 @@ qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geo
   ylab("Math Scores") + theme_bw()
 ```
 
-```{r studytime, warning = FALSE, message=FALSE, echo=FALSE}
-.width = 1
-
-data_small <- 
-  student2012 %>%
-  dplyr::select(OECD, name, OUTHOURS) %>%
-  filter(!is.na(OUTHOURS))
-
-ggplot(mapping = aes(x = OUTHOURS)) + 
-  scale_x_continuous(name = "out of school study time (hours)", limits = c(0,60)) +
-  scale_y_continuous(name = "density") +
-  geom_histogram(
-    mapping = aes(y = ..density.., fill = OECD), 
-    binwidth = .width,
-    data = data_small %>% filter(OECD == "Albania")
-  ) + 
-  scale_fill_manual(
-    values = "black",
-    breaks = "Albania",
-    guide = guide_legend(title = "")
-  ) + 
-  geom_line(
-    mapping = aes(group = name, color = OECD), 
-    stat = "density", 
-    alpha = 0.3,
-    data = data_small %>% filter(OECD != "Albania")
-  ) +
-  scale_color_discrete(
-    guide = guide_legend(
-      title = "Other Countries",
-      override.aes = list(alpha = 1)
-    )
-    
-  ) +
-  scale_colour_manual(values = c("#f4a582", "#92c5de")) + guides(colour = guide_legend(override.aes = list(alpha = 1)))
-```
-
-
 # 7. More TVs yield higher math scores in the developing world, but lower in the developed countries.
 
 One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this invesitgation, the "zero" and "one" categories were combined to form a "one or less" category.
@@ -644,4 +606,4 @@ The PISA dataset contains hundreds of factors, and this article can describe jus
 
 ### Acknowledgements
 
-shiny, plyr, dplyr, ggplot2
+The following R packages were used to conduct the data exploration: shiny, plyr, dplyr, ggplot2, stringr, reshape2, lubridate, maps, ggmap, htmltools, rworldmap, grid, scales, doBy.
