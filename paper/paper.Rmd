@@ -606,7 +606,7 @@ It seems that television is a great equalizer.
 
 ### Play with the data yourself.
 
-The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's and [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
+The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
 
 ### Acknowledgements
 
