@@ -459,7 +459,7 @@ studyplot
 
 
 ```{r studyingbar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
-studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=4) + xlab("Hours spent studying")
+studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=5) + xlab("Hours spent studying")
 studybar
 ```
 
@@ -484,8 +484,8 @@ pbarhome
 
 
 
-```{r par_athome, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
-phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math score") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family Structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
+```{r par_athome, fig.width=12, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math score") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
 phome
 ```
 
@@ -529,7 +529,7 @@ a8 <- rbind(cbind(a6,Parent="Mother"),cbind(a7,Parent="Father"))
 #a2 <- melt(a1)
 ind <- which(a8$Job.Status=="Full-Time"& a8$Parent=="Mother")
 a8$name <- factor(a8$name,levels(a8$name)[order(a8$Math[ind])])
-p <- qplot(name, Math, col=Job.Status, data = a8, xlab="Math score") + coord_flip() + facet_wrap(~Parent) + theme(legend.position="bottom")
+p <- qplot(name, Math, col=Job.Status, data = a8, ylab="Math score", xlab="") + coord_flip() + facet_wrap(~Parent) + theme(legend.position="bottom")
 p
 ```
 
