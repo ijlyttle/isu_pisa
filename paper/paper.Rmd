@@ -270,6 +270,9 @@ qplot(name, readgap, data=student2012.sub.summary.gap, size=propmale, color=rsig
 
 ```{r gendermaps2, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
 #ggsave("gendermathmap.pdf", width=12, height=7)
+student2012.sub.summary.gap$name <- as.character(student2012.sub.summary.gap$name)
+student2012.sub.map <- left_join(student2012.sub.summary.gap, world.polys)
+student2012.sub.map$rsig <- factor(student2012.sub.map$rsig)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
   geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=rsig)) +
   scale_fill_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
