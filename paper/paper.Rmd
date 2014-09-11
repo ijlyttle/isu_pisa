@@ -149,6 +149,17 @@ df$name[df$name=="Massachusetts (USA)"] <- "United States of America"
 df
 }
 
+shorten_countrynames = function(df) {
+df$name = as.character(df$name)
+df$name[df$name=="Hong Kong S.A.R."] <- "Hong Kong"
+df$name[df$name=="Republic of Serbia"] <- "Serbia"
+df$name[df$name=="United Arab Emirates"] <- "UAE"
+df$name[df$name=="United States of America"] <- "USA"
+df$name[df$name=="United Kingdom"] <- "UK"
+
+df
+}
+
 # Now add data
 #student2012$name[student2012$name=="Serbia"] <- "Republic of Serbia"
 #student2012$name[student2012$name=="Korea"] <- "South Korea"
@@ -338,12 +349,6 @@ qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", y
 ```
 
 ```{r agemaps, fig.width=12, fig.height=7, echo = FALSE, message = FALSE, warning = FALSE}
-# Extract map polygons for modern world
-world <- getMap(resolution = "low")
-library(plyr)
-world.polys <- extractPolygons(world)
-detach("package:plyr")
-
 student2012.sub.agemedian$medianstart <- factor(student2012.sub.agemedian$medianstart)
 student2012.sub.map <- left_join(student2012.sub.agemedian, world.polys)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
@@ -356,6 +361,13 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 # 3. Teachers, computers, and libraries at school make a difference in math scores
 
 Within the PISA dataset, the school table has information about shortages on items viewed as being important for good instruction. The plot below examines at three of these: lack of teachers, lack of computers and shortage of library materials. These factors are compared with math, reading and science scores from the student table, across countries. For most countries, scores decrease on average the greater the shortage. 
+
+```{r shortencountrynames, warning=FALSE, message=FALSE, echo=FALSE, results='hide'}
+#school2012$name <- as.character(school2012$name)
+#student2012$name <- as.character(student2012$name)
+school2012 = shorten_countrynames(school2012)
+student2012 = shorten_countrynames(student2012)
+```
 
 ```{r shortages, fig.width=4, fig.height=4, warning=FALSE, message=FALSE, echo=FALSE}
 school2012.sub = school2012[, c("name", "SCHOOLID", "SC14Q02", "SC14Q07", "SC14Q10")]
@@ -402,8 +414,6 @@ qplot(levels, math, data = df.m, facets = ~name,
       scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
       theme(legend.position="bottom") 
 ```
-
-
 
 # 4. Time spent out of school studying is important, but only up to a point.
 
@@ -452,6 +462,7 @@ phome
 ### b. Parent's Occupation Status
 One of the variables the survey addressed was the occupation status of each of the parents. There were five possible categories: “Full-Time”, “Part-Time”, “Not working, but looking for a job”, “Other (e.g. home duties, retired)”, and no response. The distribution of the number of parents who selected each of the categories can be seen in the bar chart. The chart shows that fathers primarily have full-time jobs. However, there are large numbers of mothers who work full-time, part-time, or are stay-at-home moms. With women making up a larger portion of the work-force, it is interesting to look at how the parents' occupations relate to students' performance in mathematics, reading, and science. 
 
+The plot below shows the average performance of students' performance based on the parents' occupational statuses. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color.  In each of the plots below, students with mothers who work part-time or full-time tend outperform those students with stay-at-home mothers. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time, students tend to have much lower achievement that if the father stayed at home. Those students whose fathers have full-time jobs have the highest average achievement among the possible work statuses for the father. The patterns described hold across mathematics, reading, and science. 
 
 ```{r parentsjob, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 studentLuke <- student2012
@@ -475,7 +486,7 @@ studentLuke$ST19Q01 <- addNA(studentLuke$ST19Q01)
 #studentLuke$name[studentLuke$name=="Florida (USA)"] <- "USA"
 #studentLuke$name[studentLuke$name=="Massachusetts (USA)"] <- "USA"
 #studentLuke$name[studentLuke$name=="United States of America"] <- "USA"
-unique(studentLuke$name)
+#unique(studentLuke$name)
 studentLuke$name <- factor(studentLuke$name)
 
 a6 <- summaryBy(data=studentLuke, PV1MATH + ESCS ~ ST15Q01+ name,FUN=mean,rm.na=T)
@@ -491,13 +502,11 @@ p <- qplot(name, Math, col=Job.Status, data = a8) +coord_flip() + facet_wrap(~Pa
 p
 ```
 
-The plot below shows the average performance of students' performance based on the parents' occupational statuses. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color.  In each of the plots below, students with mothers who work part-time or full-time tend outperform those students with stay-at-home mothers. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time, students tend to have much lower achievement that if the father stayed at home. Those students whose fathers have full-time jobs have the highest average achievement among the possible work statuses for the father. The patterns described hold across mathematics, reading, and science. 
-
 # 6. Albania is not like anyone else!
 
 Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math and reading scores.  Additionally number of possessions and truancy rates affected test scores for every nation except Albania.  
 
-```{r clean, echo=FALSE}
+```{r clean, echo=FALSE, message = FALSE, warning = FALSE}
 #student2012$CNT = student2012$name
 student2012$OECD <- as.character(student2012$OECD)
 #student2012[student2012$name == "Albania", ]$OECD = "Albania"
@@ -570,7 +579,9 @@ levels(truancy.df$SC22Q01) = c("Not", "Little", "Some", "Lot")
 #truancy.df$group = paste0(truancy.df$name, truancy.df$variable)
 
 #qplot(x = SC22Q01, y = value, color = variable, facets = ~name, data = truancy.df, group = group, geom = "line") + xlab("Reported Truancy") + ylab("Test Scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
-qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, geom = "line", group=name) + xlab("Reported Truancy") + ylab("Math Scores") + theme_bw()
+qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geom="smooth", se=F) + 
+  scale_x_discrete("Reported Truancy, 0=None, 1=Little, 2=Some, 3=Lot", labels=c("Not"="0", "Little"="1", "Some"="2", "Lot"="3")) + 
+  ylab("Math Scores") + theme_bw()
 ```
 
 ```{r studytime, warning = FALSE, message=FALSE, echo=FALSE}
