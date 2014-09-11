@@ -466,7 +466,7 @@ studybar
 
 # 5. Parents matter!
 ### a. Number of parents in the home
-Looking at the number of parents in a household shows that students in two-parent households are on average performing better than students not in a two-parent households. Students with just a mother at home do tend to perform better than students with only a father at home. Students with no parents at home are performing the worst, on average.
+The role of parents in educational achievement is the subject of much research. Looking at the number of parents in a household shows that students in a two-parent household are, on average, performing better in mathematics than students not in a two-parent household. The majority of students live in a two-parent household. There are substantially more single parent household with a mother than a father. This may be a result of custody laws that tend to assign children to their mother's care. Regardless, the students with just a mother at home tend to do better than those household with just a father. In many cases, mostly Asian countries, the single mother household achieve comparibly to two-parent households. The students in a household with no parents tend to perform the worst. This pattern is consistent across all countries. 
 
 ```{r par_athomebar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
 athome = student2012[,c("name", "SCHOOLID", "STIDSTD", "OECD", "PV1MATH", "PV1SCIE", "PV1READ","ST11Q01", "ST11Q02", "ST11Q03","ST11Q04", "ST11Q05", "ST11Q06")]
