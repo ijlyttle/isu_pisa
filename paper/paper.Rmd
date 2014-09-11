@@ -29,6 +29,7 @@ The data was made available by the OECD as part of a data challenge for the useR
 ```
 
 ```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
+library(plyr)
 library(dplyr)
 library(stringr)
 library(reshape2)
@@ -87,7 +88,7 @@ dim(student2012)
 length(table(student2012$STIDSTD))
 ```
 
-```{r mapdata, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
+```{r mapdata, echo = FALSE, message = FALSE, warning = FALSE, results='hide', cache=FALSE}
 # Produce the maps
 extractPolygons <- function(shapes) {
 
@@ -119,7 +120,7 @@ new_theme_empty$axis.title <- element_blank()
 new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
 
 world <- getMap(resolution = "low")
-library(plyr)
+#library(plyr)
 world.polys <- extractPolygons(world)
 detach("package:plyr")
 ```
@@ -180,9 +181,7 @@ Conversely, though, when we look at reading scores the story is entirely differe
 
 Although, not shown here, it also should be noted that this is the difference between the average scores for boys and girls. There is a slightly different story for each country if we look at the top math score for each geneder only, where we would notice that the top score in the USA is achieved by a girl, and is substantially higher than the highest boys' score. There is far more individual variability than the overall average differences. 
 
-*** Looks like I messed up the colors for countries - need to check this again
-
-```{r gendermath, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE}
+```{r gendermath, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
 student2012.sub <- student2012[, c(1, 12, 501, 541, 546, 634)]
 student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name), 
                   mathgap=mean(PV1MATH[ST04Q01=="Male"], na.rm=T)-
@@ -211,14 +210,15 @@ student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
       levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$mathgap)])
 qplot(name, mathgap, data=student2012.sub.summary.gap, size=propmale, color=msig) + 
-  xlab("") +
+  xlab("") +  
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
-  scale_y_continuous("Math Score Gap", breaks=seq(-30, 30, 5)) + 
+  scale_y_continuous("Math Score Gap", breaks=seq(-30, 30, 5), limits=c(-30, 30)) + 
   scale_size("Prop male") +
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
 ```
 
-```{r gendermaps, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE}
+```{r gendermaps, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+student2012.sub.summary.gap$name <- as.character(student2012.sub.summary.gap$name)
 student2012.sub.map <- left_join(student2012.sub.summary.gap, world.polys)
 student2012.sub.map$msig <- factor(student2012.sub.map$msig)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
@@ -242,7 +242,7 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 #
 ```
 
-```{r genderead, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE}
+```{r genderead, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
 student2012.sub.summary.gap$rsig <- ifelse(student2012.sub.summary.gap$rp.value>0.05, "none", TRUE)
 student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat>0] <- "male"
 student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat<0] <- "female"
@@ -268,7 +268,7 @@ qplot(name, readgap, data=student2012.sub.summary.gap, size=propmale, color=rsig
 #   geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw()
 ```
 
-```{r gendermaps2, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE}
+```{r gendermaps2, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
 #ggsave("gendermathmap.pdf", width=12, height=7)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
   geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=rsig)) +
@@ -487,7 +487,7 @@ p <- qplot(name, Math, col=Job.Status, data = a8) +coord_flip() + facet_wrap(~Pa
 p
 ```
 
-The Figure ?*? shows the average performance of students' performance based on the parents' occupational statuses. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color.  In each of the plots below, students with mothers who work part-time or full-time tend outperform those students with stay-at-home mothers. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time, students tend to have much lower achievement that if the father stayed at home. Those students whose fathers have full-time jobs have the highest average achievement among the possible work statuses for the father. The patterns described hold across mathematics, reading, and science. 
+The plot below shows the average performance of students' performance based on the parents' occupational statuses. The countries are sorted according to the average score for students with a "stay-at-home" mother. The averages for each parent in each of the work status categories are distinguished by color.  In each of the plots below, students with mothers who work part-time or full-time tend outperform those students with stay-at-home mothers. This pattern holds with only a few exceptions. Meanwhile, when the father is employed part-time, students tend to have much lower achievement that if the father stayed at home. Those students whose fathers have full-time jobs have the highest average achievement among the possible work statuses for the father. The patterns described hold across mathematics, reading, and science. 
 
 # 6. Albania is not like anyone else!
 
@@ -534,7 +534,7 @@ student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
 student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
 ```
 
-Generally, students with more possessions are expected to perform better in math, reading and science.  The number of possessions is a stand in for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating total number of possessions together, the figure ?*? shows that increasing number of possessions is correlated with higher test scores in all nations except Albania.
+Generally, students with more possessions are expected to perform better in math, reading and science.  The number of possessions is a surrogate for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating total number of possessions together, the figure ?*? shows that increasing number of possessions is correlated with higher test scores in all nations except Albania.
 
 ```{r albania-possessions, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("name", "numposs", "OECD"))
