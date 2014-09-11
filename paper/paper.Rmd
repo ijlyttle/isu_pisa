@@ -318,7 +318,7 @@ orderedbymedianage <- student2012.sub.agemedian$name[order(student2012.sub.ageme
 student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian)
 student2012.sub.age.m.median$medianstart <- factor(student2012.sub.age.m.median$medianstart)
 student2012.sub.age.m.median$name <- factor(student2012.sub.age.m.median$name, levels=orderedbymedianage)
-qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math Scores", 
+qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math score", 
       geom=c("point","smooth"), se=F, group=name, colour=medianstart) + 
  facet_wrap(~name, ncol=8) + theme_bw() + theme(legend.position="none")
 # ggsave("school-start.pdf", width=14, height=14)
@@ -353,7 +353,7 @@ student2012.sub.agemedian$medianstart <- factor(student2012.sub.agemedian$median
 student2012.sub.map <- left_join(student2012.sub.agemedian, world.polys)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
   geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=medianstart)) +
-  scale_fill_discrete("Median Start Age") +
+  scale_fill_discrete("Median start age") +
   new_theme_empty + theme(legend.position="bottom")
 #ggsave("agestartmap.pdf", width=12, height=7)
 ```
@@ -413,9 +413,9 @@ qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fil
 df$SC14Q02 <- as.character(df$SC14Q02)
 df$SC14Q07 <- as.character(df$SC14Q07)
 df$SC14Q10 <- as.character(df$SC14Q10)
-df$SC14Q02[df$SC14Q02=="A lot"] <- "To some extent"
-df$SC14Q07[df$SC14Q07=="A lot"] <- "To some extent"
-df$SC14Q10[df$SC14Q10=="A lot"] <- "To some extent"
+df$SC14Q02[df$SC14Q02==3] <- 2
+df$SC14Q07[df$SC14Q07==3] <- 2
+df$SC14Q10[df$SC14Q10==3] <- 2
 df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2))
 df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2))
 df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2))
@@ -438,8 +438,8 @@ df.all <- merge(df.all, df4)
 df.m <- melt(df.all, id=c("name", "levels"))
 colnames(df.m)[4] <- "math"
 qplot(levels, math, data = df.m, facets = ~name, 
-      xlab="Shortages (0=None, 1=Very little, 2=To some extent, or A lot)", 
-      ylab="Math Score", geom=c("point","line"), group=variable, colour=variable) +
+      xlab="Shortages (0=None, 1=Very little, 2=To some extent, or a lot)", 
+      ylab="Math score", geom=c("point","line"), group=variable, colour=variable) +
       scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
       theme(legend.position="bottom") 
 ```
@@ -453,7 +453,7 @@ The vast majority of students spend less than 10 hours studying per week. The pa
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
 #study.luke <- melt(student.luke,id=c("name","ST57Q01"))
-studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH), xlab="Time spent", ylab="Math scores") + facet_wrap(~name) + stat_smooth(se=F)
+studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH)) + xlab("Hours spent out of school studying per week") + ylab("Math score") + facet_wrap(~name) + stat_smooth(se=F)
 studyplot
 ```
 
@@ -485,7 +485,7 @@ pbarhome
 
 
 ```{r par_athome, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
-phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family Structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
+phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math score") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family Structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
 phome
 ```
 
@@ -529,7 +529,7 @@ a8 <- rbind(cbind(a6,Parent="Mother"),cbind(a7,Parent="Father"))
 #a2 <- melt(a1)
 ind <- which(a8$Job.Status=="Full-Time"& a8$Parent=="Mother")
 a8$name <- factor(a8$name,levels(a8$name)[order(a8$Math[ind])])
-p <- qplot(name, Math, col=Job.Status, data = a8, xlab="") + coord_flip() + facet_wrap(~Parent) + theme(legend.position="bottom")
+p <- qplot(name, Math, col=Job.Status, data = a8, xlab="Math score") + coord_flip() + facet_wrap(~Parent) + theme(legend.position="bottom")
 p
 ```
 
@@ -586,7 +586,7 @@ df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath 
 
 #df$group = paste0(df$name, df$variable)
 #qplot(x = numposs, y = value, data = df, facets = ~OECD, geom = "line", color = variable, group = group) + ylab("test scores") + xlab("number of possessions") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
-qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math Scores") + xlab("Number of Possessions") + theme_bw()
+qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math score") + xlab("Number of possessions") + theme_bw()
 ```
 
 A similar aberration is seen with school reported truancy rates.  Each school reports the level of student truancy: not at all, very little, to some extent, or a lot.  We group schools together by reported truancy level and aggregate the test scores for students at these schools.  Generally students at schools with high truancy rates average lower test scores than students at schools with lower truancy rates, except for schools in Albania.
@@ -611,8 +611,8 @@ levels(truancy.df$SC22Q01) = c("Not", "Little", "Some", "Lot")
 
 #qplot(x = SC22Q01, y = value, color = variable, facets = ~name, data = truancy.df, group = group, geom = "line") + xlab("Reported Truancy") + ylab("Test Scores") + scale_colour_discrete(name = "Subject", labels=c("Math", "Science", "Reading"))
 qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geom="smooth", se=F) + 
-  scale_x_discrete("Reported Truancy, 0=None, 1=Little, 2=Some, 3=Lot", labels=c("Not"="0", "Little"="1", "Some"="2", "Lot"="3")) + 
-  ylab("Math Scores") + theme_bw()
+  scale_x_discrete("Reported truancy, 0=None, 1=Little, 2=Some, 3=Lot", labels=c("Not"="0", "Little"="1", "Some"="2", "Lot"="3")) + 
+  ylab("Math score") + theme_bw()
 ```
 
 # 7. More TVs yield higher math scores in the developing world, but lower in the developed countries.
