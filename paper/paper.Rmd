@@ -190,7 +190,7 @@ The countries are sorted from biggest gap to smallest gap. Most countries have a
 
 Conversely, though, looking at reading scores, the story is entirely different. Universally, girls score significantly better than boys. Again, the size of the gap is small, between 10 and 80 points. 
 
-Although not shown here, it also should be noted that this is the difference between the average scores for boys and girls. There is a slightly different story for each country if we look at the top math score for each gender only. We would notice that the top score in the USA is achieved by a girl, and is substantially higher than the highest boys' score. There is far more individual variability than the overall average differences: who you are is more important than your demographic.
+Although not shown here, it also should be noted that this is the difference between the average scores for boys and girls. There is a slightly different story for each country if we look at the top math score for each gender only. We would notice that the top score in the USA is achieved by a girl, and is substantially higher than the highest boys' score. There is far more individual variability than the overall average differences - who you are is more important than your demographic.
 
 ```{r gendermath, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
 student2012.sub <- student2012[, c(1, 12, 501, 541, 546, 634)]
