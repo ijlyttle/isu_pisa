@@ -448,9 +448,7 @@ qplot(levels, math, data = df.m, facets = ~name,
 
 For each country we have provided loess-smoothed curves of the relationship between the math score and the time spent studying outside of school. Math scores increase on average the more time spent studying, up to about 10 hours. Beyond that scores stay flat, with the exception being several Asian countries: Vietnam, China, South Korea, Taiwan. For China, the gain tails off around 20 hours of study.
 
-The vast majority of students spend less than 10 hours studying per week. It is among the students that spend 5 or less hours per week that could see improvement in their scores if they put in more time. The pattern tends to level off at 10 hours. 
-
-It is possible that there may be a selection issue occuring where more talented students spend less time studying as they complete their homework faster. Nonetheless the pattern suggest decreasing benefits to increased out of school study time after 10 hour.
+The vast majority of students spend less than 10 hours studying per week. The pattern  suggests decreasing benefits to increased out of school study time after 10 hours.
 
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
