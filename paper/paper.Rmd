@@ -437,8 +437,8 @@ df.all <- merge(df2, df3)
 df.all <- merge(df.all, df4)
 df.m <- melt(df.all, id=c("name", "levels"))
 colnames(df.m)[4] <- "math"
-dqplot(levels, math, data = df.m, facets = ~name, 
-      xlab="Shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+qplot(levels, math, data = df.m, facets = ~name, 
+      xlab="Shortages (0=None, 1=Very little, 2=To some extent, or A lot)", 
       ylab="Math Score", geom=c("point","line"), group=variable, colour=variable) +
       scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
       theme(legend.position="bottom") 
@@ -446,7 +446,7 @@ dqplot(levels, math, data = df.m, facets = ~name,
 
 # 4. Time spent out of school studying is important, but only up to a point.
 
-For each country we have provided loess-smoothed curves of the relationship between the mathematics score and the time spent studying outside of school. The most prominent feature that we observe is the decreasing benefit of studying. For every country there is evidence of a substantial positive relationship for the students who spend less time studying. However, those students who continue to study for long hours see diminishing returns for their efforts. This pattern is consistent across most countries with a few notable exceptions. Most of the Asian countries still have gains for longer hours studied. 
+For each country we have provided loess-smoothed curves of the relationship between the math score and the time spent studying outside of school. Math scores increase on average the more time spent studying, up to about 10 hours. Beyond that scores stay flat, with the exception being several Asian countries: Vietnam, China, South Korea, Taiwan. For China, the gain tails off around 20 hours of study.
 
 The vast majority of students spend less than 10 hours studying per week. It is among the students that spend 5 or less hours per week that could see improvement in their scores if they put in more time. The pattern tends to level off at 10 hours. 
 
