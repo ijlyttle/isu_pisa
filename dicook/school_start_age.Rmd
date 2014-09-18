@@ -88,7 +88,7 @@ new_theme_empty$plot.title <- element_blank()
 new_theme_empty$axis.title <- element_blank()
 new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
 ```
-```
+
 ```{r age, fig.width=8, fig.height=12, warning=FALSE, message=FALSE}
 student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
 colnames(student2012.sub)[1] <- "name"

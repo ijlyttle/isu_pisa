@@ -1,0 +1,571 @@
+Seven Things That Affect Education Around the World
+========================================================
+author: Luke Fostveldt, Alex Shum, Ian Lyttle, Di Cook
+date: 9/17/2014
+font-import: http://fonts.googleapis.com/css?family=Marcellus
+font-family: 'Marcellus'
+width: 1680
+height: 1050
+
+```{r setup, include=FALSE}
+opts_chunk$set(cache=FALSE)
+options(width=80)
+```
+
+Problem
+========================================================
+
+```{r load_packages, echo = FALSE, results='hide', cache=FALSE}
+library(dplyr)
+library(stringr)
+library(reshape2)
+library(ggplot2)
+library(lubridate)
+#library(ggvis)
+library(maps)
+library(ggmap)
+library(htmltools)
+library(rworldmap)
+library(grid)    
+library(scales)
+library(doBy)
+```
+
+```{r load_data, echo = FALSE,results='hide', cache=FALSE}
+# This is the scaffolding to import the data
+sets <- c("item", "parent", "school", "scoredItem", "student")
+
+# function to build the file names
+fn_build <- function(file_name){
+ 
+  template <- c("2012.rda", "2012dict.rda")
+  
+  file_name %>% 
+    vapply(str_join, template, template) %>% 
+    file.path("..", "data", .)
+}
+
+# load the data
+sets %>% fn_build %>% lapply(load, .GlobalEnv)
+
+# clean
+rm(fn_build, sets)
+
+# function to convert to data-frames
+fn_make_df <- function(named_vector){
+  data.frame(
+    variable = attr(named_vector, "names"),
+    description = named_vector,
+    row.names = NULL
+  )
+}
+
+# there's a clever way to do this, but beyond me for naw
+dict_item2012 <- fn_make_df(item2012dict) 
+dict_parent2012 <- fn_make_df(parent2012dict) 
+dict_school2012 <- fn_make_df(school2012dict) 
+dict_scoredItem2012 <- fn_make_df(scoredItem2012dict) 
+dict_student2012 <- fn_make_df(student2012dict) 
+
+# clean
+rm(fn_make_df)
+#rm(item2012dict, parent2012dict, school2012dict, scoredItem2012dict, student2012dict)
+dim(student2012)
+length(table(student2012$STIDSTD))
+```
+
+```{r mapdata, echo = FALSE, message = FALSE, warning = FALSE, results='hide', cache=FALSE}
+# Produce the maps
+extractPolygons <- function(shapes) {
+
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe$name <- shapes@polygons[[i]]@ID
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+
+# To get a blank background on map
+new_theme_empty <- theme_bw()
+new_theme_empty$line <- element_blank()
+new_theme_empty$rect <- element_blank()
+new_theme_empty$strip.text <- element_blank()
+new_theme_empty$axis.text <- element_blank()
+new_theme_empty$plot.title <- element_blank()
+new_theme_empty$axis.title <- element_blank()
+new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+
+world <- getMap(resolution = "low")
+library(plyr)
+world.polys <- extractPolygons(world)
+detach("package:plyr")
+```
+
+```{r dataprep, echo = FALSE, message = FALSE, warning = FALSE, cache=FALSE}
+colnames(student2012)[1] <- "name"
+student2012$name <- as.character(student2012$name)
+colnames(school2012)[1] <- "name"
+school2012$name <- as.character(school2012$name)
+
+fix_country = function(df) {
+df$name = as.character(df$name)
+df$name[df$name=="Serbia"] <- "Republic of Serbia"
+df$name[df$name=="Korea"] <- "South Korea"
+df$name[df$name=="Chinese Taipei"] <- "Taiwan"
+df$name[df$name=="Slovak Republic"] <- "Slovakia"
+df$name[df$name=="Russian Federation"] <- "Russia"
+df$name[df$name=="Perm(Russian Federation)"] <- "Russia"
+df$name[df$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+df$name[df$name=="China-Shanghai"] <- "China"
+df$name[df$name=="China-Macau"] <- "China"
+df$name[df$name=="Connecticut (USA)"] <- "United States of America"
+df$name[df$name=="Florida (USA)"] <- "United States of America"
+df$name[df$name=="Massachusetts (USA)"] <- "United States of America"
+
+df
+}
+
+shorten_countrynames = function(df) {
+df$name = as.character(df$name)
+df$name[df$name=="Hong Kong S.A.R."] <- "Hong Kong"
+df$name[df$name=="Republic of Serbia"] <- "Serbia"
+df$name[df$name=="United Arab Emirates"] <- "UAE"
+df$name[df$name=="United States of America"] <- "USA"
+df$name[df$name=="United Kingdom"] <- "UK"
+
+df
+}
+
+# Now add data
+#student2012$name[student2012$name=="Serbia"] <- "Republic of Serbia"
+#student2012$name[student2012$name=="Korea"] <- "South Korea"
+#student2012$name[student2012$name=="Chinese Taipei"] <- "Taiwan"
+#student2012$name[student2012$name=="Slovak Republic"] <- "Slovakia"
+#student2012$name[student2012$name=="Russian Federation"] <- "Russia"
+#student2012$name[student2012$name=="Perm(Russian Federation)"] <- "Russia"
+#student2012$name[student2012$name=="Hong Kong-China"] <- "Hong Kong S.A.R."
+#student2012$name[student2012$name=="China-Shanghai"] <- "China"
+#student2012$name[student2012$name=="China-Macau"] <- "China"
+#student2012$name[student2012$name=="Connecticut (USA)"] <- "United States of America"
+#student2012$name[student2012$name=="Florida (USA)"] <- "United States of America"
+#student2012$name[student2012$name=="Massachusetts (USA)"] <- "United States of America"
+student2012$ST06Q01 <- as.numeric(student2012$ST06Q01)
+student2012$PV1MATH <- as.numeric(student2012$PV1MATH)
+student2012$PV1READ <- as.numeric(student2012$PV1READ)
+student2012$PV1SCIE <- as.numeric(student2012$PV1SCIE)
+student2012$SENWGT_STU <- as.numeric(student2012$SENWGT_STU)
+school2012 = fix_country(school2012)
+student2012 = fix_country(student2012)
+```
+
+OECD PISA is *the world's global metric for quality, equity and efficiency in school education*  assesses the workforce readiness of 15-year old students.
+
+There are 485490 students tested, from 64 different countries. Only 162 schools in the USA are measured, but 885 are measured in Canada, and 1471 in Mexico.
+
+```{r echo=FALSE, cache=FALSE}
+nrow(student2012)
+length(unique(student2012$name))
+length(unique(student2012$SCHOOLID[student2012$name == "United States of America"]))
+length(unique(student2012$SCHOOLID[student2012$name == "Canada"]))
+length(unique(student2012$SCHOOLID[student2012$name == "Mexico"]))
+```
+
+Data
+===
+
+Four tables of information: 
+
+- student: Pupil performance in mathematics, reading and science is coded by five plausible values
+- school: Questionnaire completed by school principals
+- parent: Parents were asked to fill in a questionnaire
+- scoreditem: stuff
+
+Competition web site
+===
+
+Details of the data, competition tracks, and entries are at
+
+http://beta.icm.edu.pl/PISAcontest/
+
+Gender and Math - Methods
+===
+
+- Compute the sample-weighted mean math score for girls/boys separately for each country.
+- Calculate difference in the means (boy - girl)
+- Compute ratio boys to girls taking the test
+- Do t-test separately by country, record unadjusted p-values
+- Sort countries from biggest difference to least, biggest gender gap in favor of boys to that in favor of girls
+- Plot difference by country, colored by significance, sized by proportion
+
+Gender and Math
+===
+
+```{r gendermath, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+student2012.sub <- student2012[, c(1, 12, 501, 541, 546, 634)]
+student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name), 
+                  mathgap=mean(PV1MATH[ST04Q01=="Male"], na.rm=T)-
+                          mean(PV1MATH[ST04Q01=="Female"], na.rm=T),
+                  wmathgap=weighted.mean(PV1MATH[ST04Q01=="Male"], w=SENWGT_STU[ST04Q01=="Male"], na.rm=T)-
+                          weighted.mean(PV1MATH[ST04Q01=="Female"], w=SENWGT_STU[ST04Q01=="Female"], na.rm=T),
+                  mtest.stat = t.test(PV1MATH[ST04Q01=="Male"], PV1MATH[ST04Q01=="Female"])$statistic, 
+                  mp.value = t.test(PV1MATH[ST04Q01=="Male"], PV1MATH[ST04Q01=="Female"])$p.value,
+                  readgap=mean(PV1READ[ST04Q01=="Male"], na.rm=T)-mean(PV1READ[ST04Q01=="Female"], na.rm=T),
+                  rtest.stat = t.test(PV1READ[ST04Q01=="Male"], PV1READ[ST04Q01=="Female"])$statistic, 
+                  rp.value = t.test(PV1READ[ST04Q01=="Male"], PV1READ[ST04Q01=="Female"])$p.value,
+                  sciencegap=mean(PV1SCIE[ST04Q01=="Male"], na.rm=T)-mean(PV1SCIE[ST04Q01=="Female"], na.rm=T),
+                  stest.stat = t.test(PV1SCIE[ST04Q01=="Male"], PV1SCIE[ST04Q01=="Female"])$statistic, 
+                  sp.value = t.test(PV1SCIE[ST04Q01=="Male"], PV1SCIE[ST04Q01=="Female"])$p.value,                                         
+                  minmale=min(PV1MATH[ST04Q01=="Male"], na.rm=T), 
+                  minfemale=min(PV1MATH[ST04Q01=="Female"], na.rm=T), 
+                  maxmale=max(PV1MATH[ST04Q01=="Male"], na.rm=T), 
+                  maxfemale=max(PV1MATH[ST04Q01=="Female"], na.rm=T), 
+                  propmale=length(PV1MATH[ST04Q01=="Male"])/length(PV1MATH), 
+                  propfemale=length(PV1MATH[ST04Q01=="Female"])/length(PV1MATH))
+#qplot(mathgap, wmathgap, data=student2012.sub.summary.gap, xlab="Mean", ylab="Weighted Mean",
+#      xlim=c(-30,30), ylim=c(-30,30)) + geom_abline(slope=1) + theme(aspect.ratio=1)
+student2012.sub.summary.gap$msig <- ifelse(student2012.sub.summary.gap$mp.value>0.05, "none", TRUE)
+student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2012.sub.summary.gap$mtest.stat>0] <- "male"
+student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2012.sub.summary.gap$mtest.stat<0] <- "female"
+student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
+      levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$mathgap)])
+qplot(name, mathgap, data=student2012.sub.summary.gap, size=propmale, color=msig) + 
+  xlab("") +  
+  scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  scale_y_continuous("Girls <- Math Score Gap -> Boys", breaks=seq(-30, 30, 5), limits=c(-30, 30), labels=c(seq(30, 0, -5), seq(5, 30, 5))) + 
+  scale_size("Prop male") +
+   geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
+```
+
+***
+
+```{r gendermaps, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+student2012.sub.summary.gap$name <- as.character(student2012.sub.summary.gap$name)
+student2012.sub.map <- left_join(student2012.sub.summary.gap, world.polys)
+student2012.sub.map$msig <- factor(student2012.sub.map$msig)
+ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
+  geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=msig)) +
+  scale_fill_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  new_theme_empty + theme(legend.position="none")
+```
+
+The gender gap in math is not universal. In most countries boys have a significantly higher average score, but there are many more which are gender neutral, and even 5 countries where the girls score significant;y better than boys on average. 
+
+Gender and Reading
+===
+
+```{r genderead, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+student2012.sub.summary.gap$rsig <- ifelse(student2012.sub.summary.gap$rp.value>0.05, "none", TRUE)
+student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat>0] <- "male"
+student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat<0] <- "female"
+student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
+      levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$readgap)])
+qplot(name, readgap, data=student2012.sub.summary.gap, size=propmale, color=rsig) + 
+  xlab("") +
+  scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  scale_y_continuous("Girls <- Reading Score Gap", breaks=seq(-80, 0, 10), limits=c(-80, 0), labels=seq(80, 0, -10)) + 
+  scale_size("Prop male") +
+   geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
+```
+
+***
+
+```{r gendermaps2, fig.width=12, fig.height=7, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+student2012.sub.summary.gap$name <- as.character(student2012.sub.summary.gap$name)
+student2012.sub.map <- left_join(student2012.sub.summary.gap, world.polys)
+student2012.sub.map$rsig <- factor(student2012.sub.map$rsig)
+ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
+  geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=rsig)) +
+  scale_fill_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  new_theme_empty + theme(legend.position="none")
+```
+
+The gender gap in reading is universal, in favor of girls. 
+
+Age when Starting School
+===
+
+```{r age, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE, cache=FALSE}
+student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
+student2012.sub.age <- summarise(group_by(student2012.sub, name), 
+                  math4 = mean(PV1MATH[ST06Q01 == 4], na.rm = T), 
+                  math5 = mean(PV1MATH[ST06Q01 == 5], na.rm = T), 
+                  math6 = mean(PV1MATH[ST06Q01 == 6], na.rm = T), 
+                  math7 = mean(PV1MATH[ST06Q01 == 7], na.rm = T), 
+                  math8 = mean(PV1MATH[ST06Q01 >  7], na.rm = T))
+student2012.sub.age.m <- melt(student2012.sub.age)
+student2012.sub.age.m$variable <- substr(student2012.sub.age.m$variable, 5, 5)
+student2012.sub.age.m$variable <- as.numeric(student2012.sub.age.m$variable)
+student2012.sub.agemedian <- summarise(group_by(student2012.sub, name), medianstart = median(ST06Q01, na.rm=T))
+orderedbymedianage <- student2012.sub.agemedian$name[order(student2012.sub.agemedian$medianstart)]
+student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian)
+student2012.sub.age.m.median$medianstart <- factor(student2012.sub.age.m.median$medianstart)
+student2012.sub.age.m.median$name <- factor(student2012.sub.age.m.median$name, levels=orderedbymedianage)
+qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math score", 
+      geom=c("point","smooth"), se=F, group=name, colour=medianstart) + 
+ facet_wrap(~name, ncol=8) + theme_bw() + theme(legend.position="none")
+```
+
+***
+
+```{r agemaps, fig.width=12, fig.height=7, echo = FALSE, message = FALSE, warning = FALSE, cache=FALSE}
+student2012.sub.agemedian$medianstart <- factor(student2012.sub.agemedian$medianstart)
+student2012.sub.map <- left_join(student2012.sub.agemedian, world.polys)
+ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
+  geom_polygon(data=student2012.sub.map, aes(x=X1, y=X2, order=order, group=group, fill=medianstart)) +
+  scale_fill_discrete("Median start age") +
+  new_theme_empty + theme(legend.position="bottom")
+```
+
+Math scores by age when starting school. Scores generally decline the older the child is. The median school starting age is plotted on the map. Ireland, is an outlier, has a median start age of 4, Bristish influenced countries start at 5, most of Europe and the Americas start school at 6, and eastern countries start latest at 7.
+
+Shortages in teachers, computers, and libraries 
+===
+left: 40%
+
+```{r shortencountrynames, warning=FALSE, message=FALSE, echo=FALSE, results='hide'}
+#school2012$name <- as.character(school2012$name)
+#student2012$name <- as.character(student2012$name)
+school2012 = shorten_countrynames(school2012)
+student2012 = shorten_countrynames(student2012)
+```
+
+```{r shortages, fig.width=2, fig.height=2, warning=FALSE, message=FALSE, echo=FALSE}
+school2012.sub = school2012[, c("name", "SCHOOLID", "SC14Q02", "SC14Q07", "SC14Q10")]
+student2012.sub = student2012[, c("name", "SCHOOLID", "PV1MATH", "PV1READ", "PV1SCIE")]
+
+scores_by_school = student2012.sub %>% group_by(name, SCHOOLID) %>% 
+  summarise(mmath = mean(PV1MATH), mread = mean(PV1READ), msci = mean(PV1SCIE))
+
+df = scores_by_school %>% left_join(school2012.sub)
+df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2,3))
+df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2,3))
+df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2,3))
+df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
+#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
+#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
+colnames(df2)[2] <- "levels"
+df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
+colnames(df3)[2] <- "levels"
+df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
+colnames(df4)[2] <- "levels"
+df.all <- merge(df2, df3)
+df.all <- merge(df.all, df4)
+df.m <- melt(df.all, id=c("name", "levels"))
+colnames(df.m)[4] <- "math"
+qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", fill=I("#1B9E77"))
+#ggsave("teacher-shortages.pdf", width=5, height=5)
+qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage", fill=I("#D95F02"))
+#ggsave("computer-shortages.pdf", width=5, height=5)
+qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fill=I("#7570B3"))
+#ggsave("library-shortages.pdf", width=5, height=5)
+#ggsave("shortages.pdf", width=14, height=14)
+```
+
+Barcharts show category counts indicating severity of the shortage. At right the math scores are plotted against shortages by country. For the most part there no major trends, scores decline a little in some countries, and perhaps teacher shortages make for larger declines, but all are small.
+
+***
+
+```{r shortagesbars, fig.width=12, fig.height=10, warning=FALSE, message=FALSE, echo=FALSE}
+df$SC14Q02 <- as.character(df$SC14Q02)
+df$SC14Q07 <- as.character(df$SC14Q07)
+df$SC14Q10 <- as.character(df$SC14Q10)
+df$SC14Q02[df$SC14Q02==3] <- 2
+df$SC14Q07[df$SC14Q07==3] <- 2
+df$SC14Q10[df$SC14Q10==3] <- 2
+df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2))
+df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2))
+df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2))
+df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
+#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
+#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
+#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
+#      ylab="Math Score", geom=c("point","line"), group=name)
+df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
+colnames(df2)[2] <- "levels"
+df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
+colnames(df3)[2] <- "levels"
+df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
+colnames(df4)[2] <- "levels"
+df.all <- merge(df2, df3)
+df.all <- merge(df.all, df4)
+df.m <- melt(df.all, id=c("name", "levels"))
+colnames(df.m)[4] <- "math"
+qplot(levels, math, data = df.m, facets = ~name, 
+      xlab="Shortages (0=None, 1=Very little, 2=To some extent, or a lot)", 
+      ylab="Math score", geom=c("point","line"), group=variable, colour=variable) +
+      scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
+      theme(legend.position="bottom") 
+```
+
+Time spent out of school studying
+===
+left:60%
+
+```{r studying, fig.width=12, fig.height=10, echo = FALSE, message = FALSE, warning = FALSE}
+student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
+#study.luke <- melt(student.luke,id=c("name","ST57Q01"))
+studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH)) + xlab("Hours spent out of school studying per week") + ylab("Math score") + facet_wrap(~name) + stat_smooth(se=F)
+studyplot
+```
+
+***
+
+```{r studyingbar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
+studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=5) + xlab("Hours spent studying")
+studybar
+```
+
+Time spent out of school studying tends to increase math scores, on average, but only up to a point. For most countries it levels off around 10 hours per week. In China, and neighboring countries around 20 hours a week is sufficient. South Korea is an outlier, the longer the students work, the better the scores!
+
+Parents matter!
+===
+left: 40%
+
+```{r par_athomebar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
+athome = student2012[,c("name", "SCHOOLID", "STIDSTD", "OECD", "PV1MATH", "PV1SCIE", "PV1READ","ST11Q01", "ST11Q02", "ST11Q03","ST11Q04", "ST11Q05", "ST11Q06")]
+athome = athome %>% filter(!is.na(athome$ST11Q01) & !is.na(athome$ST11Q02))
+athome$parents = NA
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "Yes", ]$parents = "Both"
+athome[athome$ST11Q01 == "Yes" & athome$ST11Q02 == "No", ]$parents = "Mother"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "Yes", ]$parents = "Father"
+athome[athome$ST11Q01 == "No" & athome$ST11Q02 == "No", ]$parents = "Neither"
+athome$parents <- factor(athome$parents, levels=c("Both", "Mother", "Father", "Neither"))
+#athome$name <- reorder(athome$name,athome$PV1MATH,mean, decreasing=F)
+pbarhome <- qplot(x = parents, data = athome, xlab="Parents in home") 
+pbarhome
+```
+
+Barcharts shows numbers of households where both parents, only a single parent or no parents are with the student. At right the math scores are plotted by household status separately for each country. Almost everywhere, students in households with two parents score better on average, followed by single parent households with a mother at home. 
+
+***
+
+```{r par_athome, fig.width=12, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math score") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
+phome
+```
+
+Parents working matters!
+===
+left: 60%
+
+```{r parentsjob, fig.width=12, fig.height=11, echo = FALSE, message = FALSE, warning = FALSE}
+studentLuke <- student2012
+studentLuke$ST15Q01 <- addNA(studentLuke$ST15Q01)
+studentLuke$ST19Q01 <- addNA(studentLuke$ST19Q01)
+
+studentLuke$name <- factor(studentLuke$name)
+
+a6 <- summaryBy(data=studentLuke, PV1MATH + ESCS ~ ST15Q01+ name,FUN=mean,rm.na=T)
+a7 <- summaryBy(data=studentLuke, PV1MATH + ESCS ~ ST19Q01+ name,FUN=mean,rm.na=T)
+colnames(a6) <- colnames(a7) <- c("Job.Status","name","Math","ESCS")
+levels(a6$Job.Status) <- levels(a7$Job.Status)  <- c("Full-Time","Part-Time","Unemployed","Other","NA")
+
+a8 <- rbind(cbind(a6,Parent="Mother"),cbind(a7,Parent="Father"))
+#a2 <- melt(a1)
+ind <- which(a8$Job.Status=="Full-Time"& a8$Parent=="Mother")
+a8$name <- factor(a8$name,levels(a8$name)[order(a8$Math[ind])])
+p <- qplot(name, Math, col=Job.Status, data = a8, ylab="Math score", xlab="") + coord_flip() + facet_wrap(~Parent) + theme(legend.position="bottom")
+p
+```
+
+***
+
+Math scores by country, sorted by scores for mothers who work full time. Color indicates the workforce status of mother and father. Scores tend to be better when both parents work full-time, especially this is true for fathers. If a father is working a part-time job, unemployed or other, scores are lower. In some countries scores are better when the mother is part-time. 
+
+Albania is not like anyone else!
+===
+
+No matter what we plot
+
+```{r clean, echo=FALSE, message = FALSE, warning = FALSE}
+#student2012$CNT = student2012$name
+student2012$OECD <- as.character(student2012$OECD)
+#student2012[student2012$name == "Albania", ]$OECD = "Albania"
+student2012$math = as.numeric(student2012[, "PV1MATH"])
+student2012$read = as.numeric(student2012[, "PV1READ"])
+student2012$sci = as.numeric(student2012[, "PV1SCIE"])
+
+student2012.sub = student2012 %>% dplyr::select(name, SCHOOLID, math, read, sci, OUTHOURS, STIDSTD, ST04Q01, ST11Q01, ST11Q02, ST15Q01, ST19Q01, ST26Q01, ST26Q02, ST26Q03, ST26Q04, ST26Q05, ST26Q06, ST26Q07, ST26Q08, ST26Q09, ST26Q10, ST26Q11, ST26Q12, ST26Q13, ST26Q14, ST27Q01, ST27Q02, ST27Q03, ST27Q04, ST27Q05, ST28Q01, OECD)
+
+for (i in 13:26) {
+    student2012.sub[, i] <- as.character(student2012.sub[, i])
+    student2012.sub[is.na(student2012.sub[, i]), i] <- ""
+    student2012.sub[student2012.sub[, i] == "Yes", i] <- "1"
+    student2012.sub[student2012.sub[, i] == "No", i] <- "0"
+    student2012.sub[, i] <- as.numeric(student2012.sub[, i])
+}
+for (i in 27:31) {
+    student2012.sub[, i] <- as.character(student2012.sub[, i])
+    student2012.sub[is.na(student2012.sub[, i]), i] <- ""
+    student2012.sub[student2012.sub[, i] == "None", i] <- "0"
+    student2012.sub[student2012.sub[, i] == "One", i] <- "1"
+    student2012.sub[student2012.sub[, i] == "Two", i] <- "2"
+    student2012.sub[student2012.sub[, i] == "Three or more", i] <- "3"
+    student2012.sub[, i] <- as.numeric(student2012.sub[, i])
+}
+student2012.sub[, 32] <- as.character(student2012.sub[, 32])
+student2012.sub[is.na(student2012.sub[,32]), 32] <- ""
+student2012.sub[student2012.sub[, 32] == "0-10 books ", 32] <- "0"
+student2012.sub[student2012.sub[, 32] == "11-25 books ", 32] <- "1"
+student2012.sub[student2012.sub[, 32] == "26-100 books ", 32] <- "2"
+student2012.sub[student2012.sub[, 32] == "101-200 books ", 32] <- "3"
+student2012.sub[student2012.sub[, 32] == "201-500 books ", 32] <- "4"
+student2012.sub[student2012.sub[, 32] == "More than 500 books", 32] <- "5"
+student2012.sub[, 32] <- as.numeric(student2012.sub[, 32])
+
+#aggregate possessions
+student2012.sub$numposs <- apply(student2012.sub[, 13:26], 1, sum, na.rm = T)
+student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
+```
+
+
+```{r albania-possessions, fig.width=10, fig.height=10, echo = FALSE, message = FALSE, warning = FALSE}
+df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math)), id=c("name", "numposs", "OECD"))
+
+qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("Math score") + xlab("Number of possessions") + theme_bw()
+```
+
+***
+
+Albania is different from everyone else!
+
+```{r truancyschool, fig.width=10, fig.height=10, echo = FALSE, message = FALSE, warning = FALSE}
+school2012.sub = school2012 %>% dplyr::select(name, SCHOOLID, SC22Q01)
+student2012.sub = student2012 %>% dplyr::select(name, SCHOOLID, math, read, sci, OECD)
+truancy.df = melt( student2012.sub %>% 
+  group_by(name, SCHOOLID) %>% 
+  left_join(school2012.sub, by = c("name", "SCHOOLID")) %>% 
+  group_by(name, SC22Q01, OECD) %>% summarise(math = mean(math)), 
+  id = c("name", "SC22Q01", "OECD")) %>% filter(!is.na(SC22Q01))
+levels(truancy.df$SC22Q01) = c("Not", "Little", "Some", "Lot")
+
+qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geom="smooth", se=F) + 
+  scale_x_discrete("Reported truancy, 0=None, 1=Little, 2=Some, 3=Lot", labels=c("Not"="0", "Little"="1", "Some"="2", "Lot"="3")) + 
+  ylab("Math score") + theme_bw()
+```
+
+Play with the data
+===
+
+!["TVs"](shiny-pisa.jpg)
+
+The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
