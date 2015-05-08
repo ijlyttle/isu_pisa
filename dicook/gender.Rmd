@@ -128,6 +128,11 @@ qplot(name, mathgap, data=student2012.sub.summary.gap, size=propmale, color=msig
   scale_y_continuous("Math Score Gap", breaks=seq(-30, 30, 5)) + 
   scale_size("Prop male") +
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
+qplot(name, mathgap, data=student2012.sub.summary.gap, size=I(5), color=msig) + 
+  xlab("") +
+  scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  scale_y_continuous("Math Score Gap", limits=c(-80, 30), breaks=seq(-80, 30, 5), labels=c(seq(80, 0, -5), seq(5, 30, 5))) + 
+   geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="none")
 # Test colors
 #qplot(name, mathgap, data=student2012.sub.summary.gap, size=propmale, color=msig) + 
 #  xlab("") +
@@ -161,6 +166,11 @@ qplot(name, readgap, data=student2012.sub.summary.gap, size=propmale, color=rsig
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
   scale_y_continuous("Reading Score Gap") + 
   scale_size("Prop male") +
+   geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="none")
+qplot(name, readgap, data=student2012.sub.summary.gap, size=I(5), color=rsig) + 
+  xlab("") +
+  scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
+  scale_y_continuous("Reading Score Gap", limits=c(-80, 30), breaks=seq(-80, 30, 5), labels=c(seq(80, 0, -5), seq(5, 30, 5))) + 
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="none")
 #ggsave("genderreadgap.pdf", width=5, height=8)
 student2012.sub.summary.gap$ssig <- ifelse(student2012.sub.summary.gap$sp.value>0.05, "none", TRUE)
