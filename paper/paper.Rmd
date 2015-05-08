@@ -1,4 +1,4 @@
-Seven Things That Affect Education Around the World
+Six Things That Affect Education Around the World
 ========================================================
 
 Luke Fostveldt, Alex Shum, Ian Lyttle, Di Cook
@@ -358,93 +358,7 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 #ggsave("agestartmap.pdf", width=12, height=7)
 ```
 
-# 3. Shortages in teachers, computers, and libraries at school make a difference in math scores in a few countries
-
-Within the PISA dataset, the school table has information about shortages on items viewed as being important for good instruction. The plot below examines three of these: lack of teachers, lack of computers, and shortage of library materials. The barcharts show the overall counts of shortages in schools. Teacher shortage is less comman than material shortages.
-
-These factors are compared with math scores from the student table, across countries. In most countries, scores don't change mcuh as shortages get worse. Scores decrease by 10-20 points onaverage in countries like Australia, China, Uruguay, Turkey, UAE, USA. Teacher shortages appear to have impact in a few countries like Greece, Slovakia, and Serbia. 
-
-```{r shortencountrynames, warning=FALSE, message=FALSE, echo=FALSE, results='hide'}
-#school2012$name <- as.character(school2012$name)
-#student2012$name <- as.character(student2012$name)
-school2012 = shorten_countrynames(school2012)
-student2012 = shorten_countrynames(student2012)
-```
-
-```{r shortages, fig.width=4, fig.height=4, warning=FALSE, message=FALSE, echo=FALSE}
-school2012.sub = school2012[, c("name", "SCHOOLID", "SC14Q02", "SC14Q07", "SC14Q10")]
-student2012.sub = student2012[, c("name", "SCHOOLID", "PV1MATH", "PV1READ", "PV1SCIE")]
-
-scores_by_school = student2012.sub %>% group_by(name, SCHOOLID) %>% 
-  summarise(mmath = mean(PV1MATH), mread = mean(PV1READ), msci = mean(PV1SCIE))
-
-df = scores_by_school %>% left_join(school2012.sub)
-df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2,3))
-df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2,3))
-df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2,3))
-df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
-#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
-#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
-colnames(df2)[2] <- "levels"
-df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
-colnames(df3)[2] <- "levels"
-df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
-colnames(df4)[2] <- "levels"
-df.all <- merge(df2, df3)
-df.all <- merge(df.all, df4)
-df.m <- melt(df.all, id=c("name", "levels"))
-colnames(df.m)[4] <- "math"
-qplot(SC14Q02, data=df, geom="histogram", xlab="Teacher shortage", fill=I("#1B9E77"))
-#ggsave("teacher-shortages.pdf", width=5, height=5)
-qplot(SC14Q07, data=df, geom="histogram", xlab="Computer shortage", fill=I("#D95F02"))
-#ggsave("computer-shortages.pdf", width=5, height=5)
-qplot(SC14Q10, data=df, geom="histogram", xlab="Library materials shortage", fill=I("#7570B3"))
-#ggsave("library-shortages.pdf", width=5, height=5)
-#ggsave("shortages.pdf", width=14, height=14)
-```
-
-```{r shortagesbars, fig.width=10, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE}
-df$SC14Q02 <- as.character(df$SC14Q02)
-df$SC14Q07 <- as.character(df$SC14Q07)
-df$SC14Q10 <- as.character(df$SC14Q10)
-df$SC14Q02[df$SC14Q02==3] <- 2
-df$SC14Q07[df$SC14Q07==3] <- 2
-df$SC14Q10[df$SC14Q10==3] <- 2
-df$SC14Q02 <- factor(df$SC14Q02, labels=c(0,1,2))
-df$SC14Q07 <- factor(df$SC14Q07, labels=c(0,1,2))
-df$SC14Q10 <- factor(df$SC14Q10, labels=c(0,1,2))
-df.mshort <- df[!is.na(df$SC14Q02),] %>% group_by(name, SC14Q02) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q02, mmath2, data = df.mshort, facets = ~name, 
-#      xlab="Math teacher shortage (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df.lshort <- df[!is.na(df$SC14Q10),] %>% group_by(name, SC14Q10) %>% summarise(mmath2 = mean(mmath, na.rm=T))
-#qplot(SC14Q10, mmath2, data = df.lshort, facets = ~name, 
-#      xlab="Library shortages (0=None, 1=Very little, 2=To some extent, 3=A lot)", 
-#      ylab="Math Score", geom=c("point","line"), group=name)
-df2 <- summarise(group_by(df[!is.na(df$SC14Q02),], name, SC14Q02), teachers = mean(mmath, na.rm=T))
-colnames(df2)[2] <- "levels"
-df3 <- summarise(group_by(df[!is.na(df$SC14Q07),], name, SC14Q07), computers = mean(mmath, na.rm=T))
-colnames(df3)[2] <- "levels"
-df4 <- summarise(group_by(df[!is.na(df$SC14Q10),], name, SC14Q10), libmaterials = mean(mmath, na.rm=T))
-colnames(df4)[2] <- "levels"
-df.all <- merge(df2, df3)
-df.all <- merge(df.all, df4)
-df.m <- melt(df.all, id=c("name", "levels"))
-colnames(df.m)[4] <- "math"
-qplot(levels, math, data = df.m, facets = ~name, 
-      xlab="Shortages (0=None, 1=Very little, 2=To some extent, or a lot)", 
-      ylab="Math score", geom=c("point","line"), group=variable, colour=variable) +
-      scale_colour_manual("Type", values=c("teachers"="#1B9E77", "computers"="#D95F02", "libmaterials"="#7570B3")) +
-      theme(legend.position="bottom") 
-```
-
-# 4. Time spent out of school studying is important, but only up to a point.
+# 3. Time spent out of school studying is important, but only up to a point.
 
 For each country we have provided loess-smoothed curves of the relationship between the math score and the time spent studying outside of school. Math scores increase on average the more time spent studying, up to about 10 hours. Beyond that scores stay flat, with the exception being several Asian countries: Vietnam, China, South Korea, Taiwan. For China, the gain tails off around 20 hours of study.
 
@@ -464,7 +378,7 @@ studybar
 ```
 
 
-# 5. Parents matter!
+# 4. Parents matter!
 ### a. Number of parents in the home
 The role of parents in educational achievement is the subject of much research. Looking at the number of parents in a household shows that students in two-parent households are, on average, performing better in math than students not in a two-parent households. The majority of students live in two-parent households. Of the single-parent households, a single mother is more common than a single father. Scores of students with just a mother at home tend to be higher than those with just a father at home. In many countries, mostly Asian, students from single-mother households achieve comparably to those from two-parent households. Students in households with no parents tend to perform the worst. This pattern is consistent across all countries. 
 
@@ -533,7 +447,7 @@ p <- qplot(name, Math, col=Job.Status, data = a8, ylab="Math score", xlab="") + 
 p
 ```
 
-# 6. Albania is not like anyone else!
+# 5. Albania is not like anyone else!
 
 Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math scores.  Additionally, number of possessions and truancy rates affected test scores for every nation except Albania.  
 
@@ -615,7 +529,7 @@ qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geo
   ylab("Math score") + theme_bw()
 ```
 
-# 7. More TVs yield higher math scores in the developing world, but lower in the developed countries.
+# 6. More TVs yield higher math scores in the developing world, but lower in the developed countries.
 
 One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this investigation, the "zero" and "one" categories were combined to form a "one or less" category.
 

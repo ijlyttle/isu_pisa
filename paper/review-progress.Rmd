@@ -7,6 +7,7 @@
 - Add histograms as subplots to facets for time spent studying
 - paragraph on fishing (Di)
 - Clean language on middle east surprise
+- Age started vs years in school
 
 ### My email to Brian Tarret
 
