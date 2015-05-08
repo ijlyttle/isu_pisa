@@ -21,3 +21,11 @@ The second reviewer has a lot of criticism.
 - Some of the comments made would push the article into being specifically for an advanced statistician, rather than a general reader. I'm not sure that is the purpose of Significance.
 
 I am guessing that the second reviewer makes you less confident about the paper. I think that it is unfortunate that doing an exploratory graphical analysis of data often evokes this kind of response from some statisticians. The same criticisms can be levelled at model selection but typically isn't. But it does raise important points that probably could be addressed in the article: data fishing/cherry picking, data snooping, association is not causation. These are really important especially as more and more people have access to open data and analysis resources, to look at data themselves. One of the purposes of this paper, is to say, hey, here's a data set available that has some interesting things to say about education across. Looking at the data yourself can help digest what others report, and helps us all to be informed consumers of information.  These issues could be discussed as part of this article, and may be useful for a novice statistician to learn about. I think that we'd be happy to add a few paragraphs along these lines.
+
+From Luke
+
+- The $200T figure only makes since as a cumulative figure (current world GDP is ~$50T) over many, many years. I suspect the OECD extrapolated out to infinity to get this number and the confidence interval is very wide.
+- The association between the number of books in the home has been well documented and is well known. Our results simply corroborate the known association between ownership of certain household items and test scores.
+- Also, the most critical reviewer seems very skeptical of survey statistics. The weighting scheme used accounts for non-response as is the case for any well-designed surveys. Does he/she want just want approximate percentages?
+- The OECD is only able to survey students. So women deprived of educational opportunities are not in the sampling frame. Our analysis indicates, that for Jordan and Qatar, there is evidence of girls/women outperforming boys in math and reading.
+- The visual plots seem like they would be much more informative regarding "scale" and "clinical differences" than raw numbers.
