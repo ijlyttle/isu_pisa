@@ -1,0 +1,23 @@
+# Revision progress
+
+The data is described very completely in the OECD site that is linked from the paper, and the data set is linked form that site so that the reader can pull a copy and examine it themselves. The $ figure comes from that site too, but I'll check it. 
+
+I'd be happy to change the plots as suggested by the first reviewer. And as you suggested the paper is too long, so some things need to be cut.
+
+The idea of using clinical significance, or effect size, is a good one.
+
+The second reviewer has a lot of criticism.
+
+- What we did with the data was definitely not a fishing trip. Pretty much what we looked at we have reported here. There are many, many aspects of the data that could be examined, and so it is conceivable that we could be cherry picking the results. This wasn't the case. 
+
+- We don't mean to imply causality, this is just association. So we would want to change the language to ensure this is clear.
+
+- Albania's data in all of the plots we made makes us suspicious about the collection happening there. It cannot be purely by chance to have no factors associated with math scores, completely different to every other country. We didn't specifically seek out Albania.
+
+- I think that showing the top scores for each gender and country is an important point to make. 
+
+- We also certainly do not want to be considered offensive in the language about the reverse gender gap in some countries. We would want to change that language to make sure that it is more reasonable. 
+
+- Some of the comments made would push the article into being specifically for an advanced statistician, rather than a general reader. I'm not sure that is the purpose of Significance.
+
+I am guessing that the second reviewer makes you less confident about the paper. I think that it is unfortunate that doing an exploratory graphical analysis of data often evokes this kind of response from some statisticians. The same criticisms can be levelled at model selection but typically isn't. But it does raise important points that probably could be addressed in the article: data fishing/cherry picking, data snooping, association is not causation. These are really important especially as more and more people have access to open data and analysis resources, to look at data themselves. One of the purposes of this paper, is to say, hey, here's a data set available that has some interesting things to say about education across. Looking at the data yourself can help digest what others report, and helps us all to be informed consumers of information.  These issues could be discussed as part of this article, and may be useful for a novice statistician to learn about. I think that we'd be happy to add a few paragraphs along these lines.
