@@ -43,6 +43,7 @@ library(rworldmap)
 library(grid)    
 library(scales)
 library(doBy)
+library("ggsubplot")
 ```
 
 ```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide', cache=TRUE}
@@ -453,14 +454,23 @@ The vast majority of students spend less than 10 hours studying per week. The pa
 ```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
 #study.luke <- melt(student.luke,id=c("name","ST57Q01"))
-studyplot <- ggplot(data = student.luke, aes(ST57Q01, PV1MATH)) + xlab("Hours spent out of school studying per week") + ylab("Math score") + facet_wrap(~name) + stat_smooth(se=F)
+studyplot <- 
+  ggplot(
+    data = student.luke, 
+    aes(x = ST57Q01, y = PV1MATH)
+  ) + 
+  xlab("Hours spent out of school studying per week") + 
+  ylab("Math score") + 
+  stat_smooth(se=TRUE) +
+  facet_wrap(~name) 
+
 studyplot
 ```
 
 
 ```{r studyingbar, fig.width=4, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
-studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=5) + xlab("Hours spent studying")
-studybar
+# studybar <- ggplot(data = student.luke, aes(ST57Q01) ) + geom_histogram(binwidth=5) + xlab("Hours spent studying")
+# studybar
 ```
 
 
