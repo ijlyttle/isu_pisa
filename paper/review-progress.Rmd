@@ -5,6 +5,8 @@
 - Drop a plot or two (drop shortages plot)
 - Make circles same size in dotplots, add error bars
 - Add histograms as subplots to facets for time spent studying
+- paragraph on fishing (Di)
+- Clean language on middle east surprise
 
 ### My email to Brian Tarret
 
