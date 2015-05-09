@@ -185,11 +185,11 @@ student2012 = fix_country(student2012)
 
 # 1. The gender gap in math is not universal but the reading gap is, in favor of girls.
 
-For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. Unadjusted t-statistics were calculated to determine the statistical significance of the difference. The results are plotted in the graphs below. Each dot corresponds to a difference between girls' and boys' scores, for each country. Color indicates statistical significance (blue in favor of boys, pink in favor of girls, and green means there was no significant difference). The size of the dot indicates the proportion of boys in the sample size. For most countries it is roughly equal, but some countries have an imblance, for example, Malaysia has more girls tested than boys. The maps color the countries by the presence of a gender gap.
+For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. Unadjusted t-statistics were calculated to determine the statistical significance of the difference. The results are plotted in the graphs below. Each dot corresponds to a difference between girls' and boys' scores, for each country. Color indicates statistical significance (blue in favor of boys, pink in favor of girls, and green means there was no significant difference).  For most countries it is roughly equal, but some countries have an imblance, for example, Malaysia has more girls tested than boys. The maps color the countries by the presence of a gender gap.
 
 The countries are sorted from biggest gap to smallest gap. Most countries have a gender gap in math scores in favor of boys. Colombia has the biggest gender gap, about 30 points on average boys do better than girls. It should be noted that this is small, though, because this 30 points is out of a possible 1000 points.  Five countries have gender gaps in favor of girls, and even more surprising, these are middle eastern or Muslim countries. 
 
-Conversely, though, looking at reading scores, the story is entirely different. Universally, girls score significantly better than boys. Again, the size of the gap is small, between 10 and 80 points. 
+Conversely, though, looking at reading scores, the story is entirely different. Universally, girls score significantly better than boys. 
 
 Although not shown here, it also should be noted that this is the difference between the average scores for boys and girls. There is a slightly different story for each country if we look at the top math score for each gender only. We would notice that the top score in the USA is achieved by a girl, and is substantially higher than the highest boys' score. There is far more individual variability than the overall average differences - who you are is more important than your demographic.
 
@@ -221,11 +221,10 @@ student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2
 student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2012.sub.summary.gap$mtest.stat<0] <- "female"
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
       levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$mathgap)])
-qplot(name, mathgap, data=student2012.sub.summary.gap, size=propmale, color=msig) + 
+qplot(name, mathgap, data=student2012.sub.summary.gap, color=msig) + 
   xlab("") +  
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
   scale_y_continuous("Math Score Gap", breaks=seq(-30, 30, 5), limits=c(-30, 30)) + 
-  scale_size("Prop male") +
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
 ```
 
@@ -260,11 +259,10 @@ student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2
 student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat<0] <- "female"
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
       levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$readgap)])
-qplot(name, readgap, data=student2012.sub.summary.gap, size=propmale, color=rsig) + 
+qplot(name, readgap, data=student2012.sub.summary.gap, color=rsig) + 
   xlab("") +
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
   scale_y_continuous("Reading Score Gap") + 
-  scale_size("Prop male") +
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
 #ggsave("genderreadgap.pdf", width=5, height=8)
 #student2012.sub.summary.gap$ssig <- ifelse(student2012.sub.summary.gap$sp.value>0.05, "none", TRUE)
