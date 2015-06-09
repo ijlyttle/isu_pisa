@@ -556,7 +556,9 @@ It seems that television is a great equalizer.
 
 The PISA dataset contains hundreds of factors, and this article can describe just a few findings. The reader is welcome to explore the data themselves using an  [interactive web tool](http://bit.ly/pisa2012_explorer), made with RStudio's [Shiny](http://shiny.rstudio.com). Shiny is a open-source tool that allows an investigator to create web-based appications powered by R. 
 
-# Summary
+# Discussion
+
+We have conducted what would be considered to be an exploratory analysis of the PISA data. There is a big difference between exploratory analyses and confirmatory analyses. When many people think of statistics they have in mind confirmatory methods, which involve deciding on a hypothesis, collecting the data, and doing a statistical test of significance. Exploratory data analysis is different, it focuses on the data at hand, and the goal is to let the data inform, to use various methods, primarily visual to find relationships and patterns and anomalies that may not have been anticipated ahead of the data collection. Exploratory analyses often lead to designed experiments where conditions are controlled, or specific data collection with all the controls to allow for hypothesis testing. Exploratory analysis is particularly important for today's big data society. 
 
 Overall, we have seen that there are many factors that affect the average math scores, but the major source of variation in the data is from individual to individual. You as a person are more than your demographic -  you count, your individual efforts matter.
 
