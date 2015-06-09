@@ -2,12 +2,12 @@
 
 ### TODO
 
-- Drop a plot or two (dropped shortages plot)
+- Drop a plot or two (dropped shortages plot) DONE
 - Make circles same size in dotplots, add error bars
-- Add histograms as subplots to facets for time spent studying (Not possible, se bands have been added)
-- paragraph on fishing (Di)
+- Add histograms as subplots to facets for time spent studying (Not possible, se bands have been added) DONE
+- paragraph on fishing (Di) DONE
 - Clean language on middle east surprise
-- Age started vs years in school
+- Age started vs years in school (DON'T PLAN TO DO ANYTHING ON THIS)
 
 ### My email to Brian Tarran
 

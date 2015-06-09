@@ -537,7 +537,7 @@ qplot(x = SC22Q01, y = value, facets = ~name, data = truancy.df, group=name, geo
   ylab("Math score") + theme_bw()
 ```
 
-# 6. More TVs yield higher math scores in the developing world, but lower in the developed countries.
+# 6. On average, more TVs yield higher math scores in the developing world, but lower in the developed countries.
 
 One of the factors in the data is the number of televisions in the student's household. Possible values were: "zero", "one", "two", or "three or more". Because there were so (relatively) few observations of "zero", for this investigation, the "zero" and "one" categories were combined to form a "one or less" category.
 
@@ -560,23 +560,27 @@ The PISA dataset contains hundreds of factors, and this article can describe jus
 
 We have conducted what would be considered to be an exploratory analysis of the PISA data. There is a big difference between exploratory analyses and confirmatory analyses. When many people think of statistics they have in mind confirmatory methods, which involve deciding on a hypothesis, collecting the data, and doing a statistical test of significance. Exploratory data analysis is different, it focuses on the data at hand, and the goal is to let the data inform, to use various methods, primarily visual to find relationships and patterns and anomalies that may not have been anticipated ahead of the data collection. Exploratory analyses often lead to designed experiments where conditions are controlled, or specific data collection with all the controls to allow for hypothesis testing. Exploratory analysis is particularly important for today's big data society. Data is available everywhere, and typically collected because it is possible, without thought to testing particular hypotheses. 
 
-The PISA data is a very large data set, with 500,000 students measured on more than 600 variables, with additional information on schools and home life. The selection of students into the study follows a carefully designed survey instrument, which means that each student also has a sample weight which reflects how their demographic is represented in the sample. These allow the inference of findings made from this sample of students to the entire student population in the country. Strictly speaking, for the PISA data the survey weights primarily apply to the test score components, covering different types of schools and ensuring good representation of both genders. There is no guarantee that all socioeconomic groups are represented equally, or that households with all sorts of possible possessions are represented. The sampling design focuse don school types and gender, only.
+The PISA data is a very large data set, with 500,000 students measured on more than 600 variables, with additional information on schools and home life. The selection of students into the study follows a carefully designed survey instrument, which means that each student also has a sample weight which reflects how their demographic is represented in the sample. These allow the inference of findings made from this sample of students to the entire student population in the country. Strictly speaking, for the PISA data the survey weights primarily apply to the test score components, covering different types of schools and ensuring good representation of both genders. There is no guarantee that all socioeconomic groups are represented equally, or that households with all sorts of possible possessions are represented. The sampling design focused on school types and gender, only.
 
-To organize an exploratory analysis, the best thing to do is to formulate several questions to answer, based on the description of the data. These will form the starting point for the analysis, but they might also lead to more questions being raised as the exploration ensues. For our analysis, these are the questions that we started with:
+To organize an exploratory analysis, start by formulating several questions to answer, based on the description of the data. These will form the starting point for the analysis, but they might also lead to more questions being raised as the exploration ensues. For our analysis, these are the questions that we started with:
 
 - Is there a gender gap, like we hear about in the media?
 - Do more possessions, essentially higher socioeconomic status, lead to higher scores?
 - Is time spent studying outside school instrumental in higher scores?
-- Is there a houewife effect - that students with stay-at-home mothers score better?
+- Is there a housewife effect - that students with stay-at-home mothers score better?
 - What is the relationship between books and televisions and scores?
 - Does age when starting school influence scores?
 - Do parents occupations affect scores?
 
-Most of these were addressed in the analysis, with the exception of occupations because it turned out that there was too much missing data. 
+Most of these were answered in the analysis, with the exception of occupations because it turned out that there was too much missing data. 
 
-Too many pursuits, will find something significant....
+Exploratory analysis, like confirmatory analysis, relies on probability, to some extent. If the sample data being examined is not representative of the population of interest then no inference is valid. If you search for many, many different associations it is likely that you will find something that looks important. This is the interplay of probability that helps determine whether what you see in the sample infers structure in the population. 
 
-Overall, we have seen that there are many factors that affect the average math scores, but the major source of variation in the data is from individual to individual. You as a person are more than your demographic -  you count, your individual efforts matter.
+The PISA data is a carefully designed survey, but the student and household questionaires are more loosely administered, yielding many missing values, and perhaps some questionable data. When results are surprising, and contradict current thinking, it can be helpful to research the problem in more details. For example, in follow up exploration of the PISA data during an introductory statistics class, we found that South Koreans do not use the internet as much as students in other countries. This is surprising, given the high tech nature of the society, and leads us to be skeptical about the data. There are several plausible reasons: (1) the mobile phone network dominates internet access more than internet providers, (2) individual identification on the questionaires might lead students not to answer honestly. If it is the latter, the problem could be fixed by re-designing the survey instrument. 
+
+Our findings about test scores and other factors, documented in this article, some results that are consistent with current thinking, e.g. parents matter, socioeconomic status matters, time spent studying matters, but also some results that surprised us. These findings are what this data suggests, but they are only as good as the data. If the collection was not well done, and the collection is the responsibility of the local committee in each country, then the findings can not be trusted. An example of this is the data from Albania, which our analysis suggests that the PISA committee needs to re-assess what was done by that local committee, because the results from the questionaire are at odds with all other countries. 
+
+Overall, our analysis yielded several interesting insights into factors that affect the average test scores. The data is rich, and should reliably reflect the larger population of 15 year olds. It is reassuring, though, that repeatedly we found that the major source of variation in the data is from individual to individual. For example, even though, on average boys perform better on the math tests in the USA, and girls on the reading tests, the top math score was achieved by a girl, and the top reading score was achieved by a boy. You as a person are more than your demographic -  you count, your individual efforts matter.
 
 ### Acknowledgements
 
