@@ -558,7 +558,23 @@ The PISA dataset contains hundreds of factors, and this article can describe jus
 
 # Discussion
 
-We have conducted what would be considered to be an exploratory analysis of the PISA data. There is a big difference between exploratory analyses and confirmatory analyses. When many people think of statistics they have in mind confirmatory methods, which involve deciding on a hypothesis, collecting the data, and doing a statistical test of significance. Exploratory data analysis is different, it focuses on the data at hand, and the goal is to let the data inform, to use various methods, primarily visual to find relationships and patterns and anomalies that may not have been anticipated ahead of the data collection. Exploratory analyses often lead to designed experiments where conditions are controlled, or specific data collection with all the controls to allow for hypothesis testing. Exploratory analysis is particularly important for today's big data society. 
+We have conducted what would be considered to be an exploratory analysis of the PISA data. There is a big difference between exploratory analyses and confirmatory analyses. When many people think of statistics they have in mind confirmatory methods, which involve deciding on a hypothesis, collecting the data, and doing a statistical test of significance. Exploratory data analysis is different, it focuses on the data at hand, and the goal is to let the data inform, to use various methods, primarily visual to find relationships and patterns and anomalies that may not have been anticipated ahead of the data collection. Exploratory analyses often lead to designed experiments where conditions are controlled, or specific data collection with all the controls to allow for hypothesis testing. Exploratory analysis is particularly important for today's big data society. Data is available everywhere, and typically collected because it is possible, without thought to testing particular hypotheses. 
+
+The PISA data is a very large data set, with 500,000 students measured on more than 600 variables, with additional information on schools and home life. The selection of students into the study follows a carefully designed survey instrument, which means that each student also has a sample weight which reflects how their demographic is represented in the sample. These allow the inference of findings made from this sample of students to the entire student population in the country. Strictly speaking, for the PISA data the survey weights primarily apply to the test score components, covering different types of schools and ensuring good representation of both genders. There is no guarantee that all socioeconomic groups are represented equally, or that households with all sorts of possible possessions are represented. The sampling design focuse don school types and gender, only.
+
+To organize an exploratory analysis, the best thing to do is to formulate several questions to answer, based on the description of the data. These will form the starting point for the analysis, but they might also lead to more questions being raised as the exploration ensues. For our analysis, these are the questions that we started with:
+
+- Is there a gender gap, like we hear about in the media?
+- Do more possessions, essentially higher socioeconomic status, lead to higher scores?
+- Is time spent studying outside school instrumental in higher scores?
+- Is there a houewife effect - that students with stay-at-home mothers score better?
+- What is the relationship between books and televisions and scores?
+- Does age when starting school influence scores?
+- Do parents occupations affect scores?
+
+Most of these were addressed in the analysis, with the exception of occupations because it turned out that there was too much missing data. 
+
+Too many pursuits, will find something significant....
 
 Overall, we have seen that there are many factors that affect the average math scores, but the major source of variation in the data is from individual to individual. You as a person are more than your demographic -  you count, your individual efforts matter.
 
