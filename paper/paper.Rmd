@@ -187,7 +187,9 @@ student2012 = fix_country(student2012)
 
 For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. Unadjusted t-statistics were calculated to determine the statistical significance of the difference. The results are plotted in the graphs below. Each dot corresponds to a difference between girls' and boys' scores, for each country. Color indicates statistical significance (blue in favor of boys, pink in favor of girls, and green means there was no significant difference).  For most countries it is roughly equal, but some countries have an imblance, for example, Malaysia has more girls tested than boys. The maps color the countries by the presence of a gender gap.
 
-The countries are sorted from biggest gap to smallest gap. Most countries have a gender gap in math scores in favor of boys. Colombia has the biggest gender gap, about 30 points on average boys do better than girls. It should be noted that this is small, though, because this 30 points is out of a possible 1000 points.  Five countries have gender gaps in favor of girls, and even more surprising, these are middle eastern or Muslim countries. 
+The countries are sorted from biggest gap to smallest gap. Most countries have a gender gap in math scores in favor of boys. Colombia has the biggest gender gap, about 30 points on average boys do better than girls. It should be noted that this is small, though, because this 30 points is out of a possible 1000 points.  
+
+Five countries have gender gaps in favor of girls; these are middle-eastern countries. Given popular perception of gender issues in the region, this may be a surprising result. Perhaps this is an example of how data can be used to show that reality is more nuanced than popular perception.
 
 Conversely, though, looking at reading scores, the story is entirely different. Universally, girls score significantly better than boys. 
 
