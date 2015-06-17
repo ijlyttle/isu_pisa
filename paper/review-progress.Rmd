@@ -3,10 +3,10 @@
 ### TODO
 
 - Drop a plot or two (dropped shortages plot) DONE
-- Make circles same size in dotplots, add error bars
+- Make circles same size in dotplots (DONE), add error bars 
 - Add histograms as subplots to facets for time spent studying (Not possible, se bands have been added) DONE
 - paragraph on fishing (Di) DONE
-- Clean language on middle east surprise
+- Clean language on middle east surprise DONE
 - Age started vs years in school (DON'T PLAN TO DO ANYTHING ON THIS)
 
 ### My email to Brian Tarran
