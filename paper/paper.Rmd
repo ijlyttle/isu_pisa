@@ -28,9 +28,9 @@ The data was made available by the OECD as part of a data challenge for the useR
 # - IJL
 ```
 
-```{r load_packages, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
-library(plyr)
+```{r load_packages, cache=FALSE, echo = FALSE, message = FALSE, warning = FALSE, results='hide'}
 library(dplyr)
+library(plyr)
 library(stringr)
 library(reshape2)
 library(ggplot2)
@@ -43,10 +43,10 @@ library(rworldmap)
 library(grid)    
 library(scales)
 library(doBy)
-library("ggsubplot")
+library(boot)
 ```
 
-```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide', cache=TRUE}
+```{r load_data, echo = FALSE, message = FALSE, warning = FALSE, results='hide', cache=FALSE}
 # This is the scaffolding to import the data
 sets <- c("item", "parent", "school", "scoredItem", "student")
 
@@ -123,10 +123,10 @@ new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.
 world <- getMap(resolution = "low")
 #library(plyr)
 world.polys <- extractPolygons(world)
-detach("package:plyr")
+#detach("package:plyr")
 ```
 
-```{r dataprep, echo = FALSE, message = FALSE, warning = FALSE}
+```{r dataprep, cache=FALSE, echo = FALSE, message = FALSE, warning = FALSE}
 colnames(student2012)[1] <- "name"
 student2012$name <- as.character(student2012$name)
 colnames(school2012)[1] <- "name"
@@ -196,6 +196,7 @@ Conversely, though, looking at reading scores, the story is entirely different. 
 Although not shown here, it also should be noted that this is the difference between the average scores for boys and girls. There is a slightly different story for each country if we look at the top math score for each gender only. We would notice that the top score in the USA is achieved by a girl, and is substantially higher than the highest boys' score. There is far more individual variability than the overall average differences - who you are is more important than your demographic.
 
 ```{r gendermath, fig.width=8, fig.height=12, warning=FALSE, message=FALSE, echo=FALSE, cache=FALSE}
+#library(plyr)
 student2012.sub <- student2012[, c(1, 12, 501, 541, 546, 634)]
 student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name), 
                   mathgap=mean(PV1MATH[ST04Q01=="Male"], na.rm=T)-
@@ -209,7 +210,7 @@ student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name),
                   rp.value = t.test(PV1READ[ST04Q01=="Male"], PV1READ[ST04Q01=="Female"])$p.value,
                   sciencegap=mean(PV1SCIE[ST04Q01=="Male"], na.rm=T)-mean(PV1SCIE[ST04Q01=="Female"], na.rm=T),
                   stest.stat = t.test(PV1SCIE[ST04Q01=="Male"], PV1SCIE[ST04Q01=="Female"])$statistic, 
-                  sp.value = t.test(PV1SCIE[ST04Q01=="Male"], PV1SCIE[ST04Q01=="Female"])$p.value,                                         
+                  sp.value = t.test(PV1SCIE[ST04Q01=="Male"], PV1SCIE[ST04Q01=="Female"])$p.value,         
                   minmale=min(PV1MATH[ST04Q01=="Male"], na.rm=T), 
                   minfemale=min(PV1MATH[ST04Q01=="Female"], na.rm=T), 
                   maxmale=max(PV1MATH[ST04Q01=="Male"], na.rm=T), 
@@ -221,12 +222,31 @@ student2012.sub.summary.gap <- summarise(group_by(student2012.sub, name),
 student2012.sub.summary.gap$msig <- ifelse(student2012.sub.summary.gap$mp.value>0.05, "none", TRUE)
 student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2012.sub.summary.gap$mtest.stat>0] <- "male"
 student2012.sub.summary.gap$msig[student2012.sub.summary.gap$msig==TRUE&student2012.sub.summary.gap$mtest.stat<0] <- "female"
+cifn <- function(d, i) {
+  x <- d[i,]
+  ci <- mean(x$PV1MATH[x$ST04Q01=="Male"], na.rm=T)-
+     mean(x$PV1MATH[x$ST04Q01=="Female"], na.rm=T)
+  ci
+}
+bootfn <- function(d) {
+  r <- boot(d, statistic=cifn, R=1000)
+  l <- sort(r$t)[25]
+  u <- sort(r$t)[975]
+  ci <- c(l, u)
+  return(ci)
+}
+#ddply(student2012.sub, .(name), bootfn)
+#results <- boot(data=aus, statistic=cifn, R=1000)
+student2012.sub.summary.gap.boot <- ddply(student2012.sub, .(name), bootfn)
+colnames(student2012.sub.summary.gap.boot)[2:3] <- c("ml", "mu")
+student2012.sub.summary.gap <- merge(student2012.sub.summary.gap, student2012.sub.summary.gap.boot)
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
       levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$mathgap)])
-qplot(name, mathgap, data=student2012.sub.summary.gap, color=msig) + 
+qplot(name, mathgap, data=student2012.sub.summary.gap, color=msig, size=I(3)) + 
+  geom_segment(aes(x=name, xend=name, y=ml, yend=mu)) +
   xlab("") +  
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
-  scale_y_continuous("Math Score Gap", breaks=seq(-30, 30, 5), limits=c(-30, 30)) + 
+  scale_y_continuous("Math Score Gap", breaks=seq(-45, 45, 5), limits=c(-45, 45)) + 
    geom_hline(yintercept=0, colour="grey80") + coord_flip() + theme_bw() + theme(legend.position="bottom")
 ```
 
@@ -259,9 +279,28 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 student2012.sub.summary.gap$rsig <- ifelse(student2012.sub.summary.gap$rp.value>0.05, "none", TRUE)
 student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat>0] <- "male"
 student2012.sub.summary.gap$rsig[student2012.sub.summary.gap$rsig==TRUE&student2012.sub.summary.gap$rtest.stat<0] <- "female"
+cifn <- function(d, i) {
+  x <- d[i,]
+  ci <- mean(x$PV1READ[x$ST04Q01=="Male"], na.rm=T)-
+     mean(x$PV1READ[x$ST04Q01=="Female"], na.rm=T)
+  ci
+}
+bootfn <- function(d) {
+  r <- boot(d, statistic=cifn, R=1000)
+  l <- sort(r$t)[25]
+  u <- sort(r$t)[975]
+  ci <- c(l, u)
+  return(ci)
+}
+#ddply(student2012.sub, .(name), bootfn)
+#results <- boot(data=aus, statistic=cifn, R=1000)
+student2012.sub.summary.gap.boot <- ddply(student2012.sub, .(name), bootfn)
+colnames(student2012.sub.summary.gap.boot)[2:3] <- c("rl", "ru")
+student2012.sub.summary.gap <- merge(student2012.sub.summary.gap, student2012.sub.summary.gap.boot)
 student2012.sub.summary.gap$name <- factor(student2012.sub.summary.gap$name, 
       levels=student2012.sub.summary.gap$name[order(student2012.sub.summary.gap$readgap)])
-qplot(name, readgap, data=student2012.sub.summary.gap, color=rsig) + 
+qplot(name, readgap, data=student2012.sub.summary.gap, color=rsig, size=I(3)) + 
+  geom_segment(aes(x=name, xend=name, y=rl, yend=ru)) +
   xlab("") +
   scale_colour_manual("Significant", values=c("male"="skyblue", "female"="pink", "none"="lightgreen")) +
   scale_y_continuous("Reading Score Gap") + 
@@ -303,7 +342,9 @@ For each country, we have computed the average math score by age that the childr
 
 Within a country, looking at the average math score for each start age, the score typically declines, especially after age 6. This is almost uniformly the pattern across all of the countries in the study. For several countries - Russia, Denmark, Bulgaria - if a child starts school at age 4 their math scores were much better on average than any other age group. School start age matters. Children need to start school in the 4-6 age range to expect better math scores, on average. 
 
-```{r age, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r age, cache=FALSE, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+#library(dplyr)
+detach("package:plyr")
 student2012.sub <- student2012[, c(1, 6, 12, 14, 501, 541, 546, 634)]
 student2012.sub.age <- summarise(group_by(student2012.sub, name), 
                   math4 = mean(PV1MATH[ST06Q01 == 4], na.rm = T), 
@@ -316,7 +357,7 @@ student2012.sub.age.m$variable <- substr(student2012.sub.age.m$variable, 5, 5)
 student2012.sub.age.m$variable <- as.numeric(student2012.sub.age.m$variable)
 student2012.sub.agemedian <- summarise(group_by(student2012.sub, name), medianstart = median(ST06Q01, na.rm=T))
 orderedbymedianage <- student2012.sub.agemedian$name[order(student2012.sub.agemedian$medianstart)]
-student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian)
+student2012.sub.age.m.median <- left_join(student2012.sub.age.m, student2012.sub.agemedian, by="name")
 student2012.sub.age.m.median$medianstart <- factor(student2012.sub.age.m.median$medianstart)
 student2012.sub.age.m.median$name <- factor(student2012.sub.age.m.median$name, levels=orderedbymedianage)
 qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", ylab="Math score", 
@@ -349,7 +390,7 @@ qplot(variable, value, data=student2012.sub.age.m.median, xlab="Age at start", y
 # facet_wrap(~name, ncol=8) + theme_bw() 
 ```
 
-```{r agemaps, fig.width=12, fig.height=7, echo = FALSE, message = FALSE, warning = FALSE}
+```{r agemaps, cache=FALSE, fig.width=12, fig.height=7, echo = FALSE, message = FALSE, warning = FALSE}
 student2012.sub.agemedian$medianstart <- factor(student2012.sub.agemedian$medianstart)
 student2012.sub.map <- left_join(student2012.sub.agemedian, world.polys)
 ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), colour=I("grey90")) + 
@@ -365,7 +406,7 @@ For each country we have provided loess-smoothed curves of the relationship betw
 
 The vast majority of students spend less than 10 hours studying per week. The pattern  suggests decreasing benefits to increased out of school study time after 10 hours. The thickness of the standard-error bars in the plot are an indication of the sample size.
 
-```{r studying, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r studying, cache=FALSE, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 student.luke <- student2012[,c("name","PV1MATH","PV1READ","PV1SCIE","ST57Q01")]
 #study.luke <- melt(student.luke,id=c("name","ST57Q01"))
 studyplot <- 
@@ -408,7 +449,7 @@ pbarhome
 
 
 
-```{r par_athome, fig.width=12, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r par_athome, cache=FALSE, fig.width=12, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 phome <- qplot(x = parents, y = PV1MATH, geom = "boxplot", outlier.size = 1, data = athome) + ylab("Math score") + facet_wrap(~name, scales="free_y") + scale_x_discrete("Family structure", labels=c("Mother"="M", "Father"="F", "Both"="B", "Neither"="N")) 
 phome
 ```
@@ -419,7 +460,7 @@ One of the variables the survey addressed was the occupation status of each of t
 
 The plot below shows the average student math score by the parents' occupational status. The countries are sorted according to the average score for students with a mother who is "full-time" in the work force. Occupational status is distinguished by color.  Students with mothers who work part-time or full-time tend outperform those students with mothers labelled as "Other". This pattern holds with only a few exceptions, Switzerland, Netherlands, USA, Japan. Meanwhile, when the father is employed part-time, students tend to have much lower scores that if the father labelled as "Other". Those students whose fathers have full-time jobs have the highest average scores among the possible work statuses for the father. The patterns described also hold across reading and science. 
 
-```{r parentsjob, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r parentsjob, cache=FALSE, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 studentLuke <- student2012
 studentLuke$ST15Q01 <- addNA(studentLuke$ST15Q01)
 studentLuke$ST19Q01 <- addNA(studentLuke$ST19Q01)
@@ -459,9 +500,9 @@ p
 
 # 5. Albania is not like anyone else!
 
-Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math scores.  Additionally, number of possessions and truancy rates affected test scores for every nation except Albania.  
+Albania appears to be an outlier in many educational trends.  Many socioeconomic and school factors that play a role in other nations' test scores do not appear to affect Albania's test scores.  For example, Albania has one of the smallest gender gaps for math scores.  Additionally, number of possessions and truancy rates affected test scores for every nation except Albania.  This most likely indicates arrors in the data collected for the country.
 
-```{r clean, echo=FALSE, message = FALSE, warning = FALSE}
+```{r clean, cache=FALSE, echo=FALSE, message = FALSE, warning = FALSE}
 #student2012$CNT = student2012$name
 student2012$OECD <- as.character(student2012$OECD)
 #student2012[student2012$name == "Albania", ]$OECD = "Albania"
@@ -504,7 +545,7 @@ student2012.sub$numedposs <- apply(student2012.sub[, 27:31], 1, sum, na.rm = T)
 
 Generally, students with more possessions score higher on average.  The number of possessions is a surrogate for a student's economic standing.  The survey records whether students have desks, computers, internet, books, a place to study and dozens of other possessions.  After aggregating these number of possessions together, to get a total, we can see that scores increase on average as possessions increase in all nations, except Albania.
 
-```{r albania-possessions, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r albania-possessions, cache=FALSE, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math), msci = mean(sci), mread = mean(read)), id=c("name", "numposs", "OECD"))
 df = melt(student2012.sub %>% group_by(name, numposs, OECD) %>% summarise(mmath = mean(math)), id=c("name", "numposs", "OECD"))
 
@@ -515,7 +556,7 @@ qplot(x = numposs, y = value, data = df, facets = ~name, geom = "line") + ylab("
 
 A similar aberration is seen with school reported truancy rates.  Each school reports the level of student truancy: not at all, very little, to some extent, or a lot.  We group schools together by reported truancy level and aggregate the test scores for students at these schools.  Generally students at schools with high truancy rates average lower test scores than students at schools with lower truancy rates, except for schools in Albania.
 
-```{r truancyschool, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
+```{r truancyschool, cache=FALSE, fig.width=10, fig.height=12, echo = FALSE, message = FALSE, warning = FALSE}
 #school2012$name = school2012$name
 school2012.sub = school2012 %>% dplyr::select(name, SCHOOLID, SC22Q01)
 student2012.sub = student2012 %>% dplyr::select(name, SCHOOLID, math, read, sci, OECD)
