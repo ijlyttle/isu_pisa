@@ -1,4 +1,4 @@
-Six Things That Affect Education Around the World
+What Can We Learn About Education Around the World from the PISA Data?
 ========================================================
 
 Luke Fostveldt, Alex Shum, Ian Lyttle, Di Cook
@@ -185,7 +185,7 @@ student2012 = fix_country(student2012)
 
 # 1. The gender gap in math is not universal but the reading gap is, in favor of girls.
 
-For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. To gauge the statistical significance of the difference, t-statistics and bootstrap confidence intervals were calculated. The results are plotted in the graphs below. Each dot corresponds to a difference between girls' and boys' scores, for each country, with lines giving the confidence interval. Wider intervals indicate less data support the statistics. Color indicates statistical significance (blue in favor of boys, pink in favor of girls, and green means there was no significant difference). The maps color the countries by the presence (or absence) of a gender gap.
+For each country, average scores on math and reading are calculated separately for boys and girls. These averages are differenced to compute the "gap" between boys and girls. To gauge the statistical significance of the difference, t-statistics and bootstrap confidence intervals were calculated. The results are plotted in the graphs below. Each dot corresponds to a difference between girls' and boys' scores, for each country, with lines giving the confidence interval. Wider intervals indicate less data support the statistics, for example, Liechtenstein tests few students so there is more uncertainty about the mean. Color indicates statistical significance (blue in favor of boys, pink in favor of girls, and green means there was no difference). The maps color the countries by the presence (or absence) of a gender gap.
 
 The countries are sorted from biggest gap to smallest gap. Most countries have a gender gap in math scores in favor of boys. Colombia has the biggest gender gap, about 30 points on average boys do better than girls. It should be noted that this is small, though, because this 30 points is out of a possible 1000 points.  
 
@@ -340,7 +340,7 @@ ggplot(data=world.polys) + geom_path(aes(x=X1, y=X2, order=order, group=group), 
 ```
 
 
-# 2. Starting school at an older age generates lower average math scores. 
+# 2. Starting school at an older age is associated with lower average math scores. 
 
 For each country, we have computed the average math score by age that the children started school. In addition, for each country we computed the median age that children in the study started school. There are differences in typical school start age between countries. Ireland has the youngest median start age - children head to school at age 4. Britain, and its past colonies, Australia, Canada and New Zealand, have a median start age of 5. For many other countries the median start age is 6, and for northern Europe, much of Asia, and Brazil median start age is as late as 7. Some countries appear to have rigid starting ages, e.g. in Japan all children start at age 6.
 
@@ -631,7 +631,7 @@ Overall, our analysis yielded several interesting insights into factors that aff
 
 ### Acknowledgements
 
-The following R packages were used to conduct the data exploration: shiny, plyr, dplyr, ggplot2, stringr, reshape2, lubridate, maps, ggmap, htmltools, rworldmap, grid, scales, doBy.
+The following R packages were used to conduct the data exploration: shiny, plyr, dplyr, ggplot2, stringr, reshape2, lubridate, maps, ggmap, htmltools, rworldmap, grid, scales, doBy. Principles of reproducible research were used for the analysis and the markdown script is available from https://github.com/ijlyttle/isu_pisa/blob/master/paper/paper.Rmd.
 
 ### Reference
 
